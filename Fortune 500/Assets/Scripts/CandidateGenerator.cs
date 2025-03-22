@@ -3,17 +3,12 @@ using UnityEngine;
 
 public class CandidateGenerator : MonoBehaviour
 {
-    int _range = 4;
+    int _mutationsRange = 4;
 
-    void Start()
-    {
-        Candidate candidate = GenerateRandomCandidate(2);
-        Debug.Log(candidate);
-    }
 
     public Candidate GenerateRandomCandidate(int totalMutations)
     {
-        Candidate candidate = new Candidate(0, 0, 0, 0 ,0);
+        Candidate candidate = new Candidate(totalMutations, 0, 0, 0, 0 ,0);
         int mutationsToAssign = totalMutations;
         List<string> keyList = new List<string>(candidate.Properties.Keys);
 
@@ -24,13 +19,13 @@ public class CandidateGenerator : MonoBehaviour
             MakePropertyMutation(candidate, keyList[randInt]);
             keyList.RemoveAt(randInt);
         }
-
+        Debug.Log(candidate);
         return candidate;
     }
     
     private void MakePropertyMutation(Candidate candidate, string property)
     {
-        candidate.Properties[property] = Random.Range(1, _range);
+        candidate.Properties[property] = Random.Range(1, _mutationsRange);
     }
     
 }
