@@ -6,6 +6,7 @@ using UnityEngine.InputSystem.Controls;
 
 public class MouseLook : MonoBehaviour
 {
+    bool lockMovement;
     public enum RotationAxes { MouseXY, MouseX, MouseY }
 
     public RotationAxes axes = RotationAxes.MouseXY;
@@ -25,7 +26,35 @@ public class MouseLook : MonoBehaviour
             body.freezeRotation = true;
     }
 
+    private void OnEnable()
+    {
+        FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnection;
+    }
+
+    private void OnDisable()
+    {
+        FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnection;
+    }
+
+    void HandleInterfaceConnection(object sender, InterfaceConnectedEventArgs e)
+    {
+        lockMovement = e.myInteractionType switch
+        {
+            FocusStation.InteractionType.Connect => true,
+            FocusStation.InteractionType.Disconnect => false,
+            FocusStation.InteractionType.DoNothing => lockMovement,
+        };
+    }
+
     private void Update()
+    {
+        if (lockMovement)
+            return;
+
+        RotateWithMouse();
+    }
+
+    void RotateWithMouse()
     {
         float delta = Input.GetAxis("Mouse X") * horizontalSensitivity;
         float horizontalRotation;
@@ -39,7 +68,7 @@ public class MouseLook : MonoBehaviour
 
                 transform.localEulerAngles = new Vector3(currentVerticalRotation, horizontalRotation, 0);
             break;
-            
+
             case RotationAxes.MouseX:
                 transform.Rotate(0, delta, 0);
             break;
@@ -52,7 +81,7 @@ public class MouseLook : MonoBehaviour
                 transform.localEulerAngles = new Vector3(currentVerticalRotation, horizontalRotation, 0);
             break;
         }
-    }
+    }    
 
     void CalcVertRot()
     {

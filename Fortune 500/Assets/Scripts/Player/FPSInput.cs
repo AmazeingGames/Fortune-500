@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.ShaderGraph.Serialization;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static PlayerActionEventArgs;
@@ -20,6 +21,7 @@ public class FPSInput : MonoBehaviour
     [Header("Components")]
     [SerializeField] CharacterController characterController;
 
+    bool lockMovement = false;
     float walkSoundTimer;
     float horizontalInput;
     float verticalInput;
@@ -32,6 +34,26 @@ public class FPSInput : MonoBehaviour
     public bool CanWalk { get; private set; } = true;
 
     public static EventHandler<PlayerActionEventArgs> TakeActionEventHandler;
+
+    private void OnEnable()
+    {
+        FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnection;
+    }
+
+    private void OnDisable()
+    {
+        FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnection;
+    }
+
+    void HandleInterfaceConnection(object sender, InterfaceConnectedEventArgs e)
+    {
+        lockMovement = e.myInteractionType switch
+        {
+            FocusStation.InteractionType.Connect => true,
+            FocusStation.InteractionType.Disconnect => false,
+            FocusStation.InteractionType.DoNothing => lockMovement,
+        };
+    }
 
     void OnTakeAction(PlayerActions action)
     {
@@ -47,9 +69,13 @@ public class FPSInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        UpdateTimers();
+
+        if (lockMovement)
+            return;
+
         MovePlayer();  
         CheckWalkSound();
-        UpdateTimers();
         GetInput();
     }
 

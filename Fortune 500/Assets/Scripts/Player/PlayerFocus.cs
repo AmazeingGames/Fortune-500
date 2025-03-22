@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using static FocusStation;
-//Potential Rename: "Focus Manager"
+
 public class PlayerFocus : Singleton<PlayerFocus>
 {
     public Station MyStation { get; private set; } = Station.Nothing;
     public Station MyPreviousStation { get; private set; } = Station.Nothing;
 
-    public enum Station { Circuitry, Arcade, Nothing, Null, FrontView, BackView, RightView, LeftView }
+    public enum Station { Nothing, Computer }
 
     public FocusStation ClosestStation { get; private set; } = null;
 
@@ -18,13 +18,13 @@ public class PlayerFocus : Singleton<PlayerFocus>
 
     private void OnEnable()
     {
-        FocusStation.InterfaceConnectedEventHandler += HandleConnectToStation;
+        FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnection;
         FocusStation.ProximityEnteredEventHandler += HandleProximityEnter;
     }
 
     private void OnDisable()
     {
-        FocusStation.InterfaceConnectedEventHandler -= HandleConnectToStation;
+        FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnection;
         FocusStation.ProximityEnteredEventHandler -= HandleProximityEnter;
     }
 
@@ -32,23 +32,28 @@ public class PlayerFocus : Singleton<PlayerFocus>
     void Update()
     {
         if (Input.GetButtonDown("Focus"))
-        {
-            InteractionType myInteractionType = MyStation == Station.Nothing ? InteractionType.Connect : InteractionType.Disconnect;
-            OnFocusAttempt(myInteractionType);
-        }
+            OnFocusAttempt();
     }
 
-    void OnFocusAttempt(InteractionType interactionType)
-        => FocusAttemptedEventHandler?.Invoke(this, new(interactionType));
+    void OnFocusAttempt()
+    {
+        InteractionType myInteractionType = MyStation == Station.Nothing ? InteractionType.Connect : InteractionType.Disconnect;
+        FocusAttemptedEventHandler?.Invoke(this, new(myInteractionType));
 
-    public void HandleConnectToStation(object sender, InterfaceConnectedEventArgs e)
+        Debug.Log($"Focus attempted: {myInteractionType} to {ClosestStation}");
+    }
+
+    public void HandleInterfaceConnection(object sender, InterfaceConnectedEventArgs e)
     {
         MyPreviousStation = MyStation;
         MyStation = e.myInteractionType == InteractionType.Connect ? e.linkedStation : Station.Nothing;
     }
 
     public void HandleProximityEnter(object sender, ProximityEnteredEventArgs e)
-        => ClosestStation = e.didEnter ? e.focusStation : null;
+    {
+        ClosestStation = e.didEnter ? e.focusStation : null;
+        Debug.Log($"Player | HandledFocusStationProximityEnter: {(e.didEnter ? "Entered" : "Exit")} {e.focusStation} proximity.");
+    }
 
     public static bool IsFocusedOn(Station focusedOn) => (Instance == null || focusedOn == Instance.MyStation);
 }

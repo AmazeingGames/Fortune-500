@@ -12,9 +12,9 @@ public class FocusStation : MonoBehaviour
     public enum InteractionType { Connect, Disconnect, DoNothing };
 
     [SerializeField] Station myStation;
-    [SerializeField] Transform stationCameraPosition;
+    [SerializeField] Transform cameraPosition;
 
-    VirtualScreen linkedScreen;
+    [SerializeField] VirtualScreen virtualDisplay;
 
     public static EventHandler<ProximityEnteredEventArgs> ProximityEnteredEventHandler;
     public static EventHandler<InterfaceConnectedEventArgs> InterfaceConnectedEventHandler;
@@ -30,6 +30,11 @@ public class FocusStation : MonoBehaviour
     {
         PlayerFocus.FocusAttemptedEventHandler -= HandleFocusAttempt;
         VirtualScreen.FindStation -= HandleFindStation;
+    }
+
+    private void Start()
+    {
+        cameraPosition.gameObject.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -56,73 +61,64 @@ public class FocusStation : MonoBehaviour
 
     public void HandleFocusAttempt(object sender, FocusAttemptedEventArgs e)
     {
-        if (linkedScreen == null)
+        if (virtualDisplay == null)
             return;
 
         if (PlayerFocus.Instance.ClosestStation != this && PlayerFocus.Instance.MyStation != myStation)
         {
-            linkedScreen.enabled = false;
+            virtualDisplay.enabled = false;
             return;
         }
 
-        linkedScreen.enabled = true;
+        virtualDisplay.enabled = true;
         OnInterfaceConnect(e.myInteractionType);
     }
 
 
     void OnInterfaceConnect(InteractionType myInteractionType)
     {
-        InterfaceConnectedEventHandler?.Invoke(this, new InterfaceConnectedEventArgs(myStation, myInteractionType, stationCameraPosition));
-    }
-
-    public void HandleArrowFocusAttempt(Station stationType)
-    {
-        InteractionType myInteractionType;
-
-        // Neither connecting nor disconnecting
-        if (stationType != myStation && PlayerFocus.Instance.MyStation != myStation)
+        switch (myInteractionType)
         {
-            if (linkedScreen != null)
-                linkedScreen.enabled = false;
-
-            myInteractionType = InteractionType.DoNothing;
+            case InteractionType.Connect:
+                cameraPosition.gameObject.SetActive(true);
+            break;
+            
+            case InteractionType.Disconnect:
+                cameraPosition.gameObject.SetActive(false);
+            break;
         }
-        myInteractionType = stationType == myStation ? InteractionType.Connect : InteractionType.Disconnect;
 
-        // Either connecting or disconnecting
-        if (linkedScreen != null)
-            linkedScreen.enabled = true;
-
-        OnInterfaceConnect(myInteractionType);
-
-        Debug.Log($"InteractionType: {myInteractionType} | linkedStation : {myStation}");
+        InterfaceConnectedEventHandler?.Invoke(this, new InterfaceConnectedEventArgs(myStation, myInteractionType, cameraPosition.transform));
     }
+
     void HandleFindStation(VirtualScreen sender, Station virtualScreenType)
     {
         if (virtualScreenType == myStation)
         {
-            linkedScreen = sender;
-            linkedScreen.enabled = false;
+            virtualDisplay = sender;
+            virtualDisplay.enabled = false;
 
-            Debug.Log($"Found screen! Linked Screen null : {linkedScreen == null}");
+            Debug.Log($"Found screen! Linked Screen null : {virtualDisplay == null}");
         }
     }
 
     void OnProximityEnter(bool playerEntering)
-        => ProximityEnteredEventHandler?.Invoke(this, new(playerEntering, this));
+    {
+        ProximityEnteredEventHandler?.Invoke(this, new(playerEntering, this));
+    }
 }
 
 public class InterfaceConnectedEventArgs : EventArgs
 {
     public readonly Station linkedStation;
     public readonly FocusStation.InteractionType myInteractionType;
-    public readonly Transform stationCamera;
+    public readonly Transform cameraPosition;
 
-    public InterfaceConnectedEventArgs(Station linkedStation, FocusStation.InteractionType myInteractionType, Transform stationCamera)
+    public InterfaceConnectedEventArgs(Station linkedStation, FocusStation.InteractionType myInteractionType, Transform cameraPosition)
     {
         this.linkedStation = linkedStation;
         this.myInteractionType = myInteractionType;
-        this.stationCamera = stationCamera;
+        this.cameraPosition = cameraPosition;
     }
 }
 
