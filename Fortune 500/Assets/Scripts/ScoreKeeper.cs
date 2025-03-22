@@ -39,9 +39,9 @@ public class ScoreKeeper : MonoBehaviour
     public void UpdateForCandidate(Candidate candidate, bool wasHired)
     {
         int hiredMultiplier = wasHired ? 1 : -1;
-        int mutationMultiplier = candidate.MutationsNumber == 0 ? -1 : candidate.MutationsNumber;
 
-        Revenue += 10 * hiredMultiplier * mutationMultiplier;
-        Reputation -= 10 * hiredMultiplier * mutationMultiplier;
+
+        Revenue += 10 * hiredMultiplier ;
+        Reputation -= 10 * hiredMultiplier ;
     }
 }

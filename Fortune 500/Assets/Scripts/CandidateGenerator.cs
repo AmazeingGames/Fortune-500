@@ -1,31 +1,110 @@
+
+
 using System.Collections.Generic;
+using System.Runtime.ConstrainedExecution;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
+using Random = UnityEngine.Random;
+
 
 public class CandidateGenerator : MonoBehaviour
 {
-    int _mutationsRange = 4;
+    string[] _firstNamesList;
+    string[] _lastNamesList;
+    string[] _jobTitleList;
+    string[] _previousEmployerList;
+    string[] _collegeList;
+    List<string> _skillsList;
 
+    [SerializeField] int _minAge = 20;
+    [SerializeField] int _maxAge = 45;
 
-    public Candidate GenerateRandomCandidate(int totalMutations)
+    [SerializeField] int _minPatience = 20;
+    [SerializeField] int _maxPatience = 25;
+
+    [SerializeField] GameObject[] _skinList;
+    [SerializeField] GameObject[] _eyesList;
+    [SerializeField] GameObject[] _mouthList;
+    [SerializeField] GameObject[] _headList;
+    [SerializeField] GameObject[] _armsList;
+    [SerializeField] GameObject[] _torsoList;
+
+    private void Start()
     {
-        Candidate candidate = new Candidate(totalMutations, 0, 0, 0, 0 ,0);
-        int mutationsToAssign = totalMutations;
-        List<string> keyList = new List<string>(candidate.Properties.Keys);
+        _firstNamesList = new string[] {"Gabriel", "Lynn", "Liz", "Gabriel", "John", "James", "Jonathan", "Jordan", "Amelia",
+            "Ava", "Nova", "James", "Luke", "Noah", "Olivia", "Charlotte", "Liam", "Oliver", "Sophia", "Sofia", "Daniel", "Connor", "Conner",
+            "Logan", "Adeline", "Ethan", "Mateo", "Emma", "Amelia", "William", "Bill", "Theo", "Henry", "Lia", "Dalia", "Daniel", "Ezra",
+            "Carter", "Jack", "Samuel", "Alex", "Harper","Kai", "Cason", "Sebastian",
+            "Michael", "Leo", "Abigail", "Caroline", "Evelyn", "Elliot", "Emily", "Sam", "Maru", "Sebastian", "Leah", "Linus", "Haley", "Morris", "Harvey",
+            "Penny", "Shane", "Gus", "Demetrius", "Marnie", "Pam", "Robin", "Vincent" };
 
-        while (keyList.Count > 0 && mutationsToAssign >0)
+        _lastNamesList = new string[] {"Smith","Baker","Stone","Jones","Williams","Taylor","Brown","Davies","Evans","Thomas","Wilson","Johnson","Roberts",
+            "White","Green","Jackson","Carter","Gates","Ross","Mills","Willis","Grant","Cooke","Lane","Hamilton","Moss","McDonald","Potter",
+            "Rowe","Carr","Stone","Foster","Barber","Stevenson","Collins","Shaw","Adams","Bird","Reid","Reed","Oliver","Newton","Porter",
+            "Holland","Harding","Frost","Slater","Goodwin","Gray","Hunt","Own","Webb","Danner" };
+
+        _jobTitleList = new string[] {"Senior operator","Officer of staff","Accountant","CAO","CEO","CAT","Technical Assistant","Sales Coordinator",
+            "Chief Synergy Officer","Stakeholder Assesment Analyst","Optimization Facilitator","Logistics Liaison","Resource Orchestrator","Customer Enabler",
+            "Antics Strategist","Corporate Engineer" };
+
+        _previousEmployerList = new string[] {"MacroHard","Floormart","Rainforest","Gaagly","Pear Inc","McBurgers","PriceCo",
+            "Discsword", "Unwell Fargot", "Bank of Antartica", "Charlie's Swab Bank", "Nesty", "Specific Mills", "Kelly Logs" };
+
+        _collegeList = new string[] {"Pricetown", "Hardvard", "Stan's Ford", "Half Sail", "Light Brown", "Johns Hopkids", "Fluke", "Dartboard",
+            "Another Dame", "Vanderspilt", "Gorgetown", "BLT", "Sale", "Northyeastern", "Cornhole", "Carnivorous Melon" };
+
+        _skillsList = new List<string>() { "Prone to error", "Customer service", "Sales", "Communication", "Active listening", "Atenton to detail",
+            "Leadership", "Public Speaking", "Self sufficiency", "Integrity", "Self motivated" }; 
+    }
+
+
+    public Candidate GenerateRandomCandidate()
+    {
+        string firstName = ChooseRandomElement(_firstNamesList);
+        string lastName = ChooseRandomElement(_lastNamesList);
+
+        string college = ChooseRandomElement(_collegeList);
+        string previousJobTitle = ChooseRandomElement(_jobTitleList);
+        string previousEmployer = ChooseRandomElement(_previousEmployerList);
+
+        int skillsAmount = Random.Range(2, 5);
+        List<string> skillsToChooseFrom = new List<string>();
+        foreach (var skill in _skillsList)
         {
-            int randInt= Random.Range(0, keyList.Count);
-            mutationsToAssign--;
-            MakePropertyMutation(candidate, keyList[randInt]);
-            keyList.RemoveAt(randInt);
+            skillsToChooseFrom.Add(skill);
         }
-        Debug.Log(candidate);
+
+        List<string> skills = new List<string>();
+
+        for (int i = 0; i<skillsAmount; i++)
+        {
+            int j = Random.Range(0, skillsToChooseFrom.Count);
+            skills.Add(skillsToChooseFrom[j]);
+            skillsToChooseFrom.RemoveAt(j);
+        }
+        
+
+        int age = Random.Range(_minAge, _maxAge+1);
+        int patience = Random.Range(_minPatience, _maxPatience + 1);
+
+        int skin = Random.Range(0, _skinList.Length);
+        int eyes = Random.Range(0, _eyesList.Length);
+        int mouth = Random.Range(0, _mouthList.Length);
+        int head = Random.Range(0, _headList.Length);
+        int arms = Random.Range(0, _armsList.Length);
+        int torso = Random.Range(0, _torsoList.Length);
+        
+
+        Candidate candidate = new Candidate(firstName, lastName, college, previousJobTitle, previousEmployer, skills,
+        age, patience, skin, eyes, mouth, head, arms, torso);
+
         return candidate;
     }
-    
-    private void MakePropertyMutation(Candidate candidate, string property)
+
+    private T ChooseRandomElement<T>(T[] array)
     {
-        candidate.Properties[property] = Random.Range(1, _mutationsRange);
+        int index = Random.Range(0, array.Length);
+        return array[index];
     }
-    
+
 }
