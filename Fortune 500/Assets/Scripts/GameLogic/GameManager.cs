@@ -13,12 +13,13 @@ public class GameManager : Singleton<GameManager>
     KeyCode pauseKey = KeyCode.Escape;
 
     public enum GameState { None, InMenu, Running, Paused, Loading }
-    public enum GameAction { None, EnterMainMenu, PlayGame, StartDay, PauseGame, ResumeGame, RestartDay, LoadNextDay, CompleteLevel, LoseGame, StartWork }
+    public enum GameAction { None, EnterMainMenu, PlayGame, StartDay, PauseGame, ResumeGame, RestartDay, LoadNextDay, FinishDay, LoseGame, StartWork }
 
     public GameState CurrentState { get; private set; }
     public GameAction LastGameAction { get; private set; }
 
-    public bool HasBeatLevel { get; private set; }
+    public bool HasFinishedDay { get; private set; }
+    public bool HasStartedDay { get; private set; }
     public LevelData LevelData { get; private set; }
 
     public static EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
@@ -26,6 +27,7 @@ public class GameManager : Singleton<GameManager>
 
     void OnEnable()
     {
+        SlotMachineButton.PulledLeverEventHandler += HandlePullLever;
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
         UIButton.UIInteractEventHandler += HandleUIInteract;
         LevelData.LoadLevelData += HandleLoadLevelData;
@@ -33,6 +35,7 @@ public class GameManager : Singleton<GameManager>
 
     void OnDisable()
     {
+        SlotMachineButton.PulledLeverEventHandler -= HandlePullLever;
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
         LevelData.LoadLevelData -= HandleLoadLevelData;
         UIButton.UIInteractEventHandler += HandleUIInteract;
@@ -52,7 +55,7 @@ public class GameManager : Singleton<GameManager>
             switch (CurrentState)
             {
                 case GameState.Running:
-                    if (LastGameAction == GameAction.CompleteLevel)
+                    if (LastGameAction == GameAction.FinishDay)
                         return;
                     PerformGameAction(GameAction.PauseGame);
                 break;
@@ -67,11 +70,21 @@ public class GameManager : Singleton<GameManager>
     /// <summary> Checks if we've interviewed all the employees for the day. </summary>
     void CheckVictory()
     {
-        if (HasBeatLevel)
+        if (HasFinishedDay)
             return;
 
         // if interviewed all employees
-        PerformGameAction(GameAction.CompleteLevel);
+        PerformGameAction(GameAction.FinishDay);
+    }
+
+    void HandlePullLever(object sender, EventArgs e)
+    {
+        if (HasStartedDay)
+        {
+            Debug.Log("Day has already started!");
+            return;
+        }
+        PerformGameAction(GameAction.StartWork);
     }
 
     /// <summary> Performs a game action given from a UI button. </summary>
@@ -133,11 +146,13 @@ public class GameManager : Singleton<GameManager>
             case GameAction.StartDay:
             case GameAction.RestartDay:
             case GameAction.LoadNextDay:
-                HasBeatLevel = false;
+                HasStartedDay = true;
+                HasFinishedDay = false;
             break;
 
-            case GameAction.CompleteLevel:
-                HasBeatLevel = true;
+            case GameAction.FinishDay:
+                HasFinishedDay = true;
+                HasStartedDay = false;
             break;
         }
 
@@ -145,7 +160,7 @@ public class GameManager : Singleton<GameManager>
         switch (action)
         {
             case GameAction.EnterMainMenu:
-            case GameAction.CompleteLevel:
+            case GameAction.FinishDay:
             case GameAction.LoseGame:
                 OnGameStateChange(GameState.InMenu);
             break;
@@ -154,6 +169,7 @@ public class GameManager : Singleton<GameManager>
             case GameAction.ResumeGame:
             case GameAction.RestartDay:
             case GameAction.LoadNextDay:
+            case GameAction.StartWork:
                 OnGameStateChange(GameState.Running);
             break;
 

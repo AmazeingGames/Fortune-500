@@ -4,12 +4,12 @@ using UnityEngine.EventSystems;
 
 public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
 {
-    public static EventHandler PulledLever;
+    public static EventHandler PulledLeverEventHandler;
 
     public void OnPointerDown(PointerEventData eventData)
     {
         Debug.Log("Start gambling!");
 
-        PulledLever?.Invoke(this, new());
+        PulledLeverEventHandler?.Invoke(this, new());
     }
 }

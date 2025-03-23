@@ -11,16 +11,12 @@ public class SlotMachineManager : MonoBehaviour
     [SerializeField] List<Slot> slots;
 
     private void OnEnable()
-    {
-        SlotMachineButton.PulledLever += HandlePullLever;
-    }
+        => GameManager.GameActionEventHandler += HandleGameAction;
 
     private void OnDisable()
-    {
-        SlotMachineButton.PulledLever -= HandlePullLever;
-    }
+        => GameManager.GameActionEventHandler -= HandleGameAction;
 
-    void HandlePullLever(object sender, EventArgs e)
+    void HandleGameAction(object sender, EventArgs e)
         => StartCoroutine(COStartSlots());
 
     IEnumerator COStartSlots()
