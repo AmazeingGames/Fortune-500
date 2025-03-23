@@ -78,7 +78,7 @@ public class ScenesManager : Singleton<ScenesManager>
                     Invoke(nameof(OnBeatLastLevel), .01f);
             break;
 
-            case GameManager.GameAction.CompleteLevel:
+            case GameManager.GameAction.FinishDay:
                 PreloadLevel(CurrentLevel + 1);
             break;
         }

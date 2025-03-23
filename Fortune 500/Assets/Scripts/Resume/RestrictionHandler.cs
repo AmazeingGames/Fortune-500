@@ -19,14 +19,19 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
         _candidateGenerator = FindAnyObjectByType<CandidateGenerator>();
     }
     private void OnEnable()
-        => SlotMachineButton.PulledLever += HandlePullLever;
+        => GameManager.GameActionEventHandler += HandleGameAction;
 
     private void OnDisable()
-        => SlotMachineButton.PulledLever -= HandlePullLever;
+        => GameManager.GameActionEventHandler -= HandleGameAction;
 
-    void HandlePullLever(object sender, EventArgs e)
+    void HandleGameAction(object sender, GameActionEventArgs e)
     {
-        GenerateRestrictions();
+        switch (e.gameAction)
+        {
+            case GameManager.GameAction.StartWork:
+                GenerateRestrictions();
+            break;
+        }
     }
 
     public void GenerateRestrictions()

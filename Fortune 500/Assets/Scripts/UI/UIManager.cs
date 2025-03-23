@@ -189,7 +189,7 @@ public class UIManager : Singleton<UIManager>
             GameManager.GameAction.EnterMainMenu => MenuTypes.MainMenu,
             GameManager.GameAction.PauseGame => MenuTypes.Pause,
             GameManager.GameAction.LoseGame => MenuTypes.GameEndScreen,
-            GameManager.GameAction.CompleteLevel => MenuTypes.BeatLevel,
+            GameManager.GameAction.FinishDay => MenuTypes.BeatLevel,
             _ => MenuTypes.Empty,
         };
 

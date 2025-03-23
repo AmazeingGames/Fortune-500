@@ -6,18 +6,13 @@ public class ResumeDisplay : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI _randomPINfield;
     [SerializeField] Sprite[] _resumeSprites;
-    Image _resumeImage;
+    [SerializeField] Image _resumeImage;
 
     [SerializeField] TextMeshProUGUI _nameField;
     [SerializeField] TextMeshProUGUI _ageField;
     [SerializeField] TextMeshProUGUI _universityField;
     [SerializeField] TextMeshProUGUI _workExperienceField;
     [SerializeField] TextMeshProUGUI _skillsField;
-
-    private void Awake()
-    {
-        _resumeImage = GetComponent<Image>();
-    }
 
     public void DisplayCandidate(CandidateData candidate)
     {

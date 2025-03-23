@@ -20,8 +20,8 @@ public class Candidate : MonoBehaviour
         nose.sprite = candidateData.Nose;
         mouth.sprite = candidateData.Mouth;
         hairFront.sprite = candidateData.HairFront;
-        hairBack.sprite = candidateData.Eyes;
-        skin.sprite = candidateData.Eyes;
+        hairBack.sprite = candidateData.HairBack;
+        skin.sprite = candidateData.Skin;
         torso.sprite = candidateData.Torso;
     }
 }
