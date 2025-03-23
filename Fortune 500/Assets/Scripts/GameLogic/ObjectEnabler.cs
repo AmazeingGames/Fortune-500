@@ -1,10 +1,13 @@
 using System;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
 
 public class ObjectEnabler : MonoBehaviour
 {
     [SerializeField] GameObject sceneEnvironment;
-    [SerializeField] GameObject virtualMenus;
+    [SerializeField] List<GameObject> virtualMenus;
 
     private void OnEnable()
     {
@@ -28,13 +31,13 @@ public class ObjectEnabler : MonoBehaviour
             case GameManager.GameState.InMenu:
             case GameManager.GameState.Paused:
                 sceneEnvironment.SetActive(false);
-                virtualMenus.SetActive(false);
-                break;
+            break;
             
             case GameManager.GameState.Running:
                 sceneEnvironment.SetActive(true);
-                virtualMenus.SetActive(true);
-                break;
+                foreach (var menu in virtualMenus)
+                    menu.SetActive(true);
+            break;
 
         }
     }

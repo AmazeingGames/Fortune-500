@@ -51,7 +51,7 @@ public class FPSInput : MonoBehaviour
         {
             FocusStation.InteractionType.Connect => true,
             FocusStation.InteractionType.Disconnect => false,
-            FocusStation.InteractionType.DoNothing => lockMovement,
+            _ => lockMovement,
         };
     }
 
