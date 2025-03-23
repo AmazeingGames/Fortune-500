@@ -69,8 +69,8 @@ public class RestrictionHandler : MonoBehaviour
         int ageRestrictionType = Random.Range(0, 3);
         Restriction ageRestriction = ageRestrictionType switch
         {
-            0 => new Restriction("Age must be above " + age, candidate => candidate.Age > age),
-            1 => new Restriction("Age must be below " + age, candidate => candidate.Age < age),
+            0 => new Restriction("Age must be above " + age, candidate => candidate.Age > age - 7),
+            1 => new Restriction("Age must be below " + age, candidate => candidate.Age < age + 7 ),
             2 => new Restriction("Age can't be " + age, candidate => candidate.Age != age),
             _ => null,
         };
@@ -81,8 +81,8 @@ public class RestrictionHandler : MonoBehaviour
         switch (nameRestrictionType)
         {
             case 0:
-                output.Add(new Restriction("First name must start with letter " + Char.ToUpper(randomCommonLetter),
-                    candidate => candidate.FirstName.ToLower()[0] == randomCommonLetter));
+                output.Add(new Restriction("First name must not start with letter " + Char.ToUpper(randomCommonLetter),
+                    candidate => candidate.FirstName.ToLower()[0] != randomCommonLetter));
                 break;
             case 1:
                 output.Add(new Restriction("Last name can't contain letter " + Char.ToUpper(randomCommonLetter),
@@ -105,6 +105,23 @@ public class RestrictionHandler : MonoBehaviour
             _ => null,
         };
         output.Add(skillRestriction);
+
+        
+        string college = CandidateGenerator.ChooseRandomElement(_candidateGenerator.CollegeList);
+        Restriction collegeRestriction
+            = new Restriction("Must not be a graduate from " + college, candidate => candidate.College != college);
+        output.Add(collegeRestriction);
+
+        string jobTitle = CandidateGenerator.ChooseRandomElement(_candidateGenerator.JobTitleList);
+        Restriction jobTitleRestriction
+            = new Restriction("Must not have previous experience as " + jobTitle, candidate => candidate.PreviousJobTitle != jobTitle);
+        output.Add(jobTitleRestriction);
+
+        string previousEmployer = CandidateGenerator.ChooseRandomElement(_candidateGenerator.PreviousEmployerList);
+        Restriction previousEmployerRestriction
+            = new Restriction("Must not have worked for " + previousEmployer, candidate => candidate.PreviousEmployer != previousEmployer);
+        output.Add(previousEmployerRestriction);
+
         return output;
     }
 
