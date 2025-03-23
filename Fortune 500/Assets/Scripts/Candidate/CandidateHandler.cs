@@ -11,7 +11,7 @@ public class CandidateHandler : MonoBehaviour
     [SerializeField] Button _rejectButton;
     [SerializeField] Slider _patienceSlider;
 
-    public Candidate CurrentCandidate { get; private set; }
+    public CandidateData CurrentCandidate { get; private set; }
 
     CandidateGenerator _candidateGenerator;
     ScoreKeeper _scoreKeeper;
@@ -20,7 +20,7 @@ public class CandidateHandler : MonoBehaviour
     RestrictionHandler _restrictionHandler;
     int _candidatesInTheDay;
 
-    List<Tuple<string, Func<Candidate, bool>>> _restrictions;
+    List<Tuple<string, Func<CandidateData, bool>>> _restrictions;
 
     private void Awake()
     {

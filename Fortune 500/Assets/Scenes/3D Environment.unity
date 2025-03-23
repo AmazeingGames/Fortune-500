@@ -483,7 +483,7 @@ GameObject:
   - component: {fileID: 187844714}
   - component: {fileID: 187844715}
   m_Layer: 0
-  m_Name: Candidate Handler
+  m_Name: CandidateHandler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -516,6 +516,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad8538cf3e051b24c87cf462a66147ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _restrictionText: {fileID: 0}
   _hireButton: {fileID: 0}
   _rejectButton: {fileID: 0}
   _patienceSlider: {fileID: 0}
@@ -889,7 +890,8 @@ MonoBehaviour:
   _randomUpdateRange: 0
   _randomUpdatePeriod: 2
   _revenueText: {fileID: 0}
-  _reputationText: {fileID: 0}
+  _strikesLeftText: {fileID: 0}
+  _dayText: {fileID: 0}
 --- !u!1 &322630898
 GameObject:
   m_ObjectHideFlags: 0
@@ -934,15 +936,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 203a6f68f37993b42805a19dfc6c434d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _minAge: 20
-  _maxAge: 45
+  firstNamesFile: {fileID: 4900000, guid: db3bcda5e2bc7b4409f84a7e6635faa1, type: 3}
+  lastNamesFile: {fileID: 4900000, guid: c7fb61087c4966b4292e110996647a66, type: 3}
+  jobTitleFile: {fileID: 4900000, guid: 8a84f32160cae1847bc71ca05a1fc269, type: 3}
+  previousEmployerFile: {fileID: 4900000, guid: 480bff656e019d74b95bdc33658638c5, type: 3}
+  collegeFile: {fileID: 4900000, guid: 71d5e8b2f32f2d547b48d5cc23d104c9, type: 3}
+  skillsFile: {fileID: 4900000, guid: 7ea61cb699ec2ad49b783aae6670c77c, type: 3}
   _minPatience: 20
   _maxPatience: 25
-  _skinList: []
-  _eyesList: []
+  _skinList:
+  - {fileID: 21300000, guid: 09e7563b0e4bece449140edd001930b2, type: 3}
+  - {fileID: 21300000, guid: 65a5f2915ef063644a285ba8c7abcbe8, type: 3}
+  - {fileID: 21300000, guid: 857af8c9e09a076498800076620be75f, type: 3}
+  - {fileID: 21300000, guid: 396264f2c17cc4a4bb0194984c2cc089, type: 3}
+  _eyesList:
+  - {fileID: 21300000, guid: 84cfa3ce702a077459c796412f2cc062, type: 3}
+  - {fileID: 21300000, guid: 79aafb913df6791418e925cbfe292361, type: 3}
+  - {fileID: 21300000, guid: 6196a47f2c4ca7447b175bfd104f5954, type: 3}
+  - {fileID: 21300000, guid: e32ca38f30a7fb64789f7bba7a30fdf0, type: 3}
+  - {fileID: 21300000, guid: 7262b8df07d4844409a5d62e11b69a6c, type: 3}
+  - {fileID: 21300000, guid: 699a30e7447680a4b8f52876f886319e, type: 3}
   _mouthList: []
-  _headList: []
-  _armsList: []
+  _hairFrontList:
+  - {fileID: 21300000, guid: 1b8ce7f1690dfac4cbd943472f99cec0, type: 3}
+  _hairBackList:
+  - {fileID: 21300000, guid: d53d321d6fd55d142bbd3b6a72eda13f, type: 3}
+  _noseList:
+  - {fileID: 21300000, guid: 277f660e2d59d804b9dfd0465485613b, type: 3}
+  - {fileID: 21300000, guid: d6b25b30555311a4f90c0af418548635, type: 3}
+  - {fileID: 21300000, guid: ad4afe712d1ebcf4aac9b58cd203d83d, type: 3}
+  - {fileID: 21300000, guid: 1391befecc5836245b31716d262e4904, type: 3}
+  - {fileID: 21300000, guid: 5abf30a8a3b7ece42b5fbc2cfebbff16, type: 3}
+  - {fileID: 21300000, guid: d5c54e70f2f05e443aa756bb40550d24, type: 3}
   _torsoList: []
 --- !u!1 &383682388
 GameObject:

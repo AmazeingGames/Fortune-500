@@ -19,7 +19,7 @@ public class ResumeDisplay : MonoBehaviour
         _resumeImage = GetComponent<Image>();
     }
 
-    public void DisplayCandidate(Candidate candidate)
+    public void DisplayCandidate(CandidateData candidate)
     {
         int randomPIN = Random.Range(10000, 99999);
         _randomPINfield.text = randomPIN.ToString();

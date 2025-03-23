@@ -11,7 +11,7 @@ public class RestrictionHandler : MonoBehaviour
     CandidateGenerator _candidateGenerator;
 
 
-    Dictionary<string, Func<Candidate, bool>> restrictions = new Dictionary<string, Func<Candidate, bool>>()
+    Dictionary<string, Func<CandidateData, bool>> restrictions = new Dictionary<string, Func<CandidateData, bool>>()
     {
         ["Age must be above 24"] = (candidate => candidate.Age > 24),
         ["Age must be below 35"] = (candidate => candidate.Age < 35),
@@ -24,22 +24,22 @@ public class RestrictionHandler : MonoBehaviour
 
     };
 
-    public List<Tuple<string, Func<Candidate, bool>>> GenerateRestrictions()
+    public List<Tuple<string, Func<CandidateData, bool>>> GenerateRestrictions()
     {
-        List<Tuple<string, Func<Candidate, bool>>> output = new List<Tuple<string, Func<Candidate, bool>>>();
+        List<Tuple<string, Func<CandidateData, bool>>> output = new List<Tuple<string, Func<CandidateData, bool>>>();
 
         int age = Random.Range(_candidateGenerator.MinAge, _candidateGenerator.MaxAge + 1);
         int ageRestrictionType = Random.Range(0, 3);
         switch (ageRestrictionType)
         {
             case 0:
-                output.Add(new Tuple<string, Func<Candidate, bool>>("Age must be above " + age, candidate => candidate.Age > age));
+                output.Add(new Tuple<string, Func<CandidateData, bool>>("Age must be above " + age, candidate => candidate.Age > age));
                 break;
             case 1:
-                output.Add(new Tuple<string, Func<Candidate, bool>>("Age must be below " + age, candidate => candidate.Age < age));
+                output.Add(new Tuple<string, Func<CandidateData, bool>>("Age must be below " + age, candidate => candidate.Age < age));
                 break;
             case 2:
-                output.Add(new Tuple<string, Func<Candidate, bool>>("Age can't be " + age, candidate => candidate.Age != age));
+                output.Add(new Tuple<string, Func<CandidateData, bool>>("Age can't be " + age, candidate => candidate.Age != age));
                 break;
         }
 
@@ -49,31 +49,31 @@ public class RestrictionHandler : MonoBehaviour
         switch (nameRestrictionType)
         {
             case 0:
-                output.Add(new Tuple<string, Func<Candidate, bool>>("First name must start with letter " + Char.ToUpper(letter),
+                output.Add(new Tuple<string, Func<CandidateData, bool>>("First name must start with letter " + Char.ToUpper(letter),
                     candidate => candidate.FirstName.ToLower()[0] == letter));
                 break;
             case 1:
-                output.Add(new Tuple<string, Func<Candidate, bool>>("Last name can't contain letter " + Char.ToUpper(letter),
+                output.Add(new Tuple<string, Func<CandidateData, bool>>("Last name can't contain letter " + Char.ToUpper(letter),
                     candidate => !candidate.LastName.ToLower().Contains(letter)));
                 break;
             case 2:
-                string firstName = _candidateGenerator.ChooseRandomElement(_candidateGenerator.FirstNamesList);
-                string lastName = _candidateGenerator.ChooseRandomElement(_candidateGenerator.LastNamesList);
-                output.Add(new Tuple<string, Func<Candidate, bool>>("Must not be " + firstName + " " + lastName + ". Fuck them",
+                string firstName = CandidateGenerator.ChooseRandomElement(_candidateGenerator.FirstNamesList);
+                string lastName = CandidateGenerator.ChooseRandomElement(_candidateGenerator.LastNamesList);
+                output.Add(new Tuple<string, Func<CandidateData, bool>>("Must not be " + firstName + " " + lastName + ". Fuck them",
                     candidate => candidate.FirstName != firstName || candidate.LastName != lastName));
                 break;
         }
 
         int skillRestrictionType = Random.Range(0, 2);
-        string skill = _candidateGenerator.ChooseRandomElement(_candidateGenerator.SkillsList);
+        string skill = CandidateGenerator.ChooseRandomElement(_candidateGenerator.SkillsList);
         switch (skillRestrictionType)
         {
             case 0:
-                output.Add(new Tuple<string, Func<Candidate, bool>>("Must have this skill: " + skill,
+                output.Add(new Tuple<string, Func<CandidateData, bool>>("Must have this skill: " + skill,
                     candidate => candidate.Skills.Contains(skill)));
                 break;
             case 1:
-                output.Add(new Tuple<string, Func<Candidate, bool>>("Must not have this skill: " + skill,
+                output.Add(new Tuple<string, Func<CandidateData, bool>>("Must not have this skill: " + skill,
                     candidate => !candidate.Skills.Contains(skill)));
                 break;
         }
@@ -86,11 +86,11 @@ public class RestrictionHandler : MonoBehaviour
     }
 
 
-    public Tuple<string, Func<Candidate, bool>> GetRandomRestriction()
+    public Tuple<string, Func<CandidateData, bool>> GetRandomRestriction()
     {
         
         int i = Random.Range(0, restrictions.Count);
-        return new Tuple<string, Func<Candidate, bool>>(restrictions.ElementAt(i).Key, restrictions.ElementAt(i).Value);
+        return new Tuple<string, Func<CandidateData, bool>>(restrictions.ElementAt(i).Key, restrictions.ElementAt(i).Value);
 
     }
 }

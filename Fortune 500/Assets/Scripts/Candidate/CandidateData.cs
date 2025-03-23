@@ -2,7 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Candidate
+public class CandidateData
 {
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
@@ -13,20 +13,18 @@ public class Candidate
 
     public int Age { get; private set; }
     public int Patience { get; private set; }
-    public int Eyes { get; private set; }
-    public int Skin { get; private set; }
-    public int Head { get; private set; }
-    public int Arms { get; private set; }
-    public int Torso { get; private set; }
-    public int Mouth { get; private set; }
+    public Sprite Eyes { get; private set; }
+    public Sprite Skin { get; private set; }
+    public Sprite Head { get; private set; }
+    public Sprite Nose { get; private set; }
+    public Sprite Torso { get; private set; }
+    public Sprite Mouth { get; private set; }
 
-    
-
-    public Dictionary<string, int> Properties { get; private set; }
+    public Dictionary<string, Sprite> Properties { get; private set; }
 
 
-    public Candidate(string firstName, string lastName, string college, string previousJobTitle, string previousEmployer, List<string> skills,
-        int age, int patience, int skin, int eyes, int mouth, int head, int arms, int torso)
+    public CandidateData(string firstName, string lastName, string college, string previousJobTitle, string previousEmployer, List<string> skills,
+        int age, int patience, Sprite skin, Sprite eyes, Sprite mouth, Sprite hairFront, Sprite hairBack, Sprite nose, Sprite torso)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -40,16 +38,16 @@ public class Candidate
         Skin = skin;
         Eyes = eyes;
         Mouth = mouth;
-        Head = head;
-        Arms = arms;
+        Head = hairFront;
+        Nose = nose;
         Torso = torso;
         
 
-        Properties = new Dictionary<string, int>()
+        Properties = new Dictionary<string, Sprite>()
         {
             ["eyes"] = eyes,
-            ["arms"] = arms,
-            ["head"] = head,
+            ["nose"] = nose,
+            ["hairFront"] = hairFront,
             ["torso"] = torso,
             ["mouth"] = mouth,
         };

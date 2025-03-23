@@ -37,7 +37,7 @@ public class ScoreKeeper : MonoBehaviour
         StartCoroutine(FluctuateRevenue());
     }
 
-    public void UpdateForCandidate(Candidate candidate, bool wasChoiceCorrect)
+    public void UpdateForCandidate(CandidateData candidate, bool wasChoiceCorrect)
     {
         int hiredMultiplier = wasChoiceCorrect ? 1 : 0;
         Revenue += 10 * hiredMultiplier ;
