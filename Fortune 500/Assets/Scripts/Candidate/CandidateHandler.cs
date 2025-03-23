@@ -70,9 +70,56 @@ public class CandidateHandler : MonoBehaviour
 
     void MakeDesicion(bool wasHired)
     {
-        bool wasDesicionCorrect = wasHired == (_restrictions[0].restriction(CurrentCandidate) && _restrictions[1].restriction(CurrentCandidate) && _restrictions[2].restriction(CurrentCandidate));
+        bool wasDesicionCorrect = wasHired == (_restrictions[0].restriction(CurrentCandidate) && _restrictions[1].restriction(CurrentCandidate) 
+            && _restrictions[2].restriction(CurrentCandidate));
         _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesicionCorrect);
+        if (!wasDesicionCorrect) { GeneratePinkSlip(CurrentCandidate, wasHired, _restrictions); }
         GetNewCandidate();
+    }
+
+    void GeneratePinkSlip(CandidateData candidate, bool wasHired, List<Restriction> restrictions)
+    {
+        string restrictionToDisplay;
+        if (!restrictions[0].restriction(candidate))
+        {
+            restrictionToDisplay = restrictions[0].description;
+        }
+        else if (!restrictions[1].restriction(candidate))
+        {
+            restrictionToDisplay = restrictions[1].description;
+        }
+        else
+        {
+            restrictionToDisplay = restrictions[2].description;
+        }
+
+        string title = "Warning Notice";
+        string mainText = "";
+        if (wasHired)
+        {
+            mainText += $"You hired {candidate.FirstName} {candidate.LastName} , but he didn't comply with the following restriction: {Environment.NewLine}" +
+                $"{restrictionToDisplay} {Environment.NewLine}. Are you questioning the Slot Machine's authority?";
+        }
+
+        else
+        {
+            mainText += $"You rejected a perfectly good employee, {candidate.FirstName} {candidate.LastName}. {Environment.NewLine}" +
+                $"Who's gonna do all the important work we have around here? You?";
+        }
+        
+        if (_scoreKeeper.StrikesLeft == 2)
+        {
+            mainText += "This type of behavior won't be tolerated!";
+        }
+        else if (_scoreKeeper.StrikesLeft == 1)
+        {
+            mainText += "This is your final warning!";
+        }
+        else if (_scoreKeeper.StrikesLeft == 0)
+        {
+            title = "Notice of Termination of Employment";
+            mainText += "Pick up your things and get going!";
+        }
     }
 
     void GetNewCandidate()
