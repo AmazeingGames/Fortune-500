@@ -15,7 +15,8 @@ public class CandidateData
     public int Patience { get; private set; }
     public Sprite Eyes { get; private set; }
     public Sprite Skin { get; private set; }
-    public Sprite Head { get; private set; }
+    public Sprite HairFront { get; private set; }
+    public Sprite HairBack { get; private set; }
     public Sprite Nose { get; private set; }
     public Sprite Torso { get; private set; }
     public Sprite Mouth { get; private set; }
@@ -38,7 +39,8 @@ public class CandidateData
         Skin = skin;
         Eyes = eyes;
         Mouth = mouth;
-        Head = hairFront;
+        HairFront = hairFront;
+        HairBack = hairBack;
         Nose = nose;
         Torso = torso;
         
