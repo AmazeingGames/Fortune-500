@@ -22,8 +22,6 @@ public class CandidateHandler : MonoBehaviour
     RestrictionHandler _restrictionHandler;
     int _candidatesInTheDay;
 
-    List<Restriction> _restrictions;
-
     public static EventHandler<FinishedCandidatesEventArgs> FinishedCandidatesEventHandler;
 
     private void Awake()
@@ -61,8 +59,7 @@ public class CandidateHandler : MonoBehaviour
 
                 _candidatesInTheDay = 5;
                 _scoreKeeper.StartNewDay();
-                _restrictions = _restrictionHandler.GenerateRestrictions();
-                _restrictionText.text = _restrictions[0].description + Environment.NewLine + _restrictions[1].description + Environment.NewLine + _restrictions[2].description;
+                _restrictionText.text = RestrictionHandler.Instance.Restrictions[0].description + Environment.NewLine + RestrictionHandler.Instance.Restrictions[1].description + Environment.NewLine + RestrictionHandler.Instance.Restrictions[2].description;
                 GetNewCandidate();
             break;
         }
@@ -70,7 +67,7 @@ public class CandidateHandler : MonoBehaviour
 
     void MakeDesicion(bool wasHired)
     {
-        bool wasDesicionCorrect = wasHired == (_restrictions[0].restriction(CurrentCandidate) && _restrictions[1].restriction(CurrentCandidate) && _restrictions[2].restriction(CurrentCandidate));
+        bool wasDesicionCorrect = wasHired == (RestrictionHandler.Instance.Restrictions[0].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[1].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[2].restriction(CurrentCandidate));
         _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesicionCorrect);
         GetNewCandidate();
     }
