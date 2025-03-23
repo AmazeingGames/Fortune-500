@@ -32,7 +32,7 @@ public class ScenesManager : Singleton<ScenesManager>
 
     string lastLoadedLevel = null;
 
-    public static event EventHandler<SceneLoadEventArgs> SceneLoadEventHandler;
+    // public static event EventHandler<SceneLoadEventArgs> SceneLoadEventHandler;
     public static event EventHandler BeatLastLevelEventHandler;
 
     readonly List<(AsyncOperation, int)> preloadedLevels = new();

@@ -56,7 +56,7 @@ public class RestrictionHandler : MonoBehaviour
                 break;
             case GameManager.GameAction.CompleteLevel:
                 break;
-            case GameManager.GameAction.BeatGame:
+            case GameManager.GameAction.LoseGame:
                 break;
         }
     }

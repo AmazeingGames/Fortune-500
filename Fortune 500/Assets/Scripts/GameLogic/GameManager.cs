@@ -13,7 +13,7 @@ public class GameManager : Singleton<GameManager>
     KeyCode pauseKey = KeyCode.Escape;
 
     public enum GameState { None, InMenu, Running, Paused, Loading }
-    public enum GameAction { None, EnterMainMenu, PlayGame, StartDay, PauseGame, ResumeGame, RestartDay, LoadNextDay, CompleteLevel, BeatGame, }
+    public enum GameAction { None, EnterMainMenu, PlayGame, StartDay, PauseGame, ResumeGame, RestartDay, LoadNextDay, CompleteLevel, LoseGame, StartWork }
 
     public GameState CurrentState { get; private set; }
     public GameAction LastGameAction { get; private set; }
@@ -41,7 +41,7 @@ public class GameManager : Singleton<GameManager>
     // Start is called before the first frame update
     void Start()
     {
-        PerformGameAction(GameAction.PlayGame);
+        PerformGameAction(GameAction.EnterMainMenu);
     }
 
     private void Update()
@@ -70,7 +70,7 @@ public class GameManager : Singleton<GameManager>
         if (HasBeatLevel)
             return;
 
-        // if interfiewed all employees
+        // if interviewed all employees
         PerformGameAction(GameAction.CompleteLevel);
     }
 
@@ -85,7 +85,7 @@ public class GameManager : Singleton<GameManager>
 
     /// <summary> Updates the game to end when we beat the last level. </summary>
     void HandleBeatLastLevel(object sender, EventArgs e)
-        => PerformGameAction(GameAction.BeatGame);
+        => PerformGameAction(GameAction.LoseGame);
 
     /// <summary> Saves level data when we finish loading a new level </summary>
     void HandleLoadLevelData(object sender, LevelData.LoadLevelDataEventArgs e)
@@ -126,6 +126,10 @@ public class GameManager : Singleton<GameManager>
         
         switch (action)
         {
+            case GameAction.PlayGame:
+                PerformGameAction(GameAction.StartDay); 
+            break;
+
             case GameAction.StartDay:
             case GameAction.RestartDay:
             case GameAction.LoadNextDay:
@@ -142,7 +146,7 @@ public class GameManager : Singleton<GameManager>
         {
             case GameAction.EnterMainMenu:
             case GameAction.CompleteLevel:
-            case GameAction.BeatGame:
+            case GameAction.LoseGame:
                 OnGameStateChange(GameState.InMenu);
             break;
 

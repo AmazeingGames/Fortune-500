@@ -175,23 +175,23 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     {
         OnUIInteract(pointerEventData, UIInteractionTypes.Click);
 
-        OnButtonInteract(false);
+        HighlightButton(false);
     }
 
     public void OnPointerEnter(PointerEventData pointerEventData)
     {
         OnUIInteract(pointerEventData, UIInteractionTypes.Enter);
 
-        OnButtonInteract(true);
+        HighlightButton(true);
     }
     public void OnPointerExit(PointerEventData pointerEventData)
     {
         OnUIInteract(pointerEventData, UIInteractionTypes.Exit);
 
-        OnButtonInteract(false);
+        HighlightButton(false);
     }
 
-    void OnButtonInteract(bool isSelected)
+    void HighlightButton(bool isSelected)
     {
         if (!gameObject.activeInHierarchy)
             return;

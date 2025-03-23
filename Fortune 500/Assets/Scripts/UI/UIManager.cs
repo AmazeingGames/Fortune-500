@@ -88,7 +88,7 @@ public class UIManager : Singleton<UIManager>
         foreach (var menu in MenuTypeToMenu.Values)
         {
             if (menu.Canvas != null)
-                emptyMenu.MenusToDisableOnReady.Add(menu);
+                emptyMenu.DisableOnReady.Add(menu.Canvas.gameObject);
         }
 
         // Initializes each menu
@@ -105,8 +105,11 @@ public class UIManager : Singleton<UIManager>
 
         // Ignores following MenuTypes: 'Previous', 'None', 'Empty'
         if (MenuTypeToMenu.Count < Enum.GetNames(typeof(MenuTypes)).Length - 3)
-            throw new Exception("Not all enums are counted for in the MenuTypeToMenu dictionary");
+            throw new Exception("Not all enums are counted for in the MenuTypeToMenu dictionary");    
+    }
 
+    private void Start()
+    {
         UpdateMenusToGameAction(GameManager.Instance.LastGameAction);
 
         // We need to disable the interface camera, because the exact code path this goes through will otherwise not disable the UI camera, due to the shenanigans we do to load levels during testing. I'm sure there's a better solution to this.
@@ -154,11 +157,11 @@ public class UIManager : Singleton<UIManager>
         string activeCanvases = string.Empty;
 
         // We could save performance by skipping the loop on (ready == true)
-        foreach (var m in menus)
+        foreach (Menu menu in menus)
         {
-            if (m.Canvas.gameObject.activeInHierarchy)
+            if (menu.Canvas.gameObject.activeInHierarchy)
             {
-                activeCanvases += m.Canvas.name;
+                activeCanvases += menu.Canvas.name;
                 isAMenuEnabled = true;
             }
         }
@@ -185,7 +188,7 @@ public class UIManager : Singleton<UIManager>
         {
             GameManager.GameAction.EnterMainMenu => MenuTypes.MainMenu,
             GameManager.GameAction.PauseGame => MenuTypes.Pause,
-            GameManager.GameAction.BeatGame => MenuTypes.GameEndScreen,
+            GameManager.GameAction.LoseGame => MenuTypes.GameEndScreen,
             GameManager.GameAction.CompleteLevel => MenuTypes.BeatLevel,
             _ => MenuTypes.Empty,
         };
@@ -302,8 +305,8 @@ public class UIManager : Singleton<UIManager>
 class Menu
 {
     [field: SerializeField] public Canvas Canvas { get; private set; } = new();
-    [field: SerializeField] public List<GameObject> ObjectsToEnableOnReady { get; private set; } = new();
-    [field: SerializeField] public List<Menu> MenusToDisableOnReady { get; private set; } = new();
+    [field: SerializeField] public List<GameObject> EnableOnReady { get; private set; } = new();
+    [field: SerializeField] public List<GameObject> DisableOnReady { get; private set; } = new();
     [field: SerializeField] public ScreenTransitions.OthogonalDirection SlideDirection { get; private set; }
     [field: SerializeField] public bool CanSeePaper { get; private set; }
     public Transform CanvasElements { get; private set; }
@@ -335,10 +338,16 @@ class Menu
         if (setActive)
         {
             string disabledMenus = string.Empty;
-            foreach (Menu menu in MenusToDisableOnReady)
+            foreach (GameObject obj in DisableOnReady)
             {
-                disabledMenus += menu.Canvas.name + ", ";
-                menu.SetCanvas(false);
+                if (obj.TryGetComponent(out Menu menu))
+                {
+                    disabledMenus += menu.Canvas.name + ", ";
+                    menu.SetCanvas(false);
+                }
+                else
+                    obj.SetActive(false);
+                
             }
             Debug.Log($"Disabled the following menus on ready: {(disabledMenus == string.Empty ? "none" : disabledMenus[..^2])}");
         }
@@ -355,7 +364,7 @@ class Menu
                 Debug.Log($"Invoked set canvas {ready}");
                 SetCanvasAction?.Invoke(this, ready);
             }
-            foreach (GameObject obj in ObjectsToEnableOnReady)
+            foreach (GameObject obj in EnableOnReady)
                 obj.SetActive(ready);
         }
 
@@ -372,7 +381,7 @@ class Menu
                 SetCanvasAction?.Invoke(this, ready);
                 Debug.Log($"Disabled canvas: {Canvas.name}");
             }
-            foreach (GameObject obj in ObjectsToEnableOnReady)
+            foreach (GameObject obj in EnableOnReady)
                 obj.SetActive(ready);
         }
     }

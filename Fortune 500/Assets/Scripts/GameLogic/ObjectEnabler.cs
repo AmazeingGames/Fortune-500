@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class ObjectEnabler : MonoBehaviour
 {
-    [SerializeField] GameObject environment;
+    [SerializeField] GameObject sceneEnvironment;
+    [SerializeField] GameObject virtualMenus;
 
     private void OnEnable()
     {
@@ -17,16 +18,24 @@ public class ObjectEnabler : MonoBehaviour
 
     void HandleGameStateChange(object sender, GameStateChangeEventArgs e)
     {
+        if (sceneEnvironment == null)
+        {
+            Debug.LogWarning("Environment is null");
+            return;
+        }
         switch (e.newState)
         {
             case GameManager.GameState.InMenu:
             case GameManager.GameState.Paused:
-                environment.SetActive(false);
-            break;
+                sceneEnvironment.SetActive(false);
+                virtualMenus.SetActive(false);
+                break;
             
             case GameManager.GameState.Running:
-                environment.SetActive(true);
-            break;
+                sceneEnvironment.SetActive(true);
+                virtualMenus.SetActive(true);
+                break;
+
         }
     }
 }
