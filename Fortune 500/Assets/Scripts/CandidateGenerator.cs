@@ -9,18 +9,18 @@ using Random = UnityEngine.Random;
 
 public class CandidateGenerator : MonoBehaviour
 {
-    string[] _firstNamesList;
-    string[] _lastNamesList;
-    string[] _jobTitleList;
-    string[] _previousEmployerList;
-    string[] _collegeList;
-    List<string> _skillsList;
+    public string[] FirstNamesList { get; private set; }
+    public string[] LastNamesList { get; private set; }
+    public string[] JobTitleList { get; private set; }
+    public string[] PreviousEmployerList { get; private set; }
+    public string[] CollegeList { get; private set; }
+    public List<string> SkillsList { get; private set; }
 
-    [SerializeField] int _minAge = 20;
-    [SerializeField] int _maxAge = 45;
+    public int MinAge { get; private set; } = 20;
+    public int MaxAge { get; private set; } = 45;
 
-    [SerializeField] int _minPatience = 20;
-    [SerializeField] int _maxPatience = 25;
+    [SerializeField] int _minPatience = 40;
+    [SerializeField] int _maxPatience = 45;
 
     [SerializeField] GameObject[] _skinList;
     [SerializeField] GameObject[] _eyesList;
@@ -31,45 +31,45 @@ public class CandidateGenerator : MonoBehaviour
 
     private void Start()
     {
-        _firstNamesList = new string[] {"Gabriel", "Lynn", "Liz", "Gabriel", "John", "James", "Jonathan", "Jordan", "Amelia",
+        FirstNamesList = new string[] {"Gabriel", "Lynn", "Liz", "Gabriel", "John", "James", "Jonathan", "Jordan", "Amelia",
             "Ava", "Nova", "James", "Luke", "Noah", "Olivia", "Charlotte", "Liam", "Oliver", "Sophia", "Sofia", "Daniel", "Connor", "Conner",
             "Logan", "Adeline", "Ethan", "Mateo", "Emma", "Amelia", "William", "Bill", "Theo", "Henry", "Lia", "Dalia", "Daniel", "Ezra",
             "Carter", "Jack", "Samuel", "Alex", "Harper","Kai", "Cason", "Sebastian",
             "Michael", "Leo", "Abigail", "Caroline", "Evelyn", "Elliot", "Emily", "Sam", "Maru", "Sebastian", "Leah", "Linus", "Haley", "Morris", "Harvey",
             "Penny", "Shane", "Gus", "Demetrius", "Marnie", "Pam", "Robin", "Vincent" };
-
-        _lastNamesList = new string[] {"Smith","Baker","Stone","Jones","Williams","Taylor","Brown","Davies","Evans","Thomas","Wilson","Johnson","Roberts",
+        
+        LastNamesList = new string[] {"Smith","Baker","Stone","Jones","Williams","Taylor","Brown","Davies","Evans","Thomas","Wilson","Johnson","Roberts",
             "White","Green","Jackson","Carter","Gates","Ross","Mills","Willis","Grant","Cooke","Lane","Hamilton","Moss","McDonald","Potter",
             "Rowe","Carr","Stone","Foster","Barber","Stevenson","Collins","Shaw","Adams","Bird","Reid","Reed","Oliver","Newton","Porter",
             "Holland","Harding","Frost","Slater","Goodwin","Gray","Hunt","Own","Webb","Danner" };
 
-        _jobTitleList = new string[] {"Senior operator","Officer of staff","Accountant","CAO","CEO","CAT","Technical Assistant","Sales Coordinator",
+        JobTitleList = new string[] {"Senior operator","Officer of staff","Accountant","CAO","CEO","CAT","Technical Assistant","Sales Coordinator",
             "Chief Synergy Officer","Stakeholder Assesment Analyst","Optimization Facilitator","Logistics Liaison","Resource Orchestrator","Customer Enabler",
             "Antics Strategist","Corporate Engineer" };
 
-        _previousEmployerList = new string[] {"MacroHard","Floormart","Rainforest","Gaagly","Pear Inc","McBurgers","PriceCo",
+        PreviousEmployerList = new string[] {"MacroHard","Floormart","Rainforest","Gaagly","Pear Inc","McBurgers","PriceCo",
             "Discsword", "Unwell Fargot", "Bank of Antartica", "Charlie's Swab Bank", "Nesty", "Specific Mills", "Kelly Logs" };
 
-        _collegeList = new string[] {"Pricetown", "Hardvard", "Stan's Ford", "Half Sail", "Light Brown", "Johns Hopkids", "Fluke", "Dartboard",
+        CollegeList = new string[] {"Pricetown", "Hardvard", "Stan's Ford", "Half Sail", "Light Brown", "Johns Hopkids", "Fluke", "Dartboard",
             "Another Dame", "Vanderspilt", "Gorgetown", "BLT", "Sale", "Northyeastern", "Cornhole", "Carnivorous Melon" };
 
-        _skillsList = new List<string>() { "Prone to error", "Customer service", "Sales", "Communication", "Active listening", "Atenton to detail",
+        SkillsList = new List<string>() { "Prone to error", "Customer service", "Sales", "Communication", "Active listening", "Atenton to detail",
             "Leadership", "Public Speaking", "Self sufficiency", "Integrity", "Self motivated" }; 
     }
 
 
     public Candidate GenerateRandomCandidate()
     {
-        string firstName = ChooseRandomElement(_firstNamesList);
-        string lastName = ChooseRandomElement(_lastNamesList);
+        string firstName = ChooseRandomElement(FirstNamesList);
+        string lastName = ChooseRandomElement(LastNamesList);
 
-        string college = ChooseRandomElement(_collegeList);
-        string previousJobTitle = ChooseRandomElement(_jobTitleList);
-        string previousEmployer = ChooseRandomElement(_previousEmployerList);
+        string college = ChooseRandomElement(CollegeList);
+        string previousJobTitle = ChooseRandomElement(JobTitleList);
+        string previousEmployer = ChooseRandomElement(PreviousEmployerList);
 
         int skillsAmount = Random.Range(2, 5);
         List<string> skillsToChooseFrom = new List<string>();
-        foreach (var skill in _skillsList)
+        foreach (var skill in SkillsList)
         {
             skillsToChooseFrom.Add(skill);
         }
@@ -84,7 +84,7 @@ public class CandidateGenerator : MonoBehaviour
         }
         
 
-        int age = Random.Range(_minAge, _maxAge+1);
+        int age = Random.Range(MinAge, MaxAge+1);
         int patience = Random.Range(_minPatience, _maxPatience + 1);
 
         int skin = Random.Range(0, _skinList.Length);
@@ -101,9 +101,15 @@ public class CandidateGenerator : MonoBehaviour
         return candidate;
     }
 
-    private T ChooseRandomElement<T>(T[] array)
+    public T ChooseRandomElement<T>(T[] array)
     {
         int index = Random.Range(0, array.Length);
+        return array[index];
+    }
+
+    public T ChooseRandomElement<T>(List<T> array)
+    {
+        int index = Random.Range(0, array.Count);
         return array[index];
     }
 
