@@ -10,7 +10,7 @@ public class PlayerFocus : Singleton<PlayerFocus>
     public Station MyStation { get; private set; } = Station.Nothing;
     public Station MyPreviousStation { get; private set; } = Station.Nothing;
 
-    public enum Station { Nothing, Computer }
+    public enum Station { Nothing, Computer, Desk }
 
     public FocusStation ClosestStation { get; private set; } = null;
 
@@ -46,7 +46,7 @@ public class PlayerFocus : Singleton<PlayerFocus>
     public void HandleInterfaceConnection(object sender, InterfaceConnectedEventArgs e)
     {
         MyPreviousStation = MyStation;
-        MyStation = e.myInteractionType == InteractionType.Connect ? e.linkedStation : Station.Nothing;
+        MyStation = e.myInteractionType == InteractionType.Connect ? e.myStation : Station.Nothing;
     }
 
     public void HandleProximityEnter(object sender, ProximityEnteredEventArgs e)

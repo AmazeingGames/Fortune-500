@@ -110,13 +110,13 @@ public class FocusStation : MonoBehaviour
 
 public class InterfaceConnectedEventArgs : EventArgs
 {
-    public readonly Station linkedStation;
+    public readonly Station myStation;
     public readonly FocusStation.InteractionType myInteractionType;
     public readonly Transform cameraPosition;
 
-    public InterfaceConnectedEventArgs(Station linkedStation, FocusStation.InteractionType myInteractionType, Transform cameraPosition)
+    public InterfaceConnectedEventArgs(Station myStation, FocusStation.InteractionType myInteractionType, Transform cameraPosition)
     {
-        this.linkedStation = linkedStation;
+        this.myStation = myStation;
         this.myInteractionType = myInteractionType;
         this.cameraPosition = cameraPosition;
     }
