@@ -10,38 +10,34 @@ public class ScoreKeeper : MonoBehaviour
     [SerializeField] float _randomUpdatePeriod;
 
     [SerializeField] TextMeshProUGUI _revenueText;
-    [SerializeField] TextMeshProUGUI _reputationText;
+    [SerializeField] TextMeshProUGUI _strikesLeftText;
 
     public int Revenue { get; private set; }
-    public int Reputation { get; private set; }
+    public int StrikesLeft { get; private set; } = 3;
 
     void Start()
     {
         Revenue = 100;
-        Reputation = 100;
-        StartCoroutine(Fluctuate());
+        StartCoroutine(FluctuateRevenue());
     }
 
     private void Update()
     {
         _revenueText.text = "Revenue:" + Revenue + " bn";
-        _reputationText.text = "Reputation:" + Reputation;
     }
 
-    IEnumerator Fluctuate()
+    IEnumerator FluctuateRevenue()
     {
         Revenue += Random.Range(-_randomUpdateRange / 2, _randomUpdateRange / 2);
-        Reputation += Random.Range(-_randomUpdateRange / 2, _randomUpdateRange / 2);
+        _revenueText.text = "Revenue:" + Revenue + " bn";
         yield return new WaitForSeconds(_randomUpdatePeriod);
-        StartCoroutine(Fluctuate());
+        StartCoroutine(FluctuateRevenue());
     }
 
-    public void UpdateForCandidate(Candidate candidate, bool wasHired)
+    public void UpdateForCandidate(Candidate candidate, bool wasChoiceCorrect)
     {
-        int hiredMultiplier = wasHired ? 1 : -1;
-
-
+        int hiredMultiplier = wasChoiceCorrect ? 1 : -1;
         Revenue += 10 * hiredMultiplier ;
-        Reputation -= 10 * hiredMultiplier ;
+        _revenueText.text = "Revenue:" + Revenue + " bn";
     }
 }
