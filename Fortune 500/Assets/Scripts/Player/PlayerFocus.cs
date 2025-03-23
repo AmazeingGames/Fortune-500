@@ -10,7 +10,7 @@ public class PlayerFocus : Singleton<PlayerFocus>
     public Station MyStation { get; private set; } = Station.Nothing;
     public Station MyPreviousStation { get; private set; } = Station.Nothing;
 
-    public enum Station { Nothing, Computer, Desk }
+    public enum Station { Nothing, Computer, Desk, Slots }
 
     public FocusStation ClosestStation { get; private set; } = null;
 

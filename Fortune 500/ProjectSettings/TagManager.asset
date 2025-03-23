@@ -14,7 +14,7 @@ TagManager:
   - Computer
   - Resume
   - Player
-  - 
+  - Slots
   - 
   - 
   - 
@@ -43,6 +43,39 @@ TagManager:
     locked: 0
   - name: Cursor
     uniqueID: 1851512941
+    locked: 0
+  - name: EnvironmentBack
+    uniqueID: 2508636769
+    locked: 0
+  - name: Candidate
+    uniqueID: 189810323
+    locked: 0
+  - name: EnvironmentFront
+    uniqueID: 2441051115
+    locked: 0
+  - name: UI
+    uniqueID: 2794911329
+    locked: 0
+  - name: 1
+    uniqueID: 1345761469
+    locked: 0
+  - name: 2
+    uniqueID: 3865636465
+    locked: 0
+  - name: 3
+    uniqueID: 553951983
+    locked: 0
+  - name: 4
+    uniqueID: 3935450741
+    locked: 0
+  - name: 5
+    uniqueID: 1972131663
+    locked: 0
+  - name: 6
+    uniqueID: 2630397333
+    locked: 0
+  - name: 7
+    uniqueID: 2640860851
     locked: 0
   m_RenderingLayers:
   - Default

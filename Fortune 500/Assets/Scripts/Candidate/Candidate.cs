@@ -8,6 +8,7 @@ public class Candidate : MonoBehaviour
     [SerializeField] SpriteRenderer hairFront;
     [SerializeField] SpriteRenderer hairBack;
     [SerializeField] SpriteRenderer skin;
+    [SerializeField] SpriteRenderer torso;
 
     public CandidateData CandidateData { get; private set; }
 
@@ -21,5 +22,6 @@ public class Candidate : MonoBehaviour
         hairFront.sprite = candidateData.HairFront;
         hairBack.sprite = candidateData.Eyes;
         skin.sprite = candidateData.Eyes;
+        torso.sprite = candidateData.Torso;
     }
 }

@@ -63,17 +63,17 @@ public class ScenesManager : Singleton<ScenesManager>
                 UnloadLevel(CurrentLevel);
             break;
 
-            case GameManager.GameAction.StartLevel:
+            case GameManager.GameAction.StartDay:
                 if (e.levelToLoad == -1)
                     throw new ArgumentException("Level to load should not be -1. ");
                 LoadLevel(e.levelToLoad);
             break;
 
-            case GameManager.GameAction.RestartLevel:
+            case GameManager.GameAction.RestartDay:
                 LoadLevel(CurrentLevel);
             break;
 
-            case GameManager.GameAction.LoadNextLevel:
+            case GameManager.GameAction.LoadNextDay:
                 if (!LoadLevel(CurrentLevel + 1))
                     Invoke(nameof(OnBeatLastLevel), .01f);
             break;

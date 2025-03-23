@@ -9,9 +9,9 @@ public class ScoreKeeper : MonoBehaviour
     [SerializeField] int _randomUpdateRange;
     [SerializeField] float _randomUpdatePeriod;
 
-    [SerializeField] TextMeshProUGUI _revenueText;
-    [SerializeField] TextMeshProUGUI _strikesLeftText;
-    [SerializeField] TextMeshProUGUI _dayText;
+    [SerializeField] TextMeshPro _revenueText;
+    [SerializeField] TextMeshPro _strikesLeftText;
+    [SerializeField] TextMeshPro _dayText;
 
     public int Revenue { get; private set; }
     public int StrikesLeft { get; private set; } = 3;
@@ -20,7 +20,7 @@ public class ScoreKeeper : MonoBehaviour
     void Start()
     {
         Revenue = 100;
-        _strikesLeftText.text = "3 strikes left";
+        _strikesLeftText.text = "III";
         StartCoroutine(FluctuateRevenue());
     }
 
@@ -45,7 +45,10 @@ public class ScoreKeeper : MonoBehaviour
         if (!wasChoiceCorrect)
         {
             StrikesLeft--;
-            _strikesLeftText.text = StrikesLeft + " strikes left";
+            _strikesLeftText.text = "";
+            
+            for (int i = 0; i < StrikesLeft; i++)
+                _strikesLeftText.text += "I";
         }
             
     }
@@ -53,6 +56,6 @@ public class ScoreKeeper : MonoBehaviour
     public void StartNewDay()
     {
         DayCount++;
-        _dayText.text = "Day " + DayCount;
+        _dayText.text = $"{DayCount}";
     }
 }

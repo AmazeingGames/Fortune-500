@@ -13,7 +13,7 @@ public class GameManager : Singleton<GameManager>
     KeyCode pauseKey = KeyCode.Escape;
 
     public enum GameState { None, InMenu, Running, Paused, Loading }
-    public enum GameAction { None, EnterMainMenu, StartLevel, PauseGame, ResumeGame, RestartLevel, LoadNextLevel, CompleteLevel, BeatGame, }
+    public enum GameAction { None, EnterMainMenu, PlayGame, StartDay, PauseGame, ResumeGame, RestartDay, LoadNextDay, CompleteLevel, BeatGame, }
 
     public GameState CurrentState { get; private set; }
     public GameAction LastGameAction { get; private set; }
@@ -41,7 +41,7 @@ public class GameManager : Singleton<GameManager>
     // Start is called before the first frame update
     void Start()
     {
-        PerformGameAction(GameAction.EnterMainMenu);
+        PerformGameAction(GameAction.PlayGame);
     }
 
     private void Update()
@@ -126,9 +126,9 @@ public class GameManager : Singleton<GameManager>
         
         switch (action)
         {
-            case GameAction.StartLevel:
-            case GameAction.RestartLevel:
-            case GameAction.LoadNextLevel:
+            case GameAction.StartDay:
+            case GameAction.RestartDay:
+            case GameAction.LoadNextDay:
                 HasBeatLevel = false;
             break;
 
@@ -146,10 +146,10 @@ public class GameManager : Singleton<GameManager>
                 OnGameStateChange(GameState.InMenu);
             break;
 
-            case GameAction.StartLevel:
+            case GameAction.StartDay:
             case GameAction.ResumeGame:
-            case GameAction.RestartLevel:
-            case GameAction.LoadNextLevel:
+            case GameAction.RestartDay:
+            case GameAction.LoadNextDay:
                 OnGameStateChange(GameState.Running);
             break;
 

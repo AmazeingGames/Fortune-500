@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public class CandidateHandler : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI _restrictionText;
+    [SerializeField] Candidate candidate;
+    [SerializeField] TextMeshPro _restrictionText;
     [SerializeField] Button _hireButton;
     [SerializeField] Button _rejectButton;
     [SerializeField] Slider _patienceSlider;
@@ -20,7 +21,9 @@ public class CandidateHandler : MonoBehaviour
     RestrictionHandler _restrictionHandler;
     int _candidatesInTheDay;
 
-    List<Tuple<string, Func<CandidateData, bool>>> _restrictions;
+    List<Restriction> _restrictions;
+
+    public static EventHandler<FinishedCandidatesEventArgs> FinishedCandidatesEventHandler;
 
     private void Awake()
     {
@@ -28,43 +31,65 @@ public class CandidateHandler : MonoBehaviour
         _scoreKeeper = FindAnyObjectByType<ScoreKeeper>();
         _candidateGenerator = FindAnyObjectByType<CandidateGenerator>();
         _restrictionHandler = FindAnyObjectByType<RestrictionHandler>();
-        _hireButton.onClick.AddListener(()=> MakeDesition(true));
-        _rejectButton.onClick.AddListener(() => MakeDesition(false));
+
+        _hireButton.onClick.AddListener(()=> MakeDesicion(true));
+        _rejectButton.onClick.AddListener(() => MakeDesicion(false));
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        StartNewDay();
+        GameManager.GameActionEventHandler += HandleGameAction;
     }
 
-    void MakeDesition(bool wasHired)
+    private void OnDisable()
     {
-        bool wasDesitionCorrect = wasHired == (_restrictions[0].Item2(CurrentCandidate) && _restrictions[1].Item2(CurrentCandidate) &&
-             _restrictions[2].Item2(CurrentCandidate));
+        GameManager.GameActionEventHandler += HandleGameAction;
+    }
+
+    void HandleGameAction(object sender, GameActionEventArgs e)
+    {
+        switch (e.gameAction)
+        {
+            case GameManager.GameAction.StartDay:
+                StartNewDay();
+            break;
+        }
+    }
+
+    void MakeDesicion(bool wasHired)
+    {
+        bool wasDesitionCorrect = wasHired == (_restrictions[0].restriction(CurrentCandidate) && _restrictions[1].restriction(CurrentCandidate) && _restrictions[2].restriction(CurrentCandidate));
         _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesitionCorrect);
         GetNewCandidate();
     }
-
 
     void GetNewCandidate()
     {
         if (_candidatesInTheDay == 0)
         {
-            StartNewDay();
+            OnFinishCandidates();
             return;
         }
+
         _candidatesInTheDay--;
         CurrentCandidate = _candidateGenerator.GenerateRandomCandidate();
+        candidate.Init(CurrentCandidate);
+
         _currentCandidatePatience = CurrentCandidate.Patience;
         _patienceSlider.maxValue = _currentCandidatePatience;
         _resumeDisplay.DisplayCandidate(CurrentCandidate);
+    }
+
+    void OnFinishCandidates()
+    {
+        FinishedCandidatesEventHandler?.Invoke(this, new());
     }
 
     private void Update()
     {
         _currentCandidatePatience -= Time.deltaTime;
         _patienceSlider.value = _currentCandidatePatience;
-        if (_currentCandidatePatience < 0) MakeDesition(false);
+        if (_currentCandidatePatience < 0) MakeDesicion(false);
     }
 
     private void StartNewDay()
@@ -72,9 +97,10 @@ public class CandidateHandler : MonoBehaviour
         _candidatesInTheDay = 5;
         _scoreKeeper.StartNewDay();
         _restrictions = _restrictionHandler.GenerateRestrictions();
-        _restrictionText.text = _restrictions[0].Item1 + Environment.NewLine + _restrictions[1].Item1
-            + Environment.NewLine + _restrictions[2].Item1;
+        _restrictionText.text = _restrictions[0].description + Environment.NewLine + _restrictions[1].description + Environment.NewLine + _restrictions[2].description;
         GetNewCandidate();
     }
 
 }
+
+public class FinishedCandidatesEventArgs : EventArgs { }
