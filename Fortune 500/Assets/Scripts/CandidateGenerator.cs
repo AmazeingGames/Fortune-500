@@ -37,7 +37,7 @@ public class CandidateGenerator : MonoBehaviour
             "Carter", "Jack", "Samuel", "Alex", "Harper","Kai", "Cason", "Sebastian",
             "Michael", "Leo", "Abigail", "Caroline", "Evelyn", "Elliot", "Emily", "Sam", "Maru", "Sebastian", "Leah", "Linus", "Haley", "Morris", "Harvey",
             "Penny", "Shane", "Gus", "Demetrius", "Marnie", "Pam", "Robin", "Vincent" };
-
+        
         LastNamesList = new string[] {"Smith","Baker","Stone","Jones","Williams","Taylor","Brown","Davies","Evans","Thomas","Wilson","Johnson","Roberts",
             "White","Green","Jackson","Carter","Gates","Ross","Mills","Willis","Grant","Cooke","Lane","Hamilton","Moss","McDonald","Potter",
             "Rowe","Carr","Stone","Foster","Barber","Stevenson","Collins","Shaw","Adams","Bird","Reid","Reed","Oliver","Newton","Porter",

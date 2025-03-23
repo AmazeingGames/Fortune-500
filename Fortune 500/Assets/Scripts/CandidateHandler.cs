@@ -18,6 +18,7 @@ public class CandidateHandler : MonoBehaviour
     float _currentCandidatePatience;
     ResumeDisplay _resumeDisplay;
     RestrictionHandler _restrictionHandler;
+    int _candidatesInTheDay;
 
     List<Tuple<string, Func<Candidate, bool>>> _restrictions;
 
@@ -33,10 +34,7 @@ public class CandidateHandler : MonoBehaviour
 
     private void Start()
     {
-        _restrictions = _restrictionHandler.GenerateRestrictions();
-        _restrictionText.text = _restrictions[0].Item1 + Environment.NewLine + _restrictions[1].Item1
-            + Environment.NewLine + _restrictions[2].Item1;
-        GetNewCandidate();
+        StartNewDay();
     }
 
     void MakeDesition(bool wasHired)
@@ -50,12 +48,16 @@ public class CandidateHandler : MonoBehaviour
 
     void GetNewCandidate()
     {
+        if (_candidatesInTheDay == 0)
+        {
+            StartNewDay();
+            return;
+        }
+        _candidatesInTheDay--;
         CurrentCandidate = _candidateGenerator.GenerateRandomCandidate();
         _currentCandidatePatience = CurrentCandidate.Patience;
         _patienceSlider.maxValue = _currentCandidatePatience;
         _resumeDisplay.DisplayCandidate(CurrentCandidate);
-
-        
     }
 
     private void Update()
@@ -63,6 +65,16 @@ public class CandidateHandler : MonoBehaviour
         _currentCandidatePatience -= Time.deltaTime;
         _patienceSlider.value = _currentCandidatePatience;
         if (_currentCandidatePatience < 0) MakeDesition(false);
+    }
+
+    private void StartNewDay()
+    {
+        _candidatesInTheDay = 5;
+        _scoreKeeper.StartNewDay();
+        _restrictions = _restrictionHandler.GenerateRestrictions();
+        _restrictionText.text = _restrictions[0].Item1 + Environment.NewLine + _restrictions[1].Item1
+            + Environment.NewLine + _restrictions[2].Item1;
+        GetNewCandidate();
     }
 
 }

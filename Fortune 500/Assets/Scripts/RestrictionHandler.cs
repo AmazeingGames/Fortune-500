@@ -44,7 +44,8 @@ public class RestrictionHandler : MonoBehaviour
         }
 
         int nameRestrictionType = Random.Range(0, 3);
-        char letter = (char)('a' + Random.Range(0, 25));
+        string commonLetters = "alsd";
+        char letter = commonLetters[Random.Range(0, commonLetters.Length)];
         switch (nameRestrictionType)
         {
             case 0:

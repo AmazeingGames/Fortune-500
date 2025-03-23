@@ -11,13 +11,16 @@ public class ScoreKeeper : MonoBehaviour
 
     [SerializeField] TextMeshProUGUI _revenueText;
     [SerializeField] TextMeshProUGUI _strikesLeftText;
+    [SerializeField] TextMeshProUGUI _dayText;
 
     public int Revenue { get; private set; }
     public int StrikesLeft { get; private set; } = 3;
+    public int DayCount { get; private set; } = 0;
 
     void Start()
     {
         Revenue = 100;
+        _strikesLeftText.text = "3 strikes left";
         StartCoroutine(FluctuateRevenue());
     }
 
@@ -36,8 +39,20 @@ public class ScoreKeeper : MonoBehaviour
 
     public void UpdateForCandidate(Candidate candidate, bool wasChoiceCorrect)
     {
-        int hiredMultiplier = wasChoiceCorrect ? 1 : -1;
+        int hiredMultiplier = wasChoiceCorrect ? 1 : 0;
         Revenue += 10 * hiredMultiplier ;
         _revenueText.text = "Revenue:" + Revenue + " bn";
+        if (!wasChoiceCorrect)
+        {
+            StrikesLeft--;
+            _strikesLeftText.text = StrikesLeft + " strikes left";
+        }
+            
+    }
+
+    public void StartNewDay()
+    {
+        DayCount++;
+        _dayText.text = "Day " + DayCount;
     }
 }
