@@ -11,9 +11,11 @@ public class Slot : MonoBehaviour
 
     public IEnumerator CORandomize(float timeToSpinInSeconds, Restriction result)
     {
+        Debug.Log("Randomize!");
+        /*
         float timerInSeconds = 0;
         float frames = 0;
-
+        
         while (timerInSeconds < timeToSpinInSeconds)
         {
             frames++;
@@ -26,12 +28,18 @@ public class Slot : MonoBehaviour
             }
         }
 
+        
         yield return new WaitForEndOfFrame();
+        */
         restrictionResult.text = $"{result.myRestrictionType}";
+
+        yield break;
     }
 
     void RandomizeOption()
     {
+        /*
+        Debug.Log("random");
         var listOfEnums = Enum.GetValues(typeof(RestrictionHandler.RestrictionType)).Cast<RestrictionHandler.RestrictionType>().ToList();
 
         RestrictionHandler.RestrictionType randomEnum;
@@ -44,5 +52,6 @@ public class Slot : MonoBehaviour
         while (restrictionResult.text != $"{randomEnum}" || times < 20);
 
         restrictionResult.text = randomEnum.ToString();
+        */
     }
 }

@@ -31,14 +31,15 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
 
     public void GenerateRestrictions()
     {
+        Debug.Log("Generate Restrictions");
         List<Restriction> output = new();
 
         int age = Random.Range(_candidateGenerator.MinAge, _candidateGenerator.MaxAge + 1);
         int ageRestrictionType = Random.Range(0, 3);
         Restriction ageRestriction = ageRestrictionType switch
         {
-            0 => new Restriction("Age must be above " + age, candidate => candidate.Age > age),
-            1 => new Restriction("Age must be below " + age, candidate => candidate.Age < age),
+            0 => new Restriction("Age must be above " + age, candidate => candidate.Age > age - 7),
+            1 => new Restriction("Age must be below " + age, candidate => candidate.Age < age + 7 ),
             2 => new Restriction("Age can't be " + age, candidate => candidate.Age != age),
             _ => null,
         };
@@ -52,7 +53,7 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
         switch (nameRestrictionType)
         {
             case 0:
-                nameRestriction = new Restriction("First name must start with letter " + Char.ToUpper(randomCommonLetter), candidate => candidate.FirstName.ToLower()[0] == randomCommonLetter);
+                nameRestriction = new Restriction("First name must not start with letter " + Char.ToUpper(randomCommonLetter), candidate => candidate.FirstName.ToLower()[0] != randomCommonLetter);
                 break;
             case 1:
                 nameRestriction = new Restriction("Last name can't contain letter " + Char.ToUpper(randomCommonLetter), candidate => !candidate.LastName.ToLower().Contains(randomCommonLetter));
@@ -79,7 +80,23 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
         };
         skillRestriction.Init(RestrictionType.Skills);
         output.Add(skillRestriction);
+
         
+        string college = CandidateGenerator.ChooseRandomElement(_candidateGenerator.CollegeList);
+        Restriction collegeRestriction = new Restriction("Must not be a graduate from " + college, candidate => candidate.College != college);
+        collegeRestriction.Init(RestrictionType.College);
+        output.Add(collegeRestriction);
+
+        string jobTitle = CandidateGenerator.ChooseRandomElement(_candidateGenerator.JobTitleList);
+        Restriction jobTitleRestriction = new Restriction("Must not have previous experience as " + jobTitle, candidate => candidate.PreviousJobTitle != jobTitle);
+        jobTitleRestriction.Init(RestrictionType.JobTitle);
+        output.Add(jobTitleRestriction);
+
+        string previousEmployer = CandidateGenerator.ChooseRandomElement(_candidateGenerator.PreviousEmployerList);
+        Restriction previousEmployerRestriction = new Restriction("Must not have worked for " + previousEmployer, candidate => candidate.PreviousEmployer != previousEmployer);
+        previousEmployerRestriction.Init(RestrictionType.PreviousEmployer);
+        output.Add(previousEmployerRestriction);
+
         Restrictions = output;
     }
 
@@ -88,6 +105,7 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
 
 }
 
+[Serializable]
 public class Restriction
 {
     public readonly Predicate<CandidateData> restriction;

@@ -25,20 +25,18 @@ public class SlotMachineManager : MonoBehaviour
 
     IEnumerator COStartSlots()
     {
+        Debug.Log("Randomize Slots");
         yield return null;
 
-        foreach (var slot in slots)
+        float randomTimeFloor = timeFloor;
+        float randomTimeCeiling = timeCeiling;
+        for (int i = 0; i < slots.Count; i++)
         {
-            float randomTimeFloor = timeFloor;
-            float randomTimeCeiling = timeCeiling;
-            for (int i = 0; i < slots.Count; i++)
-            {
-                var result = RestrictionHandler.Instance.Restrictions[i];
-                float randomTime = UnityEngine.Random.Range(randomTimeFloor, randomTimeCeiling);
-                StartCoroutine(slot.CORandomize(randomTime, result));
-                randomTimeFloor += randomTime;
-                randomTimeCeiling += randomTimeCeiling / ceilingDivisor;
-            }
+            var result = RestrictionHandler.Instance.Restrictions[i];
+            float randomTime = UnityEngine.Random.Range(randomTimeFloor, randomTimeCeiling);
+            StartCoroutine(slots[i].CORandomize(randomTime, result));
+            randomTimeFloor += randomTime;
+            randomTimeCeiling += randomTimeCeiling / ceilingDivisor;
         }
     }
 }
