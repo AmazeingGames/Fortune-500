@@ -16,8 +16,16 @@ public class SlotMachineManager : MonoBehaviour
     private void OnDisable()
         => GameManager.GameActionEventHandler -= HandleGameAction;
 
-    void HandleGameAction(object sender, EventArgs e)
-        => StartCoroutine(COStartSlots());
+    void HandleGameAction(object sender, GameActionEventArgs e)
+    {
+        switch (e.gameAction)
+        {
+            case GameManager.GameAction.StartWork:
+                StartCoroutine(COStartSlots());
+                break;
+        }
+    }
+
 
     IEnumerator COStartSlots()
     {

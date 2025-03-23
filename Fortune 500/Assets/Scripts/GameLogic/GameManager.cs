@@ -19,7 +19,7 @@ public class GameManager : Singleton<GameManager>
     public GameAction LastGameAction { get; private set; }
 
     public bool HasFinishedDay { get; private set; }
-    public bool HasStartedDay { get; private set; }
+    public bool HasStartedWork { get; private set; }
     public LevelData LevelData { get; private set; }
 
     public static EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
@@ -79,7 +79,7 @@ public class GameManager : Singleton<GameManager>
 
     void HandlePullLever(object sender, EventArgs e)
     {
-        if (HasStartedDay)
+        if (HasStartedWork)
         {
             Debug.Log("Day has already started!");
             return;
@@ -146,13 +146,16 @@ public class GameManager : Singleton<GameManager>
             case GameAction.StartDay:
             case GameAction.RestartDay:
             case GameAction.LoadNextDay:
-                HasStartedDay = true;
                 HasFinishedDay = false;
             break;
 
+            case GameAction.StartWork:
+                HasStartedWork = true;
+                break;
+
             case GameAction.FinishDay:
                 HasFinishedDay = true;
-                HasStartedDay = false;
+                HasStartedWork = false;
             break;
         }
 
