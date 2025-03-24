@@ -10117,9 +10117,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: FocusStation
       objectReference: {fileID: 0}
+    - target: {fileID: 1023459314618489941, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2668811199582700538, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_Name
       value: CameraPosition
+      objectReference: {fileID: 0}
+    - target: {fileID: 2668811199582700538, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2827184932455288624, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalScale.x
@@ -16232,9 +16240,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: ResumeStationCollider
       objectReference: {fileID: 0}
+    - target: {fileID: 1023459314618489941, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2668811199582700538, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_Name
       value: CameraPosition
+      objectReference: {fileID: 0}
+    - target: {fileID: 2668811199582700538, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2827184932455288624, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalPosition.x
@@ -16294,31 +16310,31 @@ PrefabInstance:
       objectReference: {fileID: 776337351}
     - target: {fileID: 8710439994757185595, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.33
+      value: 0.38
       objectReference: {fileID: 0}
     - target: {fileID: 8710439994757185595, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.45
+      value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 8710439994757185595, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.213
+      value: -0.17683241
       objectReference: {fileID: 0}
     - target: {fileID: 8710439994757185595, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.5
+      value: 0.49445927
       objectReference: {fileID: 0}
     - target: {fileID: 8710439994757185595, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.5
+      value: 0.50672346
       objectReference: {fileID: 0}
     - target: {fileID: 8710439994757185595, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.5
+      value: 0.4928612
       objectReference: {fileID: 0}
     - target: {fileID: 8710439994757185595, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.5
+      value: -0.50579566
       objectReference: {fileID: 0}
     - target: {fileID: 8710439994757185595, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -19510,9 +19526,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: SlotsStationCollider
       objectReference: {fileID: 0}
+    - target: {fileID: 1023459314618489941, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2668811199582700538, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_Name
       value: CameraPosition
+      objectReference: {fileID: 0}
+    - target: {fileID: 2668811199582700538, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2827184932455288624, guid: 59aea7cf3dba9d54f9660f84d7622a37, type: 3}
       propertyPath: m_LocalScale.x
@@ -25260,6 +25284,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1778496892}
+  - component: {fileID: 1778496893}
   m_Layer: 0
   m_Name: PinkSlipSpawner
   m_TagString: Untagged
@@ -25267,21 +25292,48 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1778496892
-Transform:
+--- !u!224 &1778496892
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1778496891}
-  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 2.065}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 25905019}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 1.59, y: -1.937}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!223 &1778496893
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1778496891}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
 --- !u!4 &1779352154 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 35335f0c2d27f204da4cbd8d38f8b9ca, type: 3}

@@ -113,6 +113,9 @@ public class CandidateHandler : MonoBehaviour
             title = "TERMINATION NOTICE";
             conclusion = "GET OUT!";
         }
+
+        //PinkSlip slip = Instantiate(pinkSlip, spawnPosition);
+        //slip.Initialize(title, mainText, conclusion);
     }
 
     void GetNewCandidate()
