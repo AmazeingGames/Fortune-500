@@ -7,7 +7,7 @@ using UnityEngine;
 using static FocusStation;
 public class AudioManager : Singleton<AudioManager>
 {
-   Bus masterBus;
+    Bus masterBus;
 
     readonly List<StudioEventEmitter> EventEmitters = new();
 
