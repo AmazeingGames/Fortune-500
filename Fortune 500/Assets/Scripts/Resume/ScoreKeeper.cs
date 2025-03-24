@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class ScoreKeeper : MonoBehaviour
+public class ScoreKeeper: Singleton<ScoreKeeper>
 {
     [SerializeField] int _randomUpdateRange;
     [SerializeField] float _randomUpdatePeriod;

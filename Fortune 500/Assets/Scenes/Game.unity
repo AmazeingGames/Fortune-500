@@ -2379,6 +2379,8 @@ MonoBehaviour:
   _hireButton: {fileID: 632513821}
   _rejectButton: {fileID: 813548288}
   _patienceSlider: {fileID: 159452755}
+  spawnPosition: {fileID: 0}
+  pinkSlip: {fileID: 0}
 --- !u!1 &188603583
 GameObject:
   m_ObjectHideFlags: 0
@@ -3978,6 +3980,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 566966dc19707f249a5e1439da77cb08, type: 3}
   - {fileID: 21300000, guid: 3b53fef94806c774288d38a778f2d354, type: 3}
   - {fileID: 21300000, guid: 94767dd874b62e146b125298a829b173, type: 3}
+  _hairFrontOffset: []
 --- !u!1 &353327303
 GameObject:
   m_ObjectHideFlags: 0
@@ -6989,7 +6992,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nonRigidbodyVelocity: 0
-  attenuationObject: {fileID: 0}
+  attenuationObject: {fileID: 1993534556}
 --- !u!1 &523357164
 GameObject:
   m_ObjectHideFlags: 0
@@ -13095,6 +13098,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64e71b280919ec14b8e5b4bfacbcc1ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IntroCallEvent:
+    Guid:
+      Data1: 465901236
+      Data2: 1195278288
+      Data3: 1762894233
+      Data4: -295297707
+    Path: event:/Calls/PhoneIntro
+  EndDayCallEvent:
+    Guid:
+      Data1: -168452441
+      Data2: 1341431516
+      Data3: 185138598
+      Data4: -489109749
+    Path: event:/Calls/EndOfDayCalls
 --- !u!114 &871441901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13109,11 +13126,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <GameAmbience>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 1833626717
+      Data2: 1248241098
+      Data3: 1922455683
+      Data4: -220537961
+    Path: event:/Ambience
   <UIHover>k__BackingField:
     Guid:
       Data1: 0
@@ -13130,11 +13147,11 @@ MonoBehaviour:
     Path: 
   <Player3DFootsteps>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 1700453724
+      Data2: 1105146605
+      Data3: -1628431426
+      Data4: -259845994
+    Path: event:/PlayerFootsteps
   <Intro>k__BackingField:
     Guid:
       Data1: 0
