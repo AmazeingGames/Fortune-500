@@ -1,26 +1,38 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
+using static FocusStation;
+using Unity.VisualScripting;
 
 public class PinkSlip : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI title;
-    [SerializeField] TextMeshProUGUI mistake;
-    [SerializeField] TextMeshProUGUI conclusion;
+    [SerializeField] TextMeshPro title;
+    [SerializeField] TextMeshPro mistake;
+    [SerializeField] TextMeshPro conclusion;
 
     [SerializeField] Canvas parentCanvas;
 
-    public void DragHandler(BaseEventData data)
+    Vector3 mouseOffset;
+    float mZCoord;
+    private void OnMouseDown()
     {
-        PointerEventData pointerEventData = data as PointerEventData;
-
-        Vector2 position;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)parentCanvas.transform, pointerEventData.position, parentCanvas.worldCamera, out position);
-
-        transform.position = parentCanvas.transform.TransformPoint(position);
+        mZCoord = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
+        mouseOffset = gameObject.transform.position - GetMouseWorldPosition();
+    }
+    private void OnMouseDrag()
+    {
+        transform.position = GetMouseWorldPosition() + mouseOffset;
     }
 
-    void Initialize(string title, string mistake, string conclusion)
+    private Vector3 GetMouseWorldPosition()
+    {
+        Vector3 mousePoint = Input.mousePosition; 
+        mousePoint.z = mZCoord;
+
+        return Camera.main.WorldToScreenPoint(mousePoint);
+    }
+
+    public void Initialize(string title, string mistake, string conclusion)
     {
         this.title.text = title;
         this.mistake.text = mistake;
