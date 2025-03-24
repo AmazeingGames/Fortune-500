@@ -129,11 +129,11 @@ public class CandidateHandler : MonoBehaviour
 
     void GetNewCandidate()
     {
-        if (_candidatesInTheDay == 0)
+        /*if (_candidatesInTheDay == 0)
         {
             OnFinishCandidates();
             return;
-        }
+        }*/
 
         _candidatesInTheDay--;
         CurrentCandidate = _candidateGenerator.GenerateRandomCandidate();
