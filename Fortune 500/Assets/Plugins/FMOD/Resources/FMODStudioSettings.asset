@@ -654,16 +654,16 @@ MonoBehaviour:
     HasValue: 0
   displaySortOrder: 0
   childIdentifiers:
-  - b7716510a1f36934c87976f3a81dbf3d
   - e7a046c753c3c3d4aacc91f6597f310d
-  - 2c5177b11d81d824dbb064f9ac8527da
   - 0f8eb3f400726694eb47beb1a9f94ce8
-  - de700ef3f37a49b58a57ae3addf01ad9
-  - fd7c55dab0fce234b8c25f6ffca523c1
   - 52eb9df5db46521439908db3a29a1bbb
+  - de700ef3f37a49b58a57ae3addf01ad9
   - 46fbfdf3fc43db0458918377fd40293e
+  - 2c5177b11d81d824dbb064f9ac8527da
   - c88d16e5272a4e241b0ef0ac2e53b73d
+  - fd7c55dab0fce234b8c25f6ffca523c1
   - 2fea114e74ecf3c4f920e1d5cc1c4c40
+  - b7716510a1f36934c87976f3a81dbf3d
   codecChannels:
     Value: []
     HasValue: 0
@@ -755,8 +755,8 @@ MonoBehaviour:
   switchSettingsMigration: 1
   HasSourceProject: 1
   HasPlatforms: 1
-  sourceProjectPath: ../../FortuneFMOD/Fortune500Jam/Fortune500Jam.fspro
-  sourceBankPath: ../../FortuneFMOD/Fortune500Jam/Build
+  sourceProjectPath: ../../Fortune 500 FMod/FortuneFMOD/Fortune500Jam/Fortune500Jam.fspro
+  sourceBankPath: ../../Fortune 500 FMod/FortuneFMOD/Fortune500Jam/Build
   sourceBankPathUnformatted: 
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1
@@ -797,18 +797,18 @@ MonoBehaviour:
   HideSetupWizard: 1
   LastEventReferenceScanVersion: 131623
   Platforms:
-  - {fileID: -8629974624755588485}
-  - {fileID: -6903300367593368228}
-  - {fileID: -4341462183055726400}
-  - {fileID: -3844163549324385506}
-  - {fileID: -3277697946814583600}
-  - {fileID: -2248337766711581648}
-  - {fileID: -1136135065949775296}
-  - {fileID: -725080857866910699}
-  - {fileID: -171469781597263367}
-  - {fileID: -117435420530139156}
-  - {fileID: 5945431901847819746}
   - {fileID: 8173161308796891656}
+  - {fileID: -171469781597263367}
+  - {fileID: -6903300367593368228}
+  - {fileID: -3844163549324385506}
+  - {fileID: -1136135065949775296}
+  - {fileID: -3277697946814583600}
+  - {fileID: -725080857866910699}
+  - {fileID: -4341462183055726400}
+  - {fileID: -117435420530139156}
+  - {fileID: -2248337766711581648}
+  - {fileID: 5945431901847819746}
+  - {fileID: -8629974624755588485}
   MigratedPlatforms: 0a0000000c0000000500000006000000080000001500000000000000090000000b000000120000000200000001000000
 --- !u!114 &5945431901847819746
 MonoBehaviour:
