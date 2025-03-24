@@ -79,6 +79,7 @@ public class CandidateHandler : MonoBehaviour
         GetNewCandidate();
     }
 
+    PinkSlip slip = null;
     void GeneratePinkSlip(CandidateData candidate, bool wasHired, List<Restriction> restrictions)
     {
         string restrictionToDisplay;
@@ -104,25 +105,24 @@ public class CandidateHandler : MonoBehaviour
                 $"Who's gonna do all the important work we have around here? You?";
         }
 
-        Vector3 localPosition = new(-358.098999f, -202.466995f, 6.75099993f);
+        var localPosition = new Vector3(-358.809998f, -202.466995f, 7.09000015f);
         if (_scoreKeeper.StrikesLeft == 2)
         {
-            localPosition = new(-358.098999f, -202.466995f, 6.75099993f);
             conclusion = "Strike 1!";
         }
         else if (_scoreKeeper.StrikesLeft == 1)
         {
-            localPosition = new(-358.098999f, -202.466995f, 6.55099993f);
             conclusion = "Final warning!";
         }
         else if (_scoreKeeper.StrikesLeft == 0)
         {
-            localPosition = new(-358.098999f, -202.466995f, 6.35099993f);
             title = "TERMINATION NOTICE";
             conclusion = "GET OUT!";
         }
 
-        PinkSlip slip = Instantiate(pinkSlip, slipParent.transform);
+        
+        if (slip == null)
+            slip = Instantiate(pinkSlip, slipParent.transform);
         slip.transform.localPosition = localPosition;
         slip.Initialize(title, mainText, conclusion);
     }
