@@ -17,7 +17,7 @@ public class CandidateHandler : MonoBehaviour
     [SerializeField] ResumeDisplay _resumeDisplay;
 
     [Header("Pink Slip")]
-    [SerializeField] Transform spawnPosition;
+    [SerializeField] Canvas slipParent;
 
     [Header("Prefabs")]
     [SerializeField] PinkSlip pinkSlip;
@@ -103,19 +103,28 @@ public class CandidateHandler : MonoBehaviour
             mainText += $"You rejected a perfectly good employee, {candidate.FirstName} {candidate.LastName}. {Environment.NewLine}" +
                 $"Who's gonna do all the important work we have around here? You?";
         }
-        
+
+        Vector3 localPosition = new(-358.098999f, -202.466995f, 6.75099993f);
         if (_scoreKeeper.StrikesLeft == 2)
+        {
+            localPosition = new(-358.098999f, -202.466995f, 6.75099993f);
             conclusion = "Strike 1!";
+        }
         else if (_scoreKeeper.StrikesLeft == 1)
+        {
+            localPosition = new(-358.098999f, -202.466995f, 6.55099993f);
             conclusion = "Final warning!";
+        }
         else if (_scoreKeeper.StrikesLeft == 0)
         {
+            localPosition = new(-358.098999f, -202.466995f, 6.35099993f);
             title = "TERMINATION NOTICE";
             conclusion = "GET OUT!";
         }
 
-        //PinkSlip slip = Instantiate(pinkSlip, spawnPosition);
-        //slip.Initialize(title, mainText, conclusion);
+        PinkSlip slip = Instantiate(pinkSlip, slipParent.transform);
+        slip.transform.localPosition = localPosition;
+        slip.Initialize(title, mainText, conclusion);
     }
 
     void GetNewCandidate()

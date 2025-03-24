@@ -6,11 +6,9 @@ using Unity.VisualScripting;
 
 public class PinkSlip : MonoBehaviour
 {
-    [SerializeField] TextMeshPro title;
-    [SerializeField] TextMeshPro mistake;
-    [SerializeField] TextMeshPro conclusion;
-
-    [SerializeField] Canvas parentCanvas;
+    [SerializeField] TextMeshProUGUI title;
+    [SerializeField] TextMeshProUGUI mistake;
+    [SerializeField] TextMeshProUGUI conclusion;
 
     Vector3 mouseOffset;
     float mZCoord;
