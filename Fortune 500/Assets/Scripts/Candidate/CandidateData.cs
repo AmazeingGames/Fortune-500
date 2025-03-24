@@ -21,11 +21,14 @@ public class CandidateData
     public Sprite Torso { get; private set; }
     public Sprite Mouth { get; private set; }
 
+
+    public Vector2 HairFrontOffset { get; private set; }
+
     public Dictionary<string, Sprite> Properties { get; private set; }
 
 
     public CandidateData(string firstName, string lastName, string college, string previousJobTitle, string previousEmployer, List<string> skills,
-        int age, int patience, Sprite skin, Sprite eyes, Sprite mouth, Sprite hairFront, Sprite hairBack, Sprite nose, Sprite torso)
+        int age, int patience, Sprite skin, Sprite eyes, Sprite mouth, Sprite hairFront, Sprite hairBack, Sprite nose, Sprite torso, Vector2 hairFrontOffset)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -42,30 +45,8 @@ public class CandidateData
         HairFront = hairFront;
         HairBack = hairBack;
         Nose = nose;
-        Torso = torso;
-        
+        Torso = torso;   
 
-        Properties = new Dictionary<string, Sprite>()
-        {
-            ["eyes"] = eyes,
-            ["nose"] = nose,
-            ["hairFront"] = hairFront,
-            ["torso"] = torso,
-            ["mouth"] = mouth,
-        };
+        HairFrontOffset = hairFrontOffset;
     }
-
-    public override string ToString()
-    {
-        string outputString = FirstName + " " + LastName + ", ";
-        foreach (var item in Properties)
-        {
-            outputString += item.Key;
-            outputString += ": ";
-            outputString += item.Value;
-            outputString += ", ";
-        }
-        return outputString;
-    }
-
 }
