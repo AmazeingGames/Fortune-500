@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CandidateHandler : MonoBehaviour
 {
+    [Header("Resume")]
     [SerializeField] Candidate candidate;
     [SerializeField] VirtualScreen resume;
     [SerializeField] TextMeshPro _restrictionText;
@@ -13,6 +15,11 @@ public class CandidateHandler : MonoBehaviour
     [SerializeField] Button _rejectButton;
     [SerializeField] Slider _patienceSlider;
 
+    [Header("Pink Slip")]
+    [SerializeField] Transform spawnPosition;
+
+    [Header("Prefabs")]
+    [SerializeField] PinkSlip pinkSlip;
     public CandidateData CurrentCandidate { get; private set; }
 
     CandidateGenerator _candidateGenerator;
@@ -67,9 +74,9 @@ public class CandidateHandler : MonoBehaviour
 
     void MakeDesicion(bool wasHired)
     {
-        bool wasDesicionCorrect = wasHired == (_restrictions[0].restriction(CurrentCandidate) && _restrictions[1].restriction(CurrentCandidate) && _restrictions[2].restriction(CurrentCandidate));
+        bool wasDesicionCorrect = wasHired == (RestrictionHandler.Instance.Restrictions[0].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[1].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[2].restriction(CurrentCandidate));
         _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesicionCorrect);
-        if (!wasDesicionCorrect) { GeneratePinkSlip(CurrentCandidate, wasHired, _restrictions); }
+        if (!wasDesicionCorrect) { GeneratePinkSlip(CurrentCandidate, wasHired, RestrictionHandler.Instance.Restrictions); }
         GetNewCandidate();
     }
 
@@ -77,20 +84,15 @@ public class CandidateHandler : MonoBehaviour
     {
         string restrictionToDisplay;
         if (!restrictions[0].restriction(candidate))
-        {
             restrictionToDisplay = restrictions[0].description;
-        }
         else if (!restrictions[1].restriction(candidate))
-        {
             restrictionToDisplay = restrictions[1].description;
-        }
         else
-        {
             restrictionToDisplay = restrictions[2].description;
-        }
 
-        string title = "Warning Notice";
+        string title = "WARNING";
         string mainText = "";
+        string conclusion = "";
         if (wasHired)
         {
             mainText += $"You hired {candidate.FirstName} {candidate.LastName} , but he didn't comply with the following restriction: {Environment.NewLine}" +
@@ -104,17 +106,13 @@ public class CandidateHandler : MonoBehaviour
         }
         
         if (_scoreKeeper.StrikesLeft == 2)
-        {
-            mainText += "This type of behavior won't be tolerated!";
-        }
+            conclusion = "Strike 1!";
         else if (_scoreKeeper.StrikesLeft == 1)
-        {
-            mainText += "This is your final warning!";
-        }
+            conclusion = "Final warning!";
         else if (_scoreKeeper.StrikesLeft == 0)
         {
-            title = "Notice of Termination of Employment";
-            mainText += "Pick up your things and get going!";
+            title = "TERMINATION NOTICE";
+            conclusion = "GET OUT!";
         }
     }
 
