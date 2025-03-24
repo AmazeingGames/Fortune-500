@@ -14,6 +14,7 @@ public class CandidateHandler : MonoBehaviour
     [SerializeField] Button _hireButton;
     [SerializeField] Button _rejectButton;
     [SerializeField] Slider _patienceSlider;
+    [SerializeField] ResumeDisplay _resumeDisplay;
 
     [Header("Pink Slip")]
     [SerializeField] Transform spawnPosition;
@@ -25,7 +26,6 @@ public class CandidateHandler : MonoBehaviour
     CandidateGenerator _candidateGenerator;
     ScoreKeeper _scoreKeeper;
     float _currentCandidatePatience;
-    ResumeDisplay _resumeDisplay;
     RestrictionHandler _restrictionHandler;
     int _candidatesInTheDay;
 
@@ -33,7 +33,6 @@ public class CandidateHandler : MonoBehaviour
 
     private void Awake()
     {
-        _resumeDisplay = FindAnyObjectByType<ResumeDisplay>();
         _scoreKeeper = FindAnyObjectByType<ScoreKeeper>();
         _candidateGenerator = FindAnyObjectByType<CandidateGenerator>();
         _restrictionHandler = FindAnyObjectByType<RestrictionHandler>();

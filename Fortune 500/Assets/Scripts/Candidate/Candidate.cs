@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class Candidate : MonoBehaviour
@@ -15,6 +16,8 @@ public class Candidate : MonoBehaviour
 
     public void Init(CandidateData candidateData)
     {
+        
+
         CandidateData = candidateData;
 
         eyes.sprite = candidateData.Eyes;
