@@ -1,12 +1,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.ConstrainedExecution;
-using Unity.Android.Gradle.Manifest;
-using Unity.VisualScripting;
+
 using UnityEngine;
-using UnityEngine.UI;
+
 using Random = UnityEngine.Random;
 
 public class CandidateGenerator : MonoBehaviour

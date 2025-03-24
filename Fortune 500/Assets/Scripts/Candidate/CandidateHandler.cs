@@ -4,6 +4,9 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using FMODUnity;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class CandidateHandler : MonoBehaviour
 {
@@ -15,6 +18,10 @@ public class CandidateHandler : MonoBehaviour
     [SerializeField] Button _rejectButton;
     [SerializeField] Slider _patienceSlider;
     [SerializeField] ResumeDisplay _resumeDisplay;
+
+    [SerializeField] private EventReference LoseGameEvent;
+    [SerializeField] private EventReference GoodHireEvent;
+    [SerializeField] private EventReference BadHireEvent;
 
     [Header("Pink Slip")]
     [SerializeField] Transform spawnPosition;
@@ -28,6 +35,8 @@ public class CandidateHandler : MonoBehaviour
     float _currentCandidatePatience;
     RestrictionHandler _restrictionHandler;
     int _candidatesInTheDay;
+    bool enabled = true;
+    [SerializeField] GameObject candidateToDisable;
 
     public static EventHandler<FinishedCandidatesEventArgs> FinishedCandidatesEventHandler;
 
@@ -71,11 +80,31 @@ public class CandidateHandler : MonoBehaviour
         }
     }
 
+    IEnumerator RestartGame()
+    {
+        yield return new WaitForSecondsRealtime(10f);
+        SceneManager.LoadScene(0);
+    }
+
     void MakeDesicion(bool wasHired)
     {
+        if (!enabled) return;
         bool wasDesicionCorrect = wasHired == (RestrictionHandler.Instance.Restrictions[0].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[1].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[2].restriction(CurrentCandidate));
+        
+        if (!wasDesicionCorrect) { GeneratePinkSlip(CurrentCandidate, wasHired, RestrictionHandler.Instance.Restrictions);
+            AudioManager.Instance.PlayOneShot(BadHireEvent, transform.position);
+        }
+        else AudioManager.Instance.PlayOneShot(GoodHireEvent, transform.position);
+        if (_scoreKeeper.StrikesLeft == 1 && !wasDesicionCorrect)
+        {
+            _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesicionCorrect);
+            AudioManager.Instance.PlayOneShot(LoseGameEvent, transform.position);
+            enabled = false;
+            candidateToDisable.SetActive(false);
+            StartCoroutine(RestartGame());
+            return;
+        }
         _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesicionCorrect);
-        if (!wasDesicionCorrect) { GeneratePinkSlip(CurrentCandidate, wasHired, RestrictionHandler.Instance.Restrictions); }
         GetNewCandidate();
     }
 
@@ -125,6 +154,8 @@ public class CandidateHandler : MonoBehaviour
             OnFinishCandidates();
             return;
         }*/
+
+        
 
         _candidatesInTheDay--;
         CurrentCandidate = _candidateGenerator.GenerateRandomCandidate();
