@@ -1,12 +1,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.ConstrainedExecution;
-using Unity.Android.Gradle.Manifest;
-using Unity.VisualScripting;
+
 using UnityEngine;
-using UnityEngine.UI;
+
 using Random = UnityEngine.Random;
 
 public class CandidateGenerator : MonoBehaviour
@@ -38,6 +35,9 @@ public class CandidateGenerator : MonoBehaviour
     [SerializeField] Sprite[] _hairBackList;
     [SerializeField] Sprite[] _noseList;
     [SerializeField] Sprite[] _torsoList;
+
+    [Header("Offset")]
+    [SerializeField] Vector2[] _hairFrontOffset;
 
     private void OnValidate()
     {
@@ -80,12 +80,14 @@ public class CandidateGenerator : MonoBehaviour
         Sprite skin = _skinList[Random.Range(0, _skinList.Length)];
         Sprite eyes = _eyesList[Random.Range(0, _eyesList.Length)];
         Sprite mouth = _mouthList[Random.Range(0, _mouthList.Length)];
-        Sprite hairFront = _hairFrontList[Random.Range(0, _hairFrontList.Length)];
+        int randomHair = Random.Range(0, _hairFrontList.Length);
+        Sprite hairFront = _hairFrontList[randomHair];
+        Vector2 hairFrontOffset = _hairFrontOffset[randomHair];
         Sprite hairBack = _hairBackList[Random.Range(0, _hairBackList.Length)];
         Sprite nose = _noseList[Random.Range(0, _noseList.Length)];
         Sprite torso = _torsoList[Random.Range(0, _torsoList.Length)];
 
-        return new CandidateData(firstName, lastName, college, previousJobTitle, previousEmployer, skills, age, patience, skin, eyes, mouth, hairFront, hairBack, nose, torso);  
+        return new CandidateData(firstName, lastName, college, previousJobTitle, previousEmployer, skills, age, patience, skin, eyes, mouth, hairFront, hairBack, nose, torso, hairFrontOffset);  
     }
 
     public static T ChooseRandomElement<T>(List<T> list)

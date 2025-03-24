@@ -5,6 +5,7 @@ using Unity;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
 
 /// <summary> Responsible for loading all scenes and containing all related functionality. </summary>
 public class ScenesManager : Singleton<ScenesManager>
@@ -57,31 +58,7 @@ public class ScenesManager : Singleton<ScenesManager>
 
     void HandleGameAction(object sender, GameActionEventArgs e)
     {
-        switch (e.gameAction)
-        {
-            case GameManager.GameAction.EnterMainMenu:
-                UnloadLevel(CurrentLevel);
-            break;
-
-            case GameManager.GameAction.StartDay:
-                if (e.levelToLoad == -1)
-                    throw new ArgumentException("Level to load should not be -1. ");
-                LoadLevel(e.levelToLoad);
-            break;
-
-            case GameManager.GameAction.RestartDay:
-                LoadLevel(CurrentLevel);
-            break;
-
-            case GameManager.GameAction.LoadNextDay:
-                if (!LoadLevel(CurrentLevel + 1))
-                    Invoke(nameof(OnBeatLastLevel), .01f);
-            break;
-
-            case GameManager.GameAction.FinishDay:
-                PreloadLevel(CurrentLevel + 1);
-            break;
-        }
+        
     }
 
     /// <summary> Handles scene and level loading for various game updates. </summary>
@@ -148,43 +125,6 @@ public class ScenesManager : Singleton<ScenesManager>
         return true;
     }
 
-    /*
-    /// <summary>
-    ///     Called when we begin asynchronously loading a level.
-    /// </summary>
-    /// <param name="levelLoadAsyncOperation"> The level loading operation. </param>
-    void OnStartSceneLoad(AsyncOperation levelLoadAsyncOperation)
-    {
-        SceneLoadEventArgs eventArgs = new(levelLoadAsyncOperation, SceneLoadEventArgs.Progress.Start);
-        SceneLoadEventHandler?.Invoke(this, eventArgs);
-        
-        StartCoroutine(SceneLoading(levelLoadAsyncOperation));
-
-        Debug.Log("Start Level load!");
-    }
-
-    
-    void OnFinishSceneLoad(AsyncOperation levelLoadAsyncOperation)
-    {
-        SceneLoadEventArgs eventArgs = new(levelLoadAsyncOperation, SceneLoadEventArgs.Progress.Finish);
-        SceneLoadEventHandler?.Invoke(this, eventArgs);
-
-        Debug.Log("Finish Level load!");
-    }
-
-    IEnumerator SceneLoading(AsyncOperation levelLoadOperation)
-    {
-        while (!levelLoadOperation.isDone)
-            yield return null;
-
-        OnFinishSceneLoad(levelLoadOperation);
-    }
-
-    void OnCompleteLevelLoad(AsyncOperation levelLoadOperation)
-    {
-
-    }*/
-
     void OnBeatLastLevel()
         => BeatLastLevelEventHandler?.Invoke(this, new());
 
@@ -237,5 +177,11 @@ public class ScenesManager : Singleton<ScenesManager>
 
         SceneManager.UnloadSceneAsync(sceneName);
         return true;
+    }
+
+    public void ReloadScene()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        SceneManager.LoadScene(currentSceneName);
     }
 }

@@ -7,23 +7,31 @@ using UnityEngine;
 using static FocusStation;
 public class AudioManager : Singleton<AudioManager>
 {
-   Bus masterBus;
-
+    Bus masterBus;
+    
     readonly List<StudioEventEmitter> EventEmitters = new();
+    [SerializeField] private EventReference IntroCallEvent;
+    [SerializeField] private EventReference EndDayCallEvent;
+    [SerializeField] private EventReference LoseGameEvent;
 
     void Start()
-        => masterBus = RuntimeManager.GetBus("bus:/");
+    {        
+        masterBus = RuntimeManager.GetBus("bus:/");
+    }
 
     private void OnEnable()
     {
         FPSInput.TakeActionEventHandler += HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnect;
+        GameManager.GameActionEventHandler += HandleGameAction;
+        
     }
 
     private void OnDisable()
     {
         FPSInput.TakeActionEventHandler -= HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnect;
+        GameManager.GameActionEventHandler -= HandleGameAction;
     }
 
     void HandleInterfaceConnect(object sender, InterfaceConnectedEventArgs e)
@@ -51,7 +59,46 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
-    void PlayOneShot(EventReference sound, Vector3 origin)
+    public EventInstance CreateInstance(EventReference eventReference)
+    {
+        EventInstance eventInstance = RuntimeManager.CreateInstance(eventReference);
+        return eventInstance;
+    }
+
+    public void HandleGameAction(object sender, GameActionEventArgs e)
+    {
+        switch (e.gameAction)
+        {
+            case GameManager.GameAction.None:
+                break;
+            case GameManager.GameAction.EnterMainMenu:
+                break;
+            case GameManager.GameAction.PlayGame:
+                PlayOneShot(IntroCallEvent, transform.position);
+                break;
+            case GameManager.GameAction.StartDay:
+                
+                break;
+            case GameManager.GameAction.PauseGame:
+                break;
+            case GameManager.GameAction.ResumeGame:
+                break;
+            case GameManager.GameAction.RestartDay:
+                break;
+            case GameManager.GameAction.LoadNextDay:
+                break;
+            case GameManager.GameAction.FinishDay:
+                PlayOneShot(EndDayCallEvent, transform.position);
+                break;
+            case GameManager.GameAction.LoseGame:
+                PlayOneShot(LoseGameEvent, transform.position);
+                break;
+            case GameManager.GameAction.StartWork:
+                break;
+        }
+    }
+
+    public void PlayOneShot(EventReference sound, Vector3 origin)
     {
         Debug.Log($"Triggered Audio Clip: {sound}");
 

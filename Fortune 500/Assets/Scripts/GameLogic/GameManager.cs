@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using FMOD.Studio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static GameManager;
@@ -25,8 +26,11 @@ public class GameManager : Singleton<GameManager>
     public static EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
     public static EventHandler<GameActionEventArgs> GameActionEventHandler;
 
+    private EventInstance AmbianceSound;
+
     void OnEnable()
     {
+        
         SlotMachineButton.PulledLeverEventHandler += HandlePullLever;
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
         UIButton.UIInteractEventHandler += HandleUIInteract;
@@ -35,6 +39,7 @@ public class GameManager : Singleton<GameManager>
 
     void OnDisable()
     {
+        
         SlotMachineButton.PulledLeverEventHandler -= HandlePullLever;
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
         LevelData.LoadLevelData -= HandleLoadLevelData;
@@ -44,6 +49,7 @@ public class GameManager : Singleton<GameManager>
     // Start is called before the first frame update
     void Start()
     {
+        AmbianceSound = AudioManager.Instance.CreateInstance(FMODEvents.Instance.GameAmbience);
         PerformGameAction(GameAction.EnterMainMenu);
     }
 
@@ -140,8 +146,9 @@ public class GameManager : Singleton<GameManager>
         switch (action)
         {
             case GameAction.PlayGame:
-                PerformGameAction(GameAction.StartDay); 
-            break;
+                PerformGameAction(GameAction.StartDay);
+                AmbianceSound.start();
+                break;
 
             case GameAction.StartDay:
             case GameAction.RestartDay:
@@ -173,10 +180,12 @@ public class GameManager : Singleton<GameManager>
             case GameAction.RestartDay:
             case GameAction.LoadNextDay:
             case GameAction.StartWork:
+                AmbianceSound.start();
                 OnGameStateChange(GameState.Running);
             break;
 
             case GameAction.PauseGame:
+                AmbianceSound.stop(STOP_MODE.ALLOWFADEOUT);
                 OnGameStateChange(GameState.Paused);
             break;
         }
