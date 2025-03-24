@@ -7,6 +7,7 @@ using System;
 //To fake functionality, only enable this component when it's being used
 public class VirtualScreen : GraphicRaycaster
 {
+    [SerializeField] VirtualScreenData vritualScreenData;
     [SerializeField] PlayerFocus.Station stationType;
     [SerializeField] LayerMask hitLayerMasks;
 
