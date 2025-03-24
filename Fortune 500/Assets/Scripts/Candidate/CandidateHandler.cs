@@ -64,8 +64,10 @@ public class CandidateHandler : MonoBehaviour
         switch (e.gameAction)
         {
             case GameManager.GameAction.StartDay:
-                candidate.gameObject.SetActive(false);
-                resume.gameObject.SetActive(false);
+                if (candidate != null)
+                    candidate.gameObject.SetActive(false);
+                if (resume != null)
+                    resume.gameObject.SetActive(false);
             break;
 
             case GameManager.GameAction.StartWork:
@@ -83,6 +85,8 @@ public class CandidateHandler : MonoBehaviour
     IEnumerator RestartGame()
     {
         yield return new WaitForSecondsRealtime(10f);
+        candidateToDisable.SetActive(true);
+        ScenesManager.Instance.ReloadScene();
         SceneManager.LoadScene(0);
     }
 
@@ -158,14 +162,6 @@ public class CandidateHandler : MonoBehaviour
 
     void GetNewCandidate()
     {
-        /*if (_candidatesInTheDay == 0)
-        {
-            OnFinishCandidates();
-            return;
-        }*/
-
-        
-
         _candidatesInTheDay--;
         CurrentCandidate = _candidateGenerator.GenerateRandomCandidate();
         candidate.Init(CurrentCandidate);
