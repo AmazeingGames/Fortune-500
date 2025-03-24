@@ -12,6 +12,7 @@ public class AudioManager : Singleton<AudioManager>
     readonly List<StudioEventEmitter> EventEmitters = new();
     [SerializeField] private EventReference IntroCallEvent;
     [SerializeField] private EventReference EndDayCallEvent;
+    [SerializeField] private EventReference LoseGameEvent;
 
     void Start()
     {        
@@ -90,6 +91,7 @@ public class AudioManager : Singleton<AudioManager>
                 PlayOneShot(EndDayCallEvent, transform.position);
                 break;
             case GameManager.GameAction.LoseGame:
+                PlayOneShot(LoseGameEvent, transform.position);
                 break;
             case GameManager.GameAction.StartWork:
                 break;
