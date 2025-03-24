@@ -67,10 +67,10 @@ public class CandidateHandler : MonoBehaviour
 
     void MakeDesicion(bool wasHired)
     {
-        bool wasDesicionCorrect = wasHired == (_restrictions[0].restriction(CurrentCandidate) && _restrictions[1].restriction(CurrentCandidate) && _restrictions[2].restriction(CurrentCandidate));
+        /*bool wasDesicionCorrect = wasHired == (_restrictions[0].restriction(CurrentCandidate) && _restrictions[1].restriction(CurrentCandidate) && _restrictions[2].restriction(CurrentCandidate));
         _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesicionCorrect);
         if (!wasDesicionCorrect) { GeneratePinkSlip(CurrentCandidate, wasHired, _restrictions); }
-        GetNewCandidate();
+        GetNewCandidate();*/
     }
 
     void GeneratePinkSlip(CandidateData candidate, bool wasHired, List<Restriction> restrictions)
