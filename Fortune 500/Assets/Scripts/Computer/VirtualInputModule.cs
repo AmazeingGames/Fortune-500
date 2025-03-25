@@ -320,7 +320,6 @@ namespace UnityEngine.EventSystems
             // PointerDown notification
             if (data.PressedThisFrame())
             {
-                AudioManager.Instance.PlayOneShot(mouseClickSound, this.transform.position);
                 pointerEvent.eligibleForClick = true;
                 pointerEvent.delta = Vector2.zero;
                 pointerEvent.dragging = false;

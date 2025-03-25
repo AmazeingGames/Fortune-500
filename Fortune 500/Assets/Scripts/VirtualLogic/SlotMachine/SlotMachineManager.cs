@@ -11,16 +11,16 @@ public class SlotMachineManager : MonoBehaviour
     [SerializeField] List<Slot> slots;
 
     private void OnEnable()
-        => GameManager.GameActionEventHandler += HandleGameAction;
+        => GameFlowManager.GameActionEventHandler += HandleGameAction;
 
     private void OnDisable()
-        => GameManager.GameActionEventHandler -= HandleGameAction;
+        => GameFlowManager.GameActionEventHandler -= HandleGameAction;
 
     void HandleGameAction(object sender, GameActionEventArgs e)
     {
         switch (e.gameAction)
         {
-            case GameManager.GameAction.StartWork:
+            case GameFlowManager.GameAction.StartWork:
                 StartCoroutine(COStartSlots());
                 break;
         }

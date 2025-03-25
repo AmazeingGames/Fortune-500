@@ -4075,56 +4075,40 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenu:
     <Canvas>k__BackingField: {fileID: 1754250758}
-    <EnableOnReady>k__BackingField: []
-    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   pauseMenu:
     <Canvas>k__BackingField: {fileID: 678260638}
-    <EnableOnReady>k__BackingField: []
-    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 1
   settingsMenu:
     <Canvas>k__BackingField: {fileID: 1924475848}
-    <EnableOnReady>k__BackingField: []
-    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   levelSelectMenu:
     <Canvas>k__BackingField: {fileID: 630493659}
-    <EnableOnReady>k__BackingField: []
-    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   beatLevelScreen:
     <Canvas>k__BackingField: {fileID: 691191342}
-    <EnableOnReady>k__BackingField: []
-    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   diaryScreen:
     <Canvas>k__BackingField: {fileID: 1151363727}
-    <EnableOnReady>k__BackingField: []
-    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   creditsScreen:
     <Canvas>k__BackingField: {fileID: 1696302526}
-    <EnableOnReady>k__BackingField: []
-    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   gameEndScreen:
     <Canvas>k__BackingField: {fileID: 2069062322}
-    <EnableOnReady>k__BackingField: []
-    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   userInterfaceCamera: {fileID: 1990151686}
-  uIOnlyCullingMask:
+  uiOnlyCullingMask:
     serializedVersion: 2
-    m_Bits: 32
+    m_Bits: 0
   allSeeingCullingMask:
     serializedVersion: 2
     m_Bits: 32
@@ -11235,6 +11219,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  vritualScreenData: {fileID: 0}
   stationType: 2
   hitLayerMasks:
     serializedVersion: 2

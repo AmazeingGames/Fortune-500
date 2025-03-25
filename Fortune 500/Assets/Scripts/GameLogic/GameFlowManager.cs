@@ -4,20 +4,20 @@ using System.Collections.Generic;
 using FMOD.Studio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static GameManager;
+using static GameFlowManager;
 
 /// <summary>
 /// 
 /// </summary>
-public class GameManager : Singleton<GameManager>
+public class GameFlowManager : Singleton<GameFlowManager>
 {
-    KeyCode pauseKey = KeyCode.Escape;
+    readonly KeyCode pauseKey = KeyCode.Escape;
 
     public enum GameState { None, InMenu, Running, Paused, Loading }
     public enum GameAction { None, EnterMainMenu, PlayGame, StartDay, PauseGame, ResumeGame, RestartDay, LoadNextDay, FinishDay, LoseGame, StartWork }
 
-    public GameState CurrentState { get; private set; }
-    public GameAction LastGameAction { get; private set; }
+    public GameState MyCurrentState { get; private set; }
+    public GameAction MyLastGameAction { get; private set; }
 
     public bool HasFinishedDay { get; private set; }
     public bool HasStartedWork { get; private set; }
@@ -30,7 +30,6 @@ public class GameManager : Singleton<GameManager>
 
     void OnEnable()
     {
-        
         SlotMachineButton.PulledLeverEventHandler += HandlePullLever;
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
         UIButton.UIInteractEventHandler += HandleUIInteract;
@@ -39,7 +38,6 @@ public class GameManager : Singleton<GameManager>
 
     void OnDisable()
     {
-        
         SlotMachineButton.PulledLeverEventHandler -= HandlePullLever;
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
         LevelData.LoadLevelData -= HandleLoadLevelData;
@@ -58,10 +56,10 @@ public class GameManager : Singleton<GameManager>
         // In the future, I would like the game to acknowledge this, and be able to smoothly transition between the 2 quickly
         if (Input.GetKeyDown(pauseKey) && !ScreenTransitions.Instance.IsTransitioning)
         {
-            switch (CurrentState)
+            switch (MyCurrentState)
             {
                 case GameState.Running:
-                    if (LastGameAction == GameAction.FinishDay)
+                    if (MyLastGameAction == GameAction.FinishDay)
                         return;
                     PerformGameAction(GameAction.PauseGame);
                 break;
@@ -71,16 +69,6 @@ public class GameManager : Singleton<GameManager>
                 break;
             }
         }
-    }
-
-    /// <summary> Checks if we've interviewed all the employees for the day. </summary>
-    void CheckVictory()
-    {
-        if (HasFinishedDay)
-            return;
-
-        // if interviewed all employees
-        PerformGameAction(GameAction.FinishDay);
     }
 
     void HandlePullLever(object sender, EventArgs e)
@@ -138,17 +126,17 @@ public class GameManager : Singleton<GameManager>
         }
 
         Debug.Log($"Performed game action: {action}");
-        LastGameAction = action;
+        MyLastGameAction = action;
         OnGameAction(action, levelToLoad);
 
-        Debug.LogWarning("Start level is only performed on game start.");
+        // Start day is only performed on game start
         
         switch (action)
         {
             case GameAction.PlayGame:
                 PerformGameAction(GameAction.StartDay);
                 AmbianceSound.start();
-                break;
+            break;
 
             case GameAction.StartDay:
             case GameAction.RestartDay:
@@ -158,7 +146,7 @@ public class GameManager : Singleton<GameManager>
 
             case GameAction.StartWork:
                 HasStartedWork = true;
-                break;
+            break;
 
             case GameAction.FinishDay:
                 HasFinishedDay = true;
@@ -203,14 +191,14 @@ public class GameManager : Singleton<GameManager>
             Debug.LogWarning("Cannont update game state to 'none'.");
             return;
         }
-        else if (newState == CurrentState)
+        else if (newState == MyCurrentState)
         {
             Debug.LogWarning($"Cannont update game state to its own state ({newState}).");
             return;
         }
 
-        var previousState = CurrentState;
-        CurrentState = newState;
+        var previousState = MyCurrentState;
+        MyCurrentState = newState;
 
         GameStateChangeEventHandler?.Invoke(this, new(this, newState, previousState, levelToLoad));
     }
@@ -218,11 +206,11 @@ public class GameManager : Singleton<GameManager>
 
 public class GameActionEventArgs : EventArgs
 {
-    public readonly GameManager gameManager;
+    public readonly GameFlowManager gameManager;
     public readonly GameAction gameAction;
     public readonly int levelToLoad;
 
-    public GameActionEventArgs(GameManager gameManager, GameAction gameAction, int levelToLoad)
+    public GameActionEventArgs(GameFlowManager gameManager, GameAction gameAction, int levelToLoad)
     {
         this.gameManager = gameManager;
         this.gameAction = gameAction;
@@ -232,12 +220,12 @@ public class GameActionEventArgs : EventArgs
 
 public class GameStateChangeEventArgs : EventArgs
 {
-    public readonly GameManager gameManager;
+    public readonly GameFlowManager gameManager;
     public readonly GameState newState;
     public readonly GameState previousState;
     public readonly int levelToLoad;
 
-    public GameStateChangeEventArgs(GameManager gameManager, GameState newState, GameState previousState, int levelToLoad)
+    public GameStateChangeEventArgs(GameFlowManager gameManager, GameState newState, GameState previousState, int levelToLoad)
     {
         this.gameManager = gameManager;
         this.newState = newState;

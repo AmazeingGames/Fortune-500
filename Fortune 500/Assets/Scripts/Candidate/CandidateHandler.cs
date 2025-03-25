@@ -19,42 +19,31 @@ public class CandidateHandler : MonoBehaviour
     [SerializeField] Slider _patienceSlider;
     [SerializeField] ResumeDisplay _resumeDisplay;
 
-    [SerializeField] private EventReference LoseGameEvent;
-    [SerializeField] private EventReference GoodHireEvent;
-    [SerializeField] private EventReference BadHireEvent;
-
     [Header("Pink Slip")]
     [SerializeField] Canvas slipParent;
 
     [Header("Prefabs")]
     [SerializeField] PinkSlip pinkSlip;
     public CandidateData CurrentCandidate { get; private set; }
-
-    CandidateGenerator _candidateGenerator;
-    ScoreKeeper _scoreKeeper;
     float _currentCandidatePatience;
-    RestrictionHandler _restrictionHandler;
     int _candidatesInTheDay;
-    bool enabled = true;
+    bool canMakeDecisions = true;
     [SerializeField] GameObject candidateToDisable;
 
-    public static EventHandler<FinishedCandidatesEventArgs> FinishedCandidatesEventHandler;
+    public static EventHandler<FinishedCandidatesEventArgs> FinishedInterviewsEventHandler;
+    public static EventHandler<HiredCandidateEventArgs> HiredCandidateEventHandler;
 
     private void Awake()
     {
-        _scoreKeeper = FindAnyObjectByType<ScoreKeeper>();
-        _candidateGenerator = FindAnyObjectByType<CandidateGenerator>();
-        _restrictionHandler = FindAnyObjectByType<RestrictionHandler>();
-
-        _hireButton.onClick.AddListener(()=> MakeDesicion(true));
-        _rejectButton.onClick.AddListener(() => MakeDesicion(false));
+        _hireButton.onClick.AddListener(()=> MakeDecision(true));
+        _rejectButton.onClick.AddListener(() => MakeDecision(false));
     }
 
     private void OnEnable()
-        => GameManager.GameActionEventHandler += HandleGameAction;
+        => GameFlowManager.GameActionEventHandler += HandleGameAction;
 
     private void OnDisable()
-        => GameManager.GameActionEventHandler += HandleGameAction;
+        => GameFlowManager.GameActionEventHandler += HandleGameAction;
 
     private void Update()
         => UpdatePatience();
@@ -63,19 +52,20 @@ public class CandidateHandler : MonoBehaviour
     {
         switch (e.gameAction)
         {
-            case GameManager.GameAction.StartDay:
+            case GameFlowManager.GameAction.StartDay:
                 if (candidate != null)
                     candidate.gameObject.SetActive(false);
                 if (resume != null)
                     resume.gameObject.SetActive(false);
             break;
 
-            case GameManager.GameAction.StartWork:
+            case GameFlowManager.GameAction.StartWork:
+                canMakeDecisions = true;
+
                 candidate.gameObject.SetActive(true);
                 resume.gameObject.SetActive(true);
 
                 _candidatesInTheDay = 5;
-                _scoreKeeper.StartNewDay();
                 _restrictionText.text = RestrictionHandler.Instance.Restrictions[0].description + Environment.NewLine + RestrictionHandler.Instance.Restrictions[1].description + Environment.NewLine + RestrictionHandler.Instance.Restrictions[2].description;
                 GetNewCandidate();
             break;
@@ -90,25 +80,29 @@ public class CandidateHandler : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    void MakeDesicion(bool wasHired)
+    public void OnHireCandidate(bool wasDecisionCorrect, int strikesLeft)
     {
-        if (!enabled) return;
-        bool wasDesicionCorrect = wasHired == (RestrictionHandler.Instance.Restrictions[0].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[1].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[2].restriction(CurrentCandidate));
+        HiredCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, strikesLeft));
+    }
+
+    void MakeDecision(bool wasHired)
+    {
+        if (!canMakeDecisions) 
+            return;
         
-        if (!wasDesicionCorrect) { GeneratePinkSlip(CurrentCandidate, wasHired, RestrictionHandler.Instance.Restrictions);
-            AudioManager.Instance.PlayOneShot(BadHireEvent, transform.position);
-        }
-        else AudioManager.Instance.PlayOneShot(GoodHireEvent, transform.position);
-        if (_scoreKeeper.StrikesLeft == 1 && !wasDesicionCorrect)
-        {
-            _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesicionCorrect);
-            AudioManager.Instance.PlayOneShot(LoseGameEvent, transform.position);
-            enabled = false;
+        bool wasDesicionCorrect = wasHired == (RestrictionHandler.Instance.Restrictions[0].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[1].restriction(CurrentCandidate) && RestrictionHandler.Instance.Restrictions[2].restriction(CurrentCandidate));
+        OnHireCandidate(wasDesicionCorrect, ScoreKeeper.Instance.StrikesLeft);
+
+        if (ScoreKeeper.Instance.StrikesLeft == 1)
+        {            
+            canMakeDecisions = false;
             candidateToDisable.SetActive(false);
             StartCoroutine(RestartGame());
             return;
         }
-        _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesicionCorrect);
+        else
+            GeneratePinkSlip(CurrentCandidate, wasHired, RestrictionHandler.Instance.Restrictions);
+
         GetNewCandidate();
     }
 
@@ -139,15 +133,11 @@ public class CandidateHandler : MonoBehaviour
         }
 
         var localPosition = new Vector3(-358.809998f, -202.466995f, 7.09000015f);
-        if (_scoreKeeper.StrikesLeft == 2)
-        {
+        if (ScoreKeeper.Instance.StrikesLeft == 2)
             conclusion = "Strike 1!";
-        }
-        else if (_scoreKeeper.StrikesLeft == 1)
-        {
+        else if (ScoreKeeper.Instance.StrikesLeft == 1)
             conclusion = "Final warning!";
-        }
-        else if (_scoreKeeper.StrikesLeft == 0)
+        else if (ScoreKeeper.Instance.StrikesLeft == 0)
         {
             title = "TERMINATION NOTICE";
             conclusion = "GET OUT!";
@@ -163,7 +153,7 @@ public class CandidateHandler : MonoBehaviour
     void GetNewCandidate()
     {
         _candidatesInTheDay--;
-        CurrentCandidate = _candidateGenerator.GenerateRandomCandidate();
+        CurrentCandidate = CandidateGenerator.Instance.GenerateRandomCandidate();
         candidate.Init(CurrentCandidate);
 
         _currentCandidatePatience = CurrentCandidate.Patience;
@@ -171,8 +161,8 @@ public class CandidateHandler : MonoBehaviour
         _resumeDisplay.DisplayCandidate(CurrentCandidate);
     }
 
-    void OnFinishCandidates()
-        => FinishedCandidatesEventHandler?.Invoke(this, new());
+    void OnFinishInterviews()
+        => FinishedInterviewsEventHandler?.Invoke(this, new());
 
     void UpdatePatience()
     {
@@ -183,8 +173,21 @@ public class CandidateHandler : MonoBehaviour
         _patienceSlider.value = _currentCandidatePatience;
         
         if (_currentCandidatePatience < 0) 
-            MakeDesicion(false);
+            MakeDecision(false);
     }
 }
 
 public class FinishedCandidatesEventArgs : EventArgs { }
+
+public class HiredCandidateEventArgs : EventArgs 
+{
+    public readonly bool wasDecisionCorrect;
+    public readonly int strikesRemaining;
+    public bool DidLose => strikesRemaining == 0;
+
+    public HiredCandidateEventArgs(bool wasDecisionCorrect, int strikesRemaining) 
+    { 
+        this.wasDecisionCorrect = wasDecisionCorrect;
+        this.strikesRemaining = strikesRemaining;
+    }
+}

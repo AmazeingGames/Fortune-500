@@ -11,12 +11,12 @@ public class ObjectEnabler : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.GameStateChangeEventHandler += HandleGameStateChange;
+        GameFlowManager.GameStateChangeEventHandler += HandleGameStateChange;
     }
 
     private void OnDisable()
     {
-        GameManager.GameStateChangeEventHandler -= HandleGameStateChange;
+        GameFlowManager.GameStateChangeEventHandler -= HandleGameStateChange;
     }
 
     void HandleGameStateChange(object sender, GameStateChangeEventArgs e)
@@ -28,12 +28,12 @@ public class ObjectEnabler : MonoBehaviour
         }
         switch (e.newState)
         {
-            case GameManager.GameState.InMenu:
-            case GameManager.GameState.Paused:
+            case GameFlowManager.GameState.InMenu:
+            case GameFlowManager.GameState.Paused:
                 sceneEnvironment.SetActive(false);
             break;
             
-            case GameManager.GameState.Running:
+            case GameFlowManager.GameState.Running:
                 sceneEnvironment.SetActive(true);
                 foreach (var menu in virtualMenus)
                     menu.SetActive(true);

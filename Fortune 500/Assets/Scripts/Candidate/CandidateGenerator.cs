@@ -6,7 +6,7 @@ using UnityEngine;
 
 using Random = UnityEngine.Random;
 
-public class CandidateGenerator : MonoBehaviour
+public class CandidateGenerator : Singleton<CandidateGenerator>
 {
     [SerializeField] TextAsset firstNamesFile;
     [SerializeField] TextAsset lastNamesFile;
@@ -62,9 +62,9 @@ public class CandidateGenerator : MonoBehaviour
         string previousEmployer = ChooseRandomElement(PreviousEmployerList);
 
         int skillsAmount = Random.Range(2, 5);
-        List<string> skillsToChooseFrom = new List<string>();
+        List<string> skillsToChooseFrom = new();
 
-        List<string> skills = new List<string>();
+        List<string> skills = new();
         skillsToChooseFrom.AddRange(SkillsList);
 
         for (int i = 0; i < skillsAmount; i++)
@@ -80,9 +80,11 @@ public class CandidateGenerator : MonoBehaviour
         Sprite skin = _skinList[Random.Range(0, _skinList.Length)];
         Sprite eyes = _eyesList[Random.Range(0, _eyesList.Length)];
         Sprite mouth = _mouthList[Random.Range(0, _mouthList.Length)];
-        int randomHair = Random.Range(0, _hairFrontList.Length);
-        Sprite hairFront = _hairFrontList[randomHair];
-        Vector2 hairFrontOffset = _hairFrontOffset[randomHair];
+
+        int hairFrontRandomNum = Random.Range(0, _hairFrontList.Length);
+        Sprite hairFront = _hairFrontList[hairFrontRandomNum];
+        Vector2 hairFrontOffset = _hairFrontOffset[hairFrontRandomNum];
+
         Sprite hairBack = _hairBackList[Random.Range(0, _hairBackList.Length)];
         Sprite nose = _noseList[Random.Range(0, _noseList.Length)];
         Sprite torso = _torsoList[Random.Range(0, _torsoList.Length)];

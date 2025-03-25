@@ -8,27 +8,21 @@ using Unity.VisualScripting;
 
 public class RestrictionHandler : Singleton<RestrictionHandler>
 {
-    CandidateGenerator _candidateGenerator;
     const string CommonLetters = "alsd";
 
     public enum RestrictionType { Age, Skills, Name, College, JobTitle, PreviousEmployer }
     public List<Restriction> Restrictions = new();
-    private void Awake()
-    {
-        base.Awake();
-        _candidateGenerator = FindAnyObjectByType<CandidateGenerator>();
-    }
     private void OnEnable()
-        => GameManager.GameActionEventHandler += HandleGameAction;
+        => GameFlowManager.GameActionEventHandler += HandleGameAction;
 
     private void OnDisable()
-        => GameManager.GameActionEventHandler -= HandleGameAction;
+        => GameFlowManager.GameActionEventHandler -= HandleGameAction;
 
     void HandleGameAction(object sender, GameActionEventArgs e)
     {
         switch (e.gameAction)
         {
-            case GameManager.GameAction.StartWork:
+            case GameFlowManager.GameAction.StartWork:
                 GenerateRestrictions();
             break;
         }
@@ -39,7 +33,7 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
         Debug.Log("Generate Restrictions");
         List<Restriction> output = new();
 
-        int age = Random.Range(_candidateGenerator.MinAge, _candidateGenerator.MaxAge + 1);
+        int age = Random.Range(CandidateGenerator.Instance.MinAge, CandidateGenerator.Instance.MaxAge + 1);
         int ageRestrictionType = Random.Range(0, 3);
         Restriction ageRestriction = ageRestrictionType switch
         {
@@ -64,8 +58,8 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
                 nameRestriction = new Restriction("Last name can't contain letter " + Char.ToUpper(randomCommonLetter), candidate => !candidate.LastName.ToLower().Contains(randomCommonLetter));
                 break;
             case 2:
-                string firstName = CandidateGenerator.ChooseRandomElement(_candidateGenerator.FirstNamesList);
-                string lastName = CandidateGenerator.ChooseRandomElement(_candidateGenerator.LastNamesList);
+                string firstName = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.FirstNamesList);
+                string lastName = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.LastNamesList);
                 nameRestriction = new Restriction($"Must not be {firstName} {lastName}. Fuck them", candidate => candidate.FirstName != firstName || candidate.LastName != lastName);
             break;
             default:
@@ -76,7 +70,7 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
         output.Add(nameRestriction);
 
         int skillRestrictionType = Random.Range(0, 2);
-        string skill = CandidateGenerator.ChooseRandomElement(_candidateGenerator.SkillsList);
+        string skill = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.SkillsList);
         Restriction skillRestriction = skillRestrictionType switch
         {
             0 => new Restriction("Must have this skill: " + skill, candidate => candidate.Skills.Contains(skill)),
@@ -87,17 +81,17 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
         output.Add(skillRestriction);
 
         
-        string college = CandidateGenerator.ChooseRandomElement(_candidateGenerator.CollegeList);
+        string college = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.CollegeList);
         Restriction collegeRestriction = new Restriction("Must not be a graduate from " + college, candidate => candidate.College != college);
         collegeRestriction.Init(RestrictionType.College);
         output.Add(collegeRestriction);
 
-        string jobTitle = CandidateGenerator.ChooseRandomElement(_candidateGenerator.JobTitleList);
+        string jobTitle = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.JobTitleList);
         Restriction jobTitleRestriction = new Restriction("Must not have previous experience as " + jobTitle, candidate => candidate.PreviousJobTitle != jobTitle);
         jobTitleRestriction.Init(RestrictionType.JobTitle);
         output.Add(jobTitleRestriction);
 
-        string previousEmployer = CandidateGenerator.ChooseRandomElement(_candidateGenerator.PreviousEmployerList);
+        string previousEmployer = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.PreviousEmployerList);
         Restriction previousEmployerRestriction = new Restriction("Must not have worked for " + previousEmployer, candidate => candidate.PreviousEmployer != previousEmployer);
         previousEmployerRestriction.Init(RestrictionType.PreviousEmployer);
         output.Add(previousEmployerRestriction);

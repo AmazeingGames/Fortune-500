@@ -1,3 +1,4 @@
+using NUnit.Framework.Internal.Execution;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static GameManager;
+using static GameFlowManager;
 using static UIManager;
 
 /// <summary>
@@ -26,7 +27,7 @@ public class UIManager : Singleton<UIManager>
 
     [Header("Cameras")]
     [SerializeField] Camera userInterfaceCamera;
-    [SerializeField] LayerMask uIOnlyCullingMask;
+    [SerializeField] LayerMask uiOnlyCullingMask;
     [SerializeField] LayerMask allSeeingCullingMask;
 
     [field: Header("Button Properties")]
@@ -42,86 +43,74 @@ public class UIManager : Singleton<UIManager>
     [field: SerializeField] public AnimationCurve ButtonLerpCurve { get; private set; }
     [field: SerializeField] public AnimationCurve UnderlineLerpCurve { get; private set; }
 
-    public enum MenuTypes { None, Previous, MainMenu, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, Empty, Diary }
+    public enum MenuType { None, Previous, MainMenu, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, Empty, Diary }
 
     public static event EventHandler<MenuChangeEventArgs> MenuChangeEventHandler;
 
-    MenuTypes nextInQueue;
+    MenuType nextInQueue;
 
     public bool IsGamePaused { get; private set; }
 
     Menu currentMenu;
     Menu previousMenu;
 
-    MenuTypes currentMenuType;
-    MenuTypes previousMenuType;
+    MenuType currentMenuType;
+    MenuType previousMenuType;
 
-    readonly Menu emptyMenu = new();
-    List<Menu> menuHistory = new();
-    List<Menu> nestedMenuHistory = new();
+    readonly List<Menu> menuHistory = new();
+    readonly List<Menu> nestedMenuHistory = new();
     int currentHistoryIndex = -1;
 
-    Dictionary<MenuTypes, Menu> MenuTypeToMenu;
-    Dictionary<Menu, MenuTypes> MenuToMenuType;
+    Dictionary<MenuType, Menu> MenuTypeToMenu;
+    Dictionary<Menu, MenuType> MenuToMenuType;
     readonly List<Menu> menus = new();
 
-    void Awake()
+    private void Start()
     {
-        base.Awake();
-
         MenuTypeToMenu = new()
         {
-            { MenuTypes.MainMenu,       mainMenu },
-            { MenuTypes.Pause,          pauseMenu},
-            { MenuTypes.GameEndScreen,  gameEndScreen},
-            { MenuTypes.Settings,       settingsMenu},
-            { MenuTypes.BeatLevel,      beatLevelScreen},
-            { MenuTypes.LevelSelect,    levelSelectMenu},
-            { MenuTypes.Credits,        creditsScreen},
-            { MenuTypes.Diary,          diaryScreen},
+            { MenuType.MainMenu,       mainMenu },
+            { MenuType.Pause,          pauseMenu},
+            { MenuType.GameEndScreen,  gameEndScreen},
+            { MenuType.Settings,       settingsMenu},
+            { MenuType.BeatLevel,      beatLevelScreen},
+            { MenuType.LevelSelect,    levelSelectMenu},
+            { MenuType.Credits,        creditsScreen},
+            { MenuType.Diary,          diaryScreen},
         };
 
         MenuToMenuType = MenuTypeToMenu.ToDictionary(x => x.Value, x => x.Key);
         menus.AddRange(MenuTypeToMenu.Values);
-
-        // Identifies menu elements to be cleared when we're loading a new menu
-        foreach (var menu in MenuTypeToMenu.Values)
-        {
-            if (menu.Canvas != null)
-                emptyMenu.DisableOnReady.Add(menu.Canvas.gameObject);
-        }
 
         // Initializes each menu
         // Makes sure only the main menu is open on start
         foreach (var menu in menus)
         {
             if (!MenuToMenuType.TryGetValue(menu, out var menuType))
-                menuType = MenuTypes.None;
-            menu.Init(menuType);
+                menuType = MenuType.None;
+            menu.Initialize(menuType);
 
-            if (menu.Canvas != null && menu.MenuType != MenuTypes.MainMenu)
+            if (menu.Canvas == null)
+                throw new NullReferenceException("Menu canvas should not be null.");
+
+            if (menu.MenuType != MenuType.MainMenu)
                 menu.Canvas.gameObject.SetActive(false);
         }
 
         // Ignores following MenuTypes: 'Previous', 'None', 'Empty'
-        if (MenuTypeToMenu.Count < Enum.GetNames(typeof(MenuTypes)).Length - 3)
-            throw new Exception("Not all enums are counted for in the MenuTypeToMenu dictionary");    
-    }
+        if (MenuTypeToMenu.Count < Enum.GetNames(typeof(MenuType)).Length - 3)
+            throw new Exception("Not all enums are counted for in the MenuTypeToMenu dictionary");
 
-    private void Start()
-    {
-        UpdateMenusToGameAction(GameManager.Instance.LastGameAction);
-
-        // We need to disable the interface camera, because the exact code path this goes through will otherwise not disable the UI camera, due to the shenanigans we do to load levels during testing. I'm sure there's a better solution to this.
-        userInterfaceCamera.gameObject.SetActive(IsAMenuEnabled());
+        Debug.Log($"Game Manager's Last Game Action: {GameFlowManager.Instance.MyLastGameAction}");
+        UpdateMenusToGameAction(GameFlowManager.Instance.MyLastGameAction);
     }
 
     private void Update()
     {
-        if (nextInQueue != MenuTypes.None && !ScreenTransitions.Instance.IsTransitioning)
+        if (nextInQueue != MenuType.None && !ScreenTransitions.Instance.IsTransitioning)
         {
             LoadMenu(nextInQueue);
-            nextInQueue = MenuTypes.None;
+            nextInQueue = MenuType.None;
         }
     }
 
@@ -129,7 +118,7 @@ public class UIManager : Singleton<UIManager>
     {
         GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIButtonInteract;
-        GameManager.GameActionEventHandler += HandleGameAction;
+        GameFlowManager.GameActionEventHandler += HandleGameAction;
         Menu.SetCanvasAction += HandleSetCanvas;
     }
 
@@ -137,7 +126,7 @@ public class UIManager : Singleton<UIManager>
     {
         GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIButtonInteract;
-        GameManager.GameActionEventHandler -= HandleGameAction;
+        GameFlowManager.GameActionEventHandler -= HandleGameAction;
         Menu.SetCanvasAction -= HandleSetCanvas;
     }
 
@@ -147,9 +136,7 @@ public class UIManager : Singleton<UIManager>
     /// <summary>
     ///     Loads the menu appropriate to the current game state.
     /// </summary>
-    void HandleGameStateChange(object sender, GameStateChangeEventArgs e)
-    {
-    }
+    void HandleGameStateChange(object sender, GameStateChangeEventArgs e) { }
 
     bool IsAMenuEnabled()
     {
@@ -180,17 +167,19 @@ public class UIManager : Singleton<UIManager>
         userInterfaceCamera.gameObject.SetActive(isAMenuEnabled);
         OnMenuChange(currentMenuType, previousMenuType, isAMenuEnabled);
     }
+    void OnMenuChange(MenuType newMenuType, MenuType previousMenuType, bool isAMenuEnabled)
+        => MenuChangeEventHandler?.Invoke(this, new(newMenuType, previousMenuType, isAMenuEnabled));
 
     /// <summary> Loads a menu appropraite to the current game action. </summary>
-    void UpdateMenusToGameAction(GameManager.GameAction action)
+    void UpdateMenusToGameAction(GameFlowManager.GameAction action)
     {
-        MenuTypes menuToLoad = action switch
+        MenuType menuToLoad = action switch
         {
-            GameManager.GameAction.EnterMainMenu => MenuTypes.MainMenu,
-            GameManager.GameAction.PauseGame => MenuTypes.Pause,
-            GameManager.GameAction.LoseGame => MenuTypes.GameEndScreen,
-            GameManager.GameAction.FinishDay => MenuTypes.BeatLevel,
-            _ => MenuTypes.Empty,
+            GameFlowManager.GameAction.EnterMainMenu => MenuType.MainMenu,
+            GameFlowManager.GameAction.PauseGame => MenuType.Pause,
+            GameFlowManager.GameAction.LoseGame => MenuType.GameEndScreen,
+            GameFlowManager.GameAction.FinishDay => MenuType.BeatLevel,
+            _ => MenuType.Empty,
         };
 
         Debug.Log($"Menu Manager: Handled Game Action {action} and loaded menu of type: {menuToLoad}");
@@ -215,32 +204,39 @@ public class UIManager : Singleton<UIManager>
     /// <summary> Loads a menu type, while unloading the previous menu. </summary>
     /// <param name="menu"> Menu to load. </param>
     /// <param name="addToHistory"> If we are entering a nested menu. </param>
-    void LoadMenu(MenuTypes menuType, bool addToHistory = true, bool addToQueue = true)
+    void LoadMenu(MenuType myMenuType, bool addToHistory = true, bool addToQueue = true)
     {
         // In the future I would like the game to smoothly switch between screen transitions
         if (ScreenTransitions.Instance.IsTransitioning)
         {
             Debug.LogWarning("Can not change menus during screen transition.");
             if (addToQueue)
-                nextInQueue = menuType;
+                nextInQueue = myMenuType;
             return;
         }
 
-        if (MenuTypeToMenu.TryGetValue(menuType, out Menu menu))
-            LoadMenu(menu, addToHistory);
-        else if (menuType == MenuTypes.Previous)
-            LoadPreviousMenu();
+        if (MenuTypeToMenu.TryGetValue(myMenuType, out Menu menuToLoad))
+            LoadMenu(menuToLoad, addToHistory);
 
-        // Unload all menus
-        else if (menuType == MenuTypes.Empty)
+        switch (myMenuType)
         {
-            foreach (Menu m in menus)
-                m.SetCanvas(false, needsToMoveOutOfFrame: true);
-            nestedMenuHistory.Clear();
+            case MenuType.Previous:
+                LoadPreviousMenu();
+            break;
+            
+            case MenuType.Empty:
+                foreach (Menu menuToUnload in menus)
+                    menuToUnload.SetCanvas(false, needsToMoveOutOfFrame: true);
+                nestedMenuHistory.Clear();
+            break;
+
+            default:
+                if (menuToLoad == null)
+                    throw new Exception("Menu type not contained in MenuTypeToMenu dictionary or by switch expression");
+            break;
         }
-        else
-            Debug.LogWarning($"Menu Type: {menuType} not covered by conditional statements");
-    }
+
+        
 
     /// <summary> Loads a menu while unloading the previous menu </summary>
     /// <param name="menu"> Menu to load. </param>
@@ -269,9 +265,9 @@ public class UIManager : Singleton<UIManager>
         previousMenu = currentMenu;
         currentMenu = menu;
 
-        if (currentMenu != null && MenuToMenuType.TryGetValue(currentMenu, out MenuTypes currentType))
+        if (currentMenu != null && MenuToMenuType.TryGetValue(currentMenu, out MenuType currentType))
             currentMenuType = currentType;
-        if (previousMenu != null && MenuToMenuType.TryGetValue(previousMenu, out MenuTypes previousType))
+        if (previousMenu != null && MenuToMenuType.TryGetValue(previousMenu, out MenuType previousType))
             previousMenuType = previousType;
 
         previousMenu?.SetCanvas(false, false, !transitioningToMenuUnderStack);
@@ -281,11 +277,8 @@ public class UIManager : Singleton<UIManager>
         if (menu.CanSeePaper)
             userInterfaceCamera.cullingMask = allSeeingCullingMask;
         else
-            userInterfaceCamera.cullingMask = uIOnlyCullingMask;
+            userInterfaceCamera.cullingMask = uiOnlyCullingMask;
     }
-
-    void OnMenuChange(MenuTypes newMenuType, MenuTypes previousMenuType, bool isAMenuEnabled)
-        => MenuChangeEventHandler?.Invoke(this, new(newMenuType, previousMenuType, isAMenuEnabled));
 
     /// <summary> Loads the last loaded menu. </summary>
     void LoadPreviousMenu()
@@ -305,12 +298,10 @@ public class UIManager : Singleton<UIManager>
 class Menu
 {
     [field: SerializeField] public Canvas Canvas { get; private set; } = new();
-    [field: SerializeField] public List<GameObject> EnableOnReady { get; private set; } = new();
-    [field: SerializeField] public List<GameObject> DisableOnReady { get; private set; } = new();
     [field: SerializeField] public ScreenTransitions.OthogonalDirection SlideDirection { get; private set; }
     [field: SerializeField] public bool CanSeePaper { get; private set; }
     public Transform CanvasElements { get; private set; }
-    public MenuTypes MenuType { get; private set; }
+    public MenuType MenuType { get; private set; }
 
     bool isReady = false;
 
@@ -338,17 +329,6 @@ class Menu
         if (setActive)
         {
             string disabledMenus = string.Empty;
-            foreach (GameObject obj in DisableOnReady)
-            {
-                if (obj.TryGetComponent(out Menu menu))
-                {
-                    disabledMenus += menu.Canvas.name + ", ";
-                    menu.SetCanvas(false);
-                }
-                else
-                    obj.SetActive(false);
-                
-            }
             Debug.Log($"Disabled the following menus on ready: {(disabledMenus == string.Empty ? "none" : disabledMenus[..^2])}");
         }
     }
@@ -364,8 +344,6 @@ class Menu
                 Debug.Log($"Invoked set canvas {ready}");
                 SetCanvasAction?.Invoke(this, ready);
             }
-            foreach (GameObject obj in EnableOnReady)
-                obj.SetActive(ready);
         }
 
         while (ScreenTransitions.Instance.IsTransitioning)
@@ -381,12 +359,10 @@ class Menu
                 SetCanvasAction?.Invoke(this, ready);
                 Debug.Log($"Disabled canvas: {Canvas.name}");
             }
-            foreach (GameObject obj in EnableOnReady)
-                obj.SetActive(ready);
         }
     }
 
-    public void Init(MenuTypes menuType)
+    public void Initialize(MenuType menuType)
     {
         if (Canvas == null)
         {
@@ -406,15 +382,16 @@ class Menu
     }
 }
 
-public class MenuChangeEventArgs
-{
-    public readonly MenuTypes newMenuType;
-    public readonly MenuTypes previousMenuType;
-    public readonly bool isAMenuEnabled;
-    public MenuChangeEventArgs(MenuTypes newMenuType, MenuTypes previousMenuType, bool isAMenuEnabled)
+    public class MenuChangeEventArgs
     {
-        this.newMenuType = newMenuType;
-        this.previousMenuType = previousMenuType;
-        this.isAMenuEnabled = isAMenuEnabled;
+        public readonly MenuType newMenuType;
+        public readonly MenuType previousMenuType;
+        public readonly bool isAMenuEnabled;
+        public MenuChangeEventArgs(MenuType newMenuType, MenuType previousMenuType, bool isAMenuEnabled)
+        {
+            this.newMenuType = newMenuType;
+            this.previousMenuType = previousMenuType;
+            this.isAMenuEnabled = isAMenuEnabled;
+        }
     }
 }
