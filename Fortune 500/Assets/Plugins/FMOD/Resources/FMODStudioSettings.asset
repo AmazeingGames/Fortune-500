@@ -755,8 +755,8 @@ MonoBehaviour:
   switchSettingsMigration: 1
   HasSourceProject: 1
   HasPlatforms: 1
-  sourceProjectPath: 
-  sourceBankPath: 
+  sourceProjectPath: ../../Fortune 500 FMod/FortuneFMOD/Fortune500Jam/Fortune500Jam.fspro
+  sourceBankPath: ../../Fortune 500 FMod/FortuneFMOD/Fortune500Jam/Build
   sourceBankPathUnformatted: 
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1
