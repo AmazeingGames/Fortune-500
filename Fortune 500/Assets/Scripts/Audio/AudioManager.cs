@@ -22,7 +22,7 @@ public class AudioManager : Singleton<AudioManager>
     {
         FPSInput.TakeActionEventHandler += HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnect;
-        GameFlowManager.GameActionEventHandler += HandleGameAction;
+        GameFlowManager.PerformActionEventHandler += HandleGameAction;
         
     }
 
@@ -30,7 +30,7 @@ public class AudioManager : Singleton<AudioManager>
     {
         FPSInput.TakeActionEventHandler -= HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnect;
-        GameFlowManager.GameActionEventHandler -= HandleGameAction;
+        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
     }
 
     void HandleInterfaceConnect(object sender, InterfaceConnectedEventArgs e)

@@ -31,19 +31,24 @@ public class CandidateHandler : MonoBehaviour
     [SerializeField] GameObject candidateToDisable;
 
     public static EventHandler<FinishedCandidatesEventArgs> FinishedInterviewsEventHandler;
-    public static EventHandler<HiredCandidateEventArgs> HiredCandidateEventHandler;
+    public static EventHandler<HiredCandidateEventArgs> HireCandidateEventHandler;
 
     private void Awake()
     {
-        _hireButton.onClick.AddListener(()=> MakeDecision(true));
+        _hireButton.onClick.AddListener(() => MakeDecision(true));
         _rejectButton.onClick.AddListener(() => MakeDecision(false));
     }
 
     private void OnEnable()
-        => GameFlowManager.GameActionEventHandler += HandleGameAction;
+    {
+        GameFlowManager.PerformActionEventHandler += HandleGameAction;
+    }
 
     private void OnDisable()
-        => GameFlowManager.GameActionEventHandler += HandleGameAction;
+    {
+        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
+    }
+
 
     private void Update()
         => UpdatePatience();
@@ -82,7 +87,7 @@ public class CandidateHandler : MonoBehaviour
 
     public void OnHireCandidate(bool wasDecisionCorrect, int strikesLeft)
     {
-        HiredCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, strikesLeft));
+        HireCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, strikesLeft));
     }
 
     void MakeDecision(bool wasHired)

@@ -23,8 +23,8 @@ public class GameFlowManager : Singleton<GameFlowManager>
     public bool HasStartedWork { get; private set; }
     public LevelData LevelData { get; private set; }
 
-    public static EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
-    public static EventHandler<GameActionEventArgs> GameActionEventHandler;
+    public static EventHandler<GameStateChangeEventArgs> ChangeGameStateEventHandler;
+    public static EventHandler<GameActionEventArgs> PerformActionEventHandler;
 
     private EventInstance AmbianceSound;
 
@@ -127,7 +127,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
         Debug.Log($"Performed game action: {action}");
         MyLastGameAction = action;
-        OnGameAction(action, levelToLoad);
+        OnPerformGameAction(action, levelToLoad);
 
         // Start day is only performed on game start
         
@@ -179,8 +179,8 @@ public class GameFlowManager : Singleton<GameFlowManager>
         }
     }
 
-    void OnGameAction(GameAction action, int levelToLoad)
-        => GameActionEventHandler?.Invoke(this, new(this, action, levelToLoad));
+    void OnPerformGameAction(GameAction action, int levelToLoad)
+        => PerformActionEventHandler?.Invoke(this, new(this, action, levelToLoad));
 
     /// <summary> Informs listeners on how to align with the current state of the game. </summary>
     /// <param name="newState"> The state of the game to update to. </param>
@@ -200,7 +200,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
         var previousState = MyCurrentState;
         MyCurrentState = newState;
 
-        GameStateChangeEventHandler?.Invoke(this, new(this, newState, previousState, levelToLoad));
+        ChangeGameStateEventHandler?.Invoke(this, new(this, newState, previousState, levelToLoad));
     }
 }
 

@@ -13,10 +13,10 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
     public enum RestrictionType { Age, Skills, Name, College, JobTitle, PreviousEmployer }
     public List<Restriction> Restrictions = new();
     private void OnEnable()
-        => GameFlowManager.GameActionEventHandler += HandleGameAction;
+        => GameFlowManager.PerformActionEventHandler += HandleGameAction;
 
     private void OnDisable()
-        => GameFlowManager.GameActionEventHandler -= HandleGameAction;
+        => GameFlowManager.PerformActionEventHandler -= HandleGameAction;
 
     void HandleGameAction(object sender, GameActionEventArgs e)
     {

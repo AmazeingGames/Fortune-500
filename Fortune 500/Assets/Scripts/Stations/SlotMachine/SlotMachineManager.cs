@@ -11,10 +11,10 @@ public class SlotMachineManager : MonoBehaviour
     [SerializeField] List<Slot> slots;
 
     private void OnEnable()
-        => GameFlowManager.GameActionEventHandler += HandleGameAction;
+        => GameFlowManager.PerformActionEventHandler += HandleGameAction;
 
     private void OnDisable()
-        => GameFlowManager.GameActionEventHandler -= HandleGameAction;
+        => GameFlowManager.PerformActionEventHandler -= HandleGameAction;
 
     void HandleGameAction(object sender, GameActionEventArgs e)
     {

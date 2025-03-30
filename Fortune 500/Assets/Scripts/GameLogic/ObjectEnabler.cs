@@ -11,12 +11,12 @@ public class ObjectEnabler : MonoBehaviour
 
     private void OnEnable()
     {
-        GameFlowManager.GameStateChangeEventHandler += HandleGameStateChange;
+        GameFlowManager.ChangeGameStateEventHandler += HandleGameStateChange;
     }
 
     private void OnDisable()
     {
-        GameFlowManager.GameStateChangeEventHandler -= HandleGameStateChange;
+        GameFlowManager.ChangeGameStateEventHandler -= HandleGameStateChange;
     }
 
     void HandleGameStateChange(object sender, GameStateChangeEventArgs e)

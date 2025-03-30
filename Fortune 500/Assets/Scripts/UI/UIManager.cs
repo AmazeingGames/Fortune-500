@@ -116,17 +116,17 @@ public class UIManager : Singleton<UIManager>
 
     void OnEnable()
     {
-        GameStateChangeEventHandler += HandleGameStateChange;
+        ChangeGameStateEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIButtonInteract;
-        GameFlowManager.GameActionEventHandler += HandleGameAction;
+        GameFlowManager.PerformActionEventHandler += HandleGameAction;
         Menu.SetCanvasAction += HandleSetCanvas;
     }
 
     void OnDisable()
     {
-        GameStateChangeEventHandler -= HandleGameStateChange;
+        ChangeGameStateEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIButtonInteract;
-        GameFlowManager.GameActionEventHandler -= HandleGameAction;
+        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
         Menu.SetCanvasAction -= HandleSetCanvas;
     }
 

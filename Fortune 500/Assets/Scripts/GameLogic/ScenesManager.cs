@@ -40,13 +40,13 @@ public class ScenesManager : Singleton<ScenesManager>
 
     private void OnEnable()
     {
-        GameFlowManager.GameActionEventHandler += HandleGameAction;
-        GameFlowManager.GameStateChangeEventHandler += HandleGameStateChange;
+        GameFlowManager.PerformActionEventHandler += HandleGameAction;
+        GameFlowManager.ChangeGameStateEventHandler += HandleGameStateChange;
     }
     private void OnDisable()
     {
-        GameFlowManager.GameActionEventHandler -= HandleGameAction;
-        GameFlowManager.GameStateChangeEventHandler -= HandleGameStateChange;
+        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
+        GameFlowManager.ChangeGameStateEventHandler -= HandleGameStateChange;
     }
 
     private void Start()

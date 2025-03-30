@@ -9,9 +9,7 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
     [SerializeField] int randomUpdateRange;
     [SerializeField] float randomUpdatePeriod;
 
-    [SerializeField] TextMeshPro revenueText;
-    [SerializeField] TextMeshPro strikesLeftText;
-    [SerializeField] TextMeshPro dayText;
+    [SerializeField] EnvironmentData environmentData;
 
     public int Revenue { get; private set; }
     public int StrikesLeft { get; private set; } = 3;
@@ -19,25 +17,25 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
 
     private void OnEnable()
     {
-        GameFlowManager.GameActionEventHandler += HandleGameAction;
-        CandidateHandler.HiredCandidateEventHandler += OnHireCandidate;
+        GameFlowManager.PerformActionEventHandler += HandleGameAction;
+        CandidateHandler.HireCandidateEventHandler += HandleHiredCandidate;
     }
 
     private void OnDisable()
     {
-        GameFlowManager.GameActionEventHandler -= HandleGameAction;
-        CandidateHandler.HiredCandidateEventHandler -= OnHireCandidate;
+        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
+        CandidateHandler.HireCandidateEventHandler -= HandleHiredCandidate;
     }
 
     void Start()
     {
         Revenue = 100;
-        strikesLeftText.text = "III";
+        environmentData.StrikesLeftText.text = "III";
         StartCoroutine(FluctuateRevenue());
     }
 
     private void Update()
-        => revenueText.text = "Revenue:" + Revenue + " bn";
+        => environmentData.RevenueText.text = "Revenue:" + Revenue + " bn";
 
 
     void HandleGameAction(object sender, GameActionEventArgs e)
@@ -46,31 +44,31 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
         {
             case GameFlowManager.GameAction.StartWork:
                 DayCount++;
-                dayText.text = $"{DayCount}";
+                environmentData.DayText.text = $"{DayCount}";
             break;
         }
     }
 
-    void OnHireCandidate(object sender, HiredCandidateEventArgs e)
+    void HandleHiredCandidate(object sender, HiredCandidateEventArgs e)
     {
         int hiredMultiplier = e.wasDecisionCorrect ? 1 : 0;
         Revenue += 10 * hiredMultiplier;
-        revenueText.text = "Revenue:" + Revenue + " bn";
+        environmentData.RevenueText.text = "Revenue:" + Revenue + " bn";
 
         if (!e.wasDecisionCorrect)
         {
             StrikesLeft--;
-            strikesLeftText.text = "";
+            environmentData.StrikesLeftText.text = "";
 
             for (int i = 0; i < StrikesLeft; i++)
-                strikesLeftText.text += "I";
+                environmentData.StrikesLeftText.text += "I";
         }
     }
 
     IEnumerator FluctuateRevenue()
     {
         Revenue += Random.Range(-randomUpdateRange / 2, randomUpdateRange / 2);
-        revenueText.text = "Revenue:" + Revenue + " bn";
+        environmentData.RevenueText.text = "Revenue:" + Revenue + " bn";
         yield return new WaitForSeconds(randomUpdatePeriod);
         StartCoroutine(FluctuateRevenue());
     }

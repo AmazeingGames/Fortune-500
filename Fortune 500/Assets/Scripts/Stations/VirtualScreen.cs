@@ -7,11 +7,11 @@ using System;
 //To fake functionality, only enable this component when it's being used
 public class VirtualScreen : GraphicRaycaster
 {
-    [SerializeField] VirtualScreenData vritualScreenData;
     [SerializeField] PlayerFocus.Station stationType;
     [SerializeField] LayerMask hitLayerMasks;
 
-    public static event Action<VirtualScreen, PlayerFocus.Station> FindStation;
+    VirtualScreenSceneData virtualScreenSceneData;
+    public static EventHandler<FindStationDataEventArgs> FindStationDataEventHandler;
 
     // Camera responsible for rendering the virtual screen's rendertexture
     public Camera screenCamera;
@@ -25,7 +25,7 @@ public class VirtualScreen : GraphicRaycaster
     {
         base.Start();
 
-        FindStation?.Invoke(this, stationType);
+        FindStationDataEventHandler?.Invoke(this, new(stationType));
     }
 
     // Called by Unity when a Raycaster should raycast because it extends BaseRaycaster.
@@ -50,3 +50,17 @@ public class VirtualScreen : GraphicRaycaster
     }
 
 }
+
+public class FindStationDataEventArgs : EventArgs
+{
+    public readonly PlayerFocus.Station myStation;
+    public readonly VirtualScreenSceneData virtualScreenSceneData;
+    public FindStationDataEventArgs(PlayerFocus.Station myStation)
+    {
+        this.myStation = myStation;
+    }
+}
+
+
+
+

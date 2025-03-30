@@ -23,14 +23,14 @@ public class DayFlowManager : MonoBehaviour
 
     private void OnEnable()
     {
-        CandidateHandler.HiredCandidateEventHandler += HandleHireCandidate;
-        GameFlowManager.GameActionEventHandler += HandleGameAction;
+        CandidateHandler.HireCandidateEventHandler += HandleHireCandidate;
+        GameFlowManager.PerformActionEventHandler += HandleGameAction;
     }
 
     private void OnDisable()
     {
-        CandidateHandler.HiredCandidateEventHandler -= HandleHireCandidate;
-        GameFlowManager.GameActionEventHandler -= HandleGameAction;
+        CandidateHandler.HireCandidateEventHandler -= HandleHireCandidate;
+        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
     }
     private void Start()
     {
