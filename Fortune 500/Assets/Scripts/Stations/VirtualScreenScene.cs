@@ -3,13 +3,19 @@ using static VirtualScreen;
 
 public class VirtualScreenScene : MonoBehaviour
 {
-    [SerializeField] VirtualScreenSceneData VirtualScreenSceneData;
+    [SerializeField] StationData VirtualScreenSceneData;
 
     private void OnEnable()
-  => FindScreenDataEventHandler += HandleFindScreenData;
+        => VirtualScreen.FindStationDataEventHandler += HandleFindStationData;
 
     private void OnDisable()
-      => FindScreenDataEventHandler -= HandleFindScreenData;
+        => VirtualScreen.FindStationDataEventHandler -= HandleFindStationData;
+
+    void HandleFindStationData(object sender, FindStationDataEventArgs e)
+    {
+
+    }
+
 
 
 }

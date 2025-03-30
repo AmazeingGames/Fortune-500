@@ -23,13 +23,13 @@ public class FocusStation : MonoBehaviour
     private void OnEnable()
     {
         PlayerFocus.FocusAttemptedEventHandler += HandleFocusAttempt;
-        VirtualScreen.FindStation += HandleFindStation;
+        VirtualScreen.FindStationDataEventHandler += HandleFindStation;
     }
 
     private void OnDisable()
     {
         PlayerFocus.FocusAttemptedEventHandler -= HandleFocusAttempt;
-        VirtualScreen.FindStation -= HandleFindStation;
+        VirtualScreen.FindStationDataEventHandler -= HandleFindStation;
     }
 
     private void Start()
@@ -91,9 +91,9 @@ public class FocusStation : MonoBehaviour
         InterfaceConnectedEventHandler?.Invoke(this, new InterfaceConnectedEventArgs(myStation, myInteractionType, cameraPosition.transform));
     }
 
-    void HandleFindStation(VirtualScreen sender, Station virtualScreenType)
+    void HandleFindStation(object sender, FindStationDataEventArgs e)
     {
-        if (virtualScreenType == myStation)
+        if (e.myStation == myStation)
         {
             virtualDisplay = sender;
             virtualDisplay.enabled = false;

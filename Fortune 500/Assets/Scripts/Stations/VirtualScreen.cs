@@ -10,7 +10,7 @@ public class VirtualScreen : GraphicRaycaster
     [SerializeField] PlayerFocus.Station stationType;
     [SerializeField] LayerMask hitLayerMasks;
 
-    VirtualScreenSceneData virtualScreenSceneData;
+    StationData virtualScreenSceneData;
     public static EventHandler<FindStationDataEventArgs> FindStationDataEventHandler;
 
     // Camera responsible for rendering the virtual screen's rendertexture
@@ -54,7 +54,7 @@ public class VirtualScreen : GraphicRaycaster
 public class FindStationDataEventArgs : EventArgs
 {
     public readonly PlayerFocus.Station myStation;
-    public readonly VirtualScreenSceneData virtualScreenSceneData;
+    public readonly StationData virtualScreenSceneData;
     public FindStationDataEventArgs(PlayerFocus.Station myStation)
     {
         this.myStation = myStation;
