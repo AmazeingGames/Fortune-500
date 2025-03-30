@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.ShaderGraph.Serialization;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static PlayerActionEventArgs;
+using FMOD.Studio;
 
 [RequireComponent(typeof(UnityEngine.CharacterController))]
 [AddComponentMenu("Controls Script/FPS Input")]
@@ -25,6 +25,7 @@ public class FPSInput : MonoBehaviour
     float walkSoundTimer;
     float horizontalInput;
     float verticalInput;
+    private EventInstance playerFootsteps;
 
     Vector3 movement;
 
@@ -45,6 +46,11 @@ public class FPSInput : MonoBehaviour
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnection;
     }
 
+    private void Awake()
+    {
+        playerFootsteps = AudioManager.Instance.CreateInstance(FMODEvents.Instance.Player3DFootsteps);
+    }
+
     void HandleInterfaceConnection(object sender, InterfaceConnectedEventArgs e)
     {
         lockMovement = e.myInteractionType switch
@@ -55,28 +61,19 @@ public class FPSInput : MonoBehaviour
         };
     }
 
-    void OnTakeAction(PlayerActions action)
-    {
-        switch (action)
-        {
-            case PlayerActions.Step:
-                walkSoundTimer = timeBetweenWalkSounds;
-                TakeActionEventHandler?.Invoke(this, new(action, transform.position));
-            break;
-        }
-    }
 
-    // Update is called once per frame
     void Update()
     {
         UpdateTimers();
-
-        if (lockMovement)
-            return;
-
-        MovePlayer();  
-        CheckWalkSound();
+        
+        if (!lockMovement)
+        {
+            MovePlayer();
+        }
         GetInput();
+        UpdateSound();
+
+
     }
 
     void GetInput()
@@ -88,19 +85,6 @@ public class FPSInput : MonoBehaviour
     void UpdateTimers()
         => walkSoundTimer -= Time.deltaTime;
 
-    void CheckWalkSound()
-    {
-        if (Mathf.Abs(horizontalInput) < .1f && Mathf.Abs(verticalInput) < .1f)
-            return;
-
-        if (Mathf.Abs(deltaX) < .1f && Mathf.Abs(deltaZ) < .1f)
-            return;
-
-        if (walkSoundTimer > 0)
-            return;
-
-        OnTakeAction(PlayerActions.Step);
-    }
 
     void MovePlayer()
     {
@@ -116,6 +100,25 @@ public class FPSInput : MonoBehaviour
         movement = transform.TransformDirection(movement);
 
         characterController.Move(movement);
+    }
+
+    private void UpdateSound()
+    {
+        PLAYBACK_STATE playbackState;
+        playerFootsteps.getPlaybackState(out playbackState);
+        if (Mathf.Abs(horizontalInput) < .1f && Mathf.Abs(verticalInput) < .1f)
+            playerFootsteps.stop(STOP_MODE.ALLOWFADEOUT);
+
+        else if (Mathf.Abs(deltaX) < .1f && Mathf.Abs(deltaZ) < .1f)
+            playerFootsteps.stop(STOP_MODE.ALLOWFADEOUT);
+
+        else if (lockMovement)
+            playerFootsteps.stop(STOP_MODE.ALLOWFADEOUT);
+
+        else if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
+        {
+            playerFootsteps.start();
+        }
     }
 }
 

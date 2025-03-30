@@ -1,5 +1,6 @@
 using System;
 using UnityEngine.Serialization;
+using FMODUnity;
 
 namespace UnityEngine.EventSystems
 {
@@ -12,6 +13,8 @@ namespace UnityEngine.EventSystems
 
         private Vector2 m_LastMousePosition;
         private Vector2 m_MousePosition;
+
+        [SerializeField] private EventReference mouseClickSound;
 
         protected VirtualInputModule()
         { }
@@ -317,6 +320,7 @@ namespace UnityEngine.EventSystems
             // PointerDown notification
             if (data.PressedThisFrame())
             {
+                AudioManager.Instance.PlayOneShot(mouseClickSound, this.transform.position);
                 pointerEvent.eligibleForClick = true;
                 pointerEvent.delta = Vector2.zero;
                 pointerEvent.dragging = false;
