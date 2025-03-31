@@ -11,23 +11,23 @@ public class SlotMachineManager : MonoBehaviour
     [SerializeField] List<Slot> slots;
 
     private void OnEnable()
-        => GameManager.GameActionEventHandler += HandleGameAction;
+        => DayManager.DayStateChangeEventHandler += HandleDayStateChange;
 
     private void OnDisable()
-        => GameManager.GameActionEventHandler -= HandleGameAction;
+        => DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
 
-    void HandleGameAction(object sender, GameActionEventArgs e)
+    void HandleDayStateChange(object sender, DayStateChangeEventArgs e)
     {
-        switch (e.gameAction)
+        switch (e.myDayState)
         {
-            case GameManager.GameAction.StartWork:
-                StartCoroutine(COStartSlots());
-                break;
+            case DayStateChangeEventArgs.DayState.StartWork:
+                StartCoroutine(CO_StartSlots());
+            break;
         }
     }
 
 
-    IEnumerator COStartSlots()
+    IEnumerator CO_StartSlots()
     {
         Debug.Log("Randomize Slots");
         yield return null;

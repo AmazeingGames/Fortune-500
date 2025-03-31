@@ -28,6 +28,8 @@ public class CandidateHandler : MonoBehaviour
 
     [Header("Prefabs")]
     [SerializeField] PinkSlip pinkSlip;
+    [SerializeField] GameObject candidateToDisable;
+
     public CandidateData CurrentCandidate { get; private set; }
 
     CandidateGenerator _candidateGenerator;
@@ -36,9 +38,8 @@ public class CandidateHandler : MonoBehaviour
     RestrictionHandler _restrictionHandler;
     int _candidatesInTheDay;
     bool enabled = true;
-    [SerializeField] GameObject candidateToDisable;
 
-    public static EventHandler<FinishedCandidatesEventArgs> FinishedCandidatesEventHandler;
+    public static EventHandler<CandidateActionEventArgs> CandidateActionEventHandler;
 
     private void Awake()
     {
@@ -51,26 +52,26 @@ public class CandidateHandler : MonoBehaviour
     }
 
     private void OnEnable()
-        => GameManager.GameActionEventHandler += HandleGameAction;
+        => DayManager.DayStateChangeEventHandler += HandleDayStateChange;
 
     private void OnDisable()
-        => GameManager.GameActionEventHandler += HandleGameAction;
+        => DayManager.DayStateChangeEventHandler += HandleDayStateChange;
 
     private void Update()
         => UpdatePatience();
 
-    void HandleGameAction(object sender, GameActionEventArgs e)
+    void HandleDayStateChange(object sender, DayStateChangeEventArgs e)
     {
-        switch (e.gameAction)
+        switch (e.myDayState)
         {
-            case GameManager.GameAction.StartDay:
+            case DayStateChangeEventArgs.DayState.StartDay:
                 if (candidate != null)
                     candidate.gameObject.SetActive(false);
                 if (resume != null)
                     resume.gameObject.SetActive(false);
             break;
 
-            case GameManager.GameAction.StartWork:
+            case DayStateChangeEventArgs.DayState.StartWork:
                 candidate.gameObject.SetActive(true);
                 resume.gameObject.SetActive(true);
 
@@ -171,9 +172,6 @@ public class CandidateHandler : MonoBehaviour
         _resumeDisplay.DisplayCandidate(CurrentCandidate);
     }
 
-    void OnFinishCandidates()
-        => FinishedCandidatesEventHandler?.Invoke(this, new());
-
     void UpdatePatience()
     {
         if (CurrentCandidate == null)
@@ -187,4 +185,14 @@ public class CandidateHandler : MonoBehaviour
     }
 }
 
-public class FinishedCandidatesEventArgs : EventArgs { }
+public class CandidateActionEventArgs : EventArgs
+{
+    public enum CandidateAction { Review, Enter }
+
+    public readonly CandidateAction myCandidateAction;
+
+    public CandidateActionEventArgs(CandidateAction myCandidateAction)
+    {
+        this.myCandidateAction = myCandidateAction;
+    }
+}

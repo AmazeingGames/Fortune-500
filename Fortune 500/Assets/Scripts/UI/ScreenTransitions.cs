@@ -3,44 +3,61 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Splines;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 // Contains all code for loading screens and screen transitions
-public class ScreenTransitions : Singleton<ScreenTransitions>
+public class ScreenTransitions : MonoBehaviour
 {
     [field: Header("Transition Data")]
     [SerializeField] TransitionData transitionInData;
     [SerializeField] TransitionData transitionOutData;
-    [field: SerializeField] float distance;
-
     [SerializeField] TransitionTypes transitionType;
+    [SerializeField] float distance;
 
     public enum TransitionTypes { AlwaysMove, OnlyWhenNecessary, Stacked }
-
-    [Serializable]
-    class TransitionData
-    {
-        [field: SerializeField] public AnimationCurve Curve { get; private set; }
-        [field: SerializeField] public float Speed { get; private set; }
-    }
-    public enum OthogonalDirection { Up,  Down, Left, Right }
+    public enum OthogonalDirection { Up, Down, Left, Right }
 
     public static event EventHandler<ScreenTransitionsEventArgs> ScreenTransitionEventHandler;
 
-    public bool IsTransitioning { get; private set; } = false;
-    public class ScreenTransitionsEventArgs : EventArgs { }
+    public static bool IsPlayingTransitionAnimation { get; private set; } = false;
 
-    Transform lastElements;
-    bool lastIsReadying;
     OthogonalDirection lastDirection;
+    Transform lastElements;
+    
+    bool lastIsReadying;
     bool neededToMoveOutOfFrame;
-    bool wasNested;
+    bool wasLastNested;
+
+    private void OnEnable()
+        => Menu.SetCanvasEventHandler += HandleOnScreenTransition;
+
+    private void OnDisable()
+        => Menu.SetCanvasEventHandler -= HandleOnScreenTransition;
+
+    void HandleOnScreenTransition(object sender, Menu.SetCanvasEventArgs e)
+    {
+        if (e.canvasElements == null)
+            return;
+
+        switch (e.mySetAction)
+        {
+            case Menu.CanvasAction.StartSet:
+                StartTransition(e.canvasElements, e.setActive, e.slideDirection, e.needsToMoveOutOfFrame, e.wasNested);
+                break;
+            case Menu.CanvasAction.FinishSet:
+                break;
+        }
+    }
+
+
     // Update is called once per frame
     void Update()
     {
 # if DEBUG
         if (Input.GetKeyDown(KeyCode.Space) && lastElements != null)
-            StartTransition(lastElements, lastIsReadying, lastDirection, neededToMoveOutOfFrame, wasNested);
+            StartTransition(lastElements, lastIsReadying, lastDirection, neededToMoveOutOfFrame, wasLastNested);
 #endif
     }
 
@@ -62,7 +79,7 @@ public class ScreenTransitions : Singleton<ScreenTransitions>
         lastIsReadying = isReadying;
         lastDirection = slideInDirection;
         neededToMoveOutOfFrame = needsToMoveOutOfFrame;
-        this.wasNested = wasNested;
+        this.wasLastNested = wasNested;
 
         if (elements == null)
         {
@@ -120,7 +137,7 @@ public class ScreenTransitions : Singleton<ScreenTransitions>
 
         while (current < 1)
         {
-            IsTransitioning = true;
+            IsPlayingTransitionAnimation = true;
             current = Mathf.MoveTowards(current, 1, transitionData.Speed * Time.deltaTime);
 
             switch (transitionType)
@@ -146,6 +163,16 @@ public class ScreenTransitions : Singleton<ScreenTransitions>
             yield return null;
         }
         elements.localPosition = goalPosition;
-        IsTransitioning = false;
+        IsPlayingTransitionAnimation = false;
     }
 }
+
+[Serializable]
+class TransitionData
+{
+    [field: SerializeField] public AnimationCurve Curve { get; private set; }
+    [field: SerializeField] public float Speed { get; private set; }
+}
+
+public class ScreenTransitionsEventArgs : EventArgs { }
+

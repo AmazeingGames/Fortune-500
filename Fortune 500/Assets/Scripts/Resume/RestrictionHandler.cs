@@ -5,6 +5,7 @@ using System.Linq;
 using Random = UnityEngine.Random;
 using Unity.Mathematics;
 using Unity.VisualScripting;
+using static DayStateChangeEventArgs;
 
 public class RestrictionHandler : Singleton<RestrictionHandler>
 {
@@ -19,16 +20,16 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
         _candidateGenerator = FindAnyObjectByType<CandidateGenerator>();
     }
     private void OnEnable()
-        => GameManager.GameActionEventHandler += HandleGameAction;
+        => DayManager.DayStateChangeEventHandler += HandleChangeDayState;
 
     private void OnDisable()
-        => GameManager.GameActionEventHandler -= HandleGameAction;
+        => DayManager.DayStateChangeEventHandler -= HandleChangeDayState;
 
-    void HandleGameAction(object sender, GameActionEventArgs e)
+    void HandleChangeDayState(object sender, DayStateChangeEventArgs e)
     {
-        switch (e.gameAction)
+        switch (e.myDayState)
         {
-            case GameManager.GameAction.StartWork:
+            case DayState.StartWork:
                 GenerateRestrictions();
             break;
         }

@@ -57,8 +57,8 @@ public class UIManager : Singleton<UIManager>
     MenuTypes previousMenuType;
 
     readonly Menu emptyMenu = new();
-    List<Menu> menuHistory = new();
-    List<Menu> nestedMenuHistory = new();
+    readonly List<Menu> menuHistory = new();
+    readonly List<Menu> nestedMenuHistory = new();
     int currentHistoryIndex = -1;
 
     Dictionary<MenuTypes, Menu> MenuTypeToMenu;
@@ -118,7 +118,7 @@ public class UIManager : Singleton<UIManager>
 
     private void Update()
     {
-        if (nextInQueue != MenuTypes.None && !ScreenTransitions.Instance.IsTransitioning)
+        if (nextInQueue != MenuTypes.None && !ScreenTransitions.IsPlayingTransitionAnimation)
         {
             LoadMenu(nextInQueue);
             nextInQueue = MenuTypes.None;
@@ -130,7 +130,8 @@ public class UIManager : Singleton<UIManager>
         GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIButtonInteract;
         GameManager.GameActionEventHandler += HandleGameAction;
-        Menu.SetCanvasAction += HandleSetCanvas;
+        Menu.SetCanvasEventHandler += HandleSetCanvas;
+        DayManager.DayStateChangeEventHandler += HandleDayStateChange;
     }
 
     void OnDisable()
@@ -138,7 +139,19 @@ public class UIManager : Singleton<UIManager>
         GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIButtonInteract;
         GameManager.GameActionEventHandler -= HandleGameAction;
-        Menu.SetCanvasAction -= HandleSetCanvas;
+        Menu.SetCanvasEventHandler -= HandleSetCanvas;
+        DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
+    }
+
+    void HandleDayStateChange(object sender, DayStateChangeEventArgs e)
+    {
+        var menuToLoad = e.myDayState switch
+        {
+            DayStateChangeEventArgs.DayState.EndDay => MenuTypes.BeatLevel,
+            _ => MenuTypes.None,
+        };
+        LoadMenu(menuToLoad);
+
     }
 
     void HandleGameAction(object sender, GameActionEventArgs e)
@@ -174,11 +187,11 @@ public class UIManager : Singleton<UIManager>
     ///     Sets the UI camera and level camera active based on that.
     /// </summary>
     /// <param name="setActive"> The SetActive() property the canvas was set to. </param>
-    void HandleSetCanvas(Menu menu, bool setActive)
+    void HandleSetCanvas(object sender, Menu.SetCanvasEventArgs e)
     {
         bool isAMenuEnabled = IsAMenuEnabled();
         userInterfaceCamera.gameObject.SetActive(isAMenuEnabled);
-        OnMenuChange(currentMenuType, previousMenuType, isAMenuEnabled);
+        OnMenuChange(currentMenuType, previousMenuType, isAMenuEnabled: isAMenuEnabled);
     }
 
     /// <summary> Loads a menu appropraite to the current game action. </summary>
@@ -189,7 +202,6 @@ public class UIManager : Singleton<UIManager>
             GameManager.GameAction.EnterMainMenu => MenuTypes.MainMenu,
             GameManager.GameAction.PauseGame => MenuTypes.Pause,
             GameManager.GameAction.LoseGame => MenuTypes.GameEndScreen,
-            GameManager.GameAction.FinishDay => MenuTypes.BeatLevel,
             _ => MenuTypes.Empty,
         };
 
@@ -198,9 +210,7 @@ public class UIManager : Singleton<UIManager>
         LoadMenu(menuToLoad);
     }
 
-    /// <summary> Loads the menu told by a clicked ui button </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    /// <summary> Loads the appropraite menu when we click a ui button </summary>
     void HandleUIButtonInteract(object sender, UIButton.UIInteractEventArgs e)
     {
         if (e.buttonEvent != UIButton.UIEventTypes.UI)
@@ -213,12 +223,10 @@ public class UIManager : Singleton<UIManager>
     }
 
     /// <summary> Loads a menu type, while unloading the previous menu. </summary>
-    /// <param name="menu"> Menu to load. </param>
-    /// <param name="addToHistory"> If we are entering a nested menu. </param>
     void LoadMenu(MenuTypes menuType, bool addToHistory = true, bool addToQueue = true)
     {
         // In the future I would like the game to smoothly switch between screen transitions
-        if (ScreenTransitions.Instance.IsTransitioning)
+        if (ScreenTransitions.IsPlayingTransitionAnimation)
         {
             Debug.LogWarning("Can not change menus during screen transition.");
             if (addToQueue)
@@ -314,26 +322,23 @@ class Menu
 
     bool isReady = false;
 
-    public static event Action<Menu, bool> SetCanvasAction;
+    public static EventHandler<SetCanvasEventArgs> SetCanvasEventHandler;
 
-    /// <summary> Plays a transition animation before enabling/disabling the canvas. </summary>
-    /// <param name="setActive"></param>
+    public enum CanvasAction { StartSet, FinishSet }
+
     public void SetCanvas(bool setActive, bool needsToMoveOutOfFrame = false, bool wasNested = false)
     {
         if (setActive == isReady)
         {
-            Debug.Log($"Trying to {(setActive ? "enable" : "disable")} canvas, when canvas is already {(isReady ? "enabled" : "disabled")}");
+            Debug.Log($"Trying to {(setActive ? "enable" : "disable")} {MenuType} screen, when canvas is already {(isReady ? "enabled" : "disabled")}");
             return;
         }
 
         isReady = setActive;
-        if (CanvasElements != null)
-        {
-            Debug.Log($"{Canvas.name} starting transition to being set : {setActive} | direction : {SlideDirection} | needsToMoveOutOfFrame : {needsToMoveOutOfFrame} | wasNested : {wasNested}");
-            ScreenTransitions.Instance.StartTransition(CanvasElements, setActive, SlideDirection, needsToMoveOutOfFrame, wasNested);
-        }
 
-        ScreenTransitions.Instance.StartCoroutine(SetObjectsAndCanvas(setActive));
+        Debug.Log($"Starting transition to {(setActive ? "enable" : "disable")} {MenuType} canvas. | Slide direction : {SlideDirection} | needsToMoveOutOfFrame : {needsToMoveOutOfFrame} | wasNested : {wasNested}");
+
+        UIManager.Instance.StartCoroutine(SetObjectsAndCanvas(setActive, needsToMoveOutOfFrame, wasNested));
 
         if (setActive)
         {
@@ -353,37 +358,41 @@ class Menu
         }
     }
 
-    IEnumerator SetObjectsAndCanvas(bool ready)
+    IEnumerator SetObjectsAndCanvas(bool ready, bool needsToMoveOutOfFrame, bool wasNested)
     {
-        // Instantly enables the canvas
+        OnCanvasAction(ready, needsToMoveOutOfFrame, wasNested, CanvasAction.StartSet);
+
+        // Enables the canvas before it starts moving into frame
         if (ready)
         {
-            if (Canvas != null)
-            {
-                Canvas.gameObject.SetActive(ready);
-                Debug.Log($"Invoked set canvas {ready}");
-                SetCanvasAction?.Invoke(this, ready);
-            }
+            OnCanvasAction(ready, needsToMoveOutOfFrame, wasNested, CanvasAction.FinishSet);
             foreach (GameObject obj in EnableOnReady)
                 obj.SetActive(ready);
         }
 
-        while (ScreenTransitions.Instance.IsTransitioning)
+        while (ScreenTransitions.IsPlayingTransitionAnimation)
             yield return null;
 
-        // Waits until the canvas moves out of frame 
+        // Waits until the canvas moves out of frame before disabling it
         if (!ready)
         {
-            if (Canvas != null)
-            {
-                Canvas.gameObject.SetActive(ready);
-                Debug.Log($"Invoked set canvas {ready}");
-                SetCanvasAction?.Invoke(this, ready);
-                Debug.Log($"Disabled canvas: {Canvas.name}");
-            }
+            OnCanvasAction(ready, needsToMoveOutOfFrame, wasNested, CanvasAction.FinishSet);
             foreach (GameObject obj in EnableOnReady)
                 obj.SetActive(ready);
         }
+    }
+
+    void OnCanvasAction(bool setActive, bool moveOutOfFrame, bool wasNested, CanvasAction mySetCanvasAction)
+    {
+        if (Canvas == null)
+            return;
+
+        if (mySetCanvasAction == CanvasAction.FinishSet)
+            Canvas.gameObject.SetActive(setActive);
+
+        Debug.Log($"Setting {Canvas.name} canvas {(setActive ? "active" : "disabled")}");
+        SetCanvasEventHandler?.Invoke(this, new(this, setActive, CanvasElements, SlideDirection, moveOutOfFrame, wasNested, mySetCanvasAction));
+        
     }
 
     public void Init(MenuTypes menuType)
@@ -404,6 +413,29 @@ class Menu
 
         this.MenuType = menuType;
     }
+
+    public class SetCanvasEventArgs : EventArgs
+    {
+        public readonly Menu menu;
+        public readonly bool setActive;
+
+        public readonly Transform canvasElements;
+        public readonly ScreenTransitions.OthogonalDirection slideDirection;
+        public readonly bool needsToMoveOutOfFrame;
+        public readonly bool wasNested;
+        public readonly CanvasAction mySetAction;
+
+        public SetCanvasEventArgs(Menu menu, bool setActive, Transform canvasElements, ScreenTransitions.OthogonalDirection slideDirection, bool needsToMoveOutOfFrame, bool wasNested, CanvasAction mySetAction)
+        {
+            this.menu = menu;
+            this.setActive = setActive;
+            this.canvasElements = canvasElements;
+            this.slideDirection = slideDirection;
+            this.needsToMoveOutOfFrame = needsToMoveOutOfFrame;
+            this.wasNested = wasNested;
+            this.mySetAction = mySetAction;
+        }
+    }
 }
 
 public class MenuChangeEventArgs
@@ -418,3 +450,4 @@ public class MenuChangeEventArgs
         this.isAMenuEnabled = isAMenuEnabled;
     }
 }
+

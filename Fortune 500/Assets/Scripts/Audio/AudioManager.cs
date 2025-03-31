@@ -14,9 +14,13 @@ public class AudioManager : Singleton<AudioManager>
     [SerializeField] private EventReference EndDayCallEvent;
     [SerializeField] private EventReference LoseGameEvent;
 
+    EventInstance AmbienceSound;
+
     void Start()
     {        
         masterBus = RuntimeManager.GetBus("bus:/");
+
+        AmbienceSound = CreateInstance(FMODEvents.Instance.GameAmbience);
     }
 
     private void OnEnable()
@@ -24,7 +28,7 @@ public class AudioManager : Singleton<AudioManager>
         FPSInput.TakeActionEventHandler += HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnect;
         GameManager.GameActionEventHandler += HandleGameAction;
-        
+        DayManager.DayStateChangeEventHandler += HandleDayStateChange;
     }
 
     private void OnDisable()
@@ -32,6 +36,7 @@ public class AudioManager : Singleton<AudioManager>
         FPSInput.TakeActionEventHandler -= HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnect;
         GameManager.GameActionEventHandler -= HandleGameAction;
+        DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
     }
 
     void HandleInterfaceConnect(object sender, InterfaceConnectedEventArgs e)
@@ -48,6 +53,21 @@ public class AudioManager : Singleton<AudioManager>
             break;
         }
     }
+
+    void HandleDayStateChange(object sender, DayStateChangeEventArgs e)
+    {
+        switch (e.myDayState)
+        {
+            case DayStateChangeEventArgs.DayState.StartWork:
+                AmbienceSound.start();
+            break;
+
+            case DayStateChangeEventArgs.DayState.EndWork:
+                PlayOneShot(EndDayCallEvent, transform.position);
+            break;
+        }
+    }
+
 
     void HandlePlayerAction(object sender, PlayerActionEventArgs e)
     {
@@ -69,32 +89,17 @@ public class AudioManager : Singleton<AudioManager>
     {
         switch (e.gameAction)
         {
-            case GameManager.GameAction.None:
-                break;
-            case GameManager.GameAction.EnterMainMenu:
-                break;
             case GameManager.GameAction.PlayGame:
                 PlayOneShot(IntroCallEvent, transform.position);
-                break;
-            case GameManager.GameAction.StartDay:
-                
-                break;
-            case GameManager.GameAction.PauseGame:
-                break;
-            case GameManager.GameAction.ResumeGame:
-                break;
-            case GameManager.GameAction.RestartDay:
-                break;
-            case GameManager.GameAction.LoadNextDay:
-                break;
-            case GameManager.GameAction.FinishDay:
-                PlayOneShot(EndDayCallEvent, transform.position);
-                break;
+            break;
+
             case GameManager.GameAction.LoseGame:
                 PlayOneShot(LoseGameEvent, transform.position);
-                break;
-            case GameManager.GameAction.StartWork:
-                break;
+            break;
+
+            case GameManager.GameAction.PauseGame:
+                AmbienceSound.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            break;
         }
     }
 

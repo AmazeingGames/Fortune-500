@@ -14,7 +14,7 @@ public class GameManager : Singleton<GameManager>
     KeyCode pauseKey = KeyCode.Escape;
 
     public enum GameState { None, InMenu, Running, Paused, Loading }
-    public enum GameAction { None, EnterMainMenu, PlayGame, StartDay, PauseGame, ResumeGame, RestartDay, LoadNextDay, FinishDay, LoseGame, StartWork }
+    public enum GameAction { None, EnterMainMenu, PlayGame, PauseGame, ResumeGame, LoseGame }
 
     public GameState CurrentState { get; private set; }
     public GameAction LastGameAction { get; private set; }
@@ -26,21 +26,17 @@ public class GameManager : Singleton<GameManager>
     public static EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
     public static EventHandler<GameActionEventArgs> GameActionEventHandler;
 
-    private EventInstance AmbianceSound;
 
     void OnEnable()
     {
-        
-        SlotMachineButton.PulledLeverEventHandler += HandlePullLever;
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
         UIButton.UIInteractEventHandler += HandleUIInteract;
         LevelData.LoadLevelData += HandleLoadLevelData;
+
     }
 
     void OnDisable()
     {
-        
-        SlotMachineButton.PulledLeverEventHandler -= HandlePullLever;
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
         LevelData.LoadLevelData -= HandleLoadLevelData;
         UIButton.UIInteractEventHandler += HandleUIInteract;
@@ -49,20 +45,17 @@ public class GameManager : Singleton<GameManager>
     // Start is called before the first frame update
     void Start()
     {
-        AmbianceSound = AudioManager.Instance.CreateInstance(FMODEvents.Instance.GameAmbience);
         PerformGameAction(GameAction.EnterMainMenu);
     }
 
     private void Update()
     {
         // In the future, I would like the game to acknowledge this, and be able to smoothly transition between the 2 quickly
-        if (Input.GetKeyDown(pauseKey) && !ScreenTransitions.Instance.IsTransitioning)
+        if (Input.GetKeyDown(pauseKey) && !ScreenTransitions.IsPlayingTransitionAnimation)
         {
             switch (CurrentState)
             {
                 case GameState.Running:
-                    if (LastGameAction == GameAction.FinishDay)
-                        return;
                     PerformGameAction(GameAction.PauseGame);
                 break;
 
@@ -73,24 +66,18 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    /// <summary> Checks if we've interviewed all the employees for the day. </summary>
-    void CheckVictory()
+    void HandleChangeDayState(object sender, DayStateChangeEventArgs e)
     {
-        if (HasFinishedDay)
-            return;
-
-        // if interviewed all employees
-        PerformGameAction(GameAction.FinishDay);
-    }
-
-    void HandlePullLever(object sender, EventArgs e)
-    {
-        if (HasStartedWork)
+        switch (e.myDayState)
         {
-            Debug.Log("Day has already started!");
-            return;
+            case DayStateChangeEventArgs.DayState.StartWork:
+
+            break;
+
+            case DayStateChangeEventArgs.DayState.EndWork:
+
+            break;
         }
-        PerformGameAction(GameAction.StartWork);
     }
 
     /// <summary> Performs a game action given from a UI button. </summary>
@@ -125,10 +112,6 @@ public class GameManager : Singleton<GameManager>
             Debug.Log("Did nothing to level data");
     }
 
-    /// <summary> Informs listerners of a game action and updates the game state accordingly. </summary>
-    /// <param name="action"> The game action to perform. </param>
-    /// <param name="levelToLoad"> If we should load a level, otherwise leave at -1. </param>
-    // Update game state in response to menu changes
     void PerformGameAction(GameAction action, int levelToLoad = -1)
     {
         if (action == GameAction.None)
@@ -142,52 +125,26 @@ public class GameManager : Singleton<GameManager>
         OnGameAction(action, levelToLoad);
 
         Debug.LogWarning("Start level is only performed on game start.");
-        
-        switch (action)
-        {
-            case GameAction.PlayGame:
-                PerformGameAction(GameAction.StartDay);
-                AmbianceSound.start();
-                break;
 
-            case GameAction.StartDay:
-            case GameAction.RestartDay:
-            case GameAction.LoadNextDay:
-                HasFinishedDay = false;
-            break;
-
-            case GameAction.StartWork:
-                HasStartedWork = true;
-                break;
-
-            case GameAction.FinishDay:
-                HasFinishedDay = true;
-                HasStartedWork = false;
-            break;
-        }
-
-        // Updates game state to fit the action
+        // Updates the game state to fit the action
         switch (action)
         {
             case GameAction.EnterMainMenu:
-            case GameAction.FinishDay:
             case GameAction.LoseGame:
                 OnGameStateChange(GameState.InMenu);
-            break;
+                break;
 
-            case GameAction.StartDay:
+            case GameAction.PlayGame:
             case GameAction.ResumeGame:
-            case GameAction.RestartDay:
-            case GameAction.LoadNextDay:
-            case GameAction.StartWork:
-                AmbianceSound.start();
                 OnGameStateChange(GameState.Running);
-            break;
+                break;
 
             case GameAction.PauseGame:
-                AmbianceSound.stop(STOP_MODE.ALLOWFADEOUT);
                 OnGameStateChange(GameState.Paused);
-            break;
+                break;
+
+            case GameAction.None:
+                break;
         }
     }
 
