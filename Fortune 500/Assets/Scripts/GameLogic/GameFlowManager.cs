@@ -4,39 +4,41 @@ using System.Collections.Generic;
 using FMOD.Studio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static GameManager;
+using static GameFlowManager;
 
 /// <summary>
 /// 
 /// </summary>
-public class GameManager : Singleton<GameManager>
+public class GameFlowManager : Singleton<GameFlowManager>
 {
-    KeyCode pauseKey = KeyCode.Escape;
+    readonly KeyCode pauseKey = KeyCode.Escape;
 
     public enum GameState { None, InMenu, Running, Paused, Loading }
-    public enum GameAction { None, EnterMainMenu, PlayGame, PauseGame, ResumeGame, LoseGame }
+    public enum GameAction { None, EnterMainMenu, PlayGame, StartDay, PauseGame, ResumeGame, RestartDay, LoadNextDay, FinishDay, LoseGame, StartWork }
 
-    public GameState CurrentState { get; private set; }
-    public GameAction LastGameAction { get; private set; }
+    public GameState MyCurrentState { get; private set; }
+    public GameAction MyLastGameAction { get; private set; }
 
     public bool HasFinishedDay { get; private set; }
     public bool HasStartedWork { get; private set; }
     public LevelData LevelData { get; private set; }
 
-    public static EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
-    public static EventHandler<GameActionEventArgs> GameActionEventHandler;
+    public static EventHandler<GameStateChangeEventArgs> ChangeGameStateEventHandler;
+    public static EventHandler<GameActionEventArgs> PerformActionEventHandler;
 
+    private EventInstance AmbianceSound;
 
     void OnEnable()
     {
+        SlotMachineButton.SlotsInteractEventHandler += HandleSlotsInteract;
         ScenesManager.BeatLastLevelEventHandler += HandleBeatLastLevel;
         UIButton.UIInteractEventHandler += HandleUIInteract;
         LevelData.LoadLevelData += HandleLoadLevelData;
-
     }
 
     void OnDisable()
     {
+        SlotMachineButton.SlotsInteractEventHandler -= HandleSlotsInteract;
         ScenesManager.BeatLastLevelEventHandler -= HandleBeatLastLevel;
         LevelData.LoadLevelData -= HandleLoadLevelData;
         UIButton.UIInteractEventHandler += HandleUIInteract;
@@ -53,9 +55,11 @@ public class GameManager : Singleton<GameManager>
         // In the future, I would like the game to acknowledge this, and be able to smoothly transition between the 2 quickly
         if (Input.GetKeyDown(pauseKey) && !ScreenTransitions.IsPlayingTransitionAnimation)
         {
-            switch (CurrentState)
+            switch (MyCurrentState)
             {
                 case GameState.Running:
+                    if (MyLastGameAction == GameAction.FinishDay)
+                        return;
                     PerformGameAction(GameAction.PauseGame);
                 break;
 
@@ -66,18 +70,14 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    void HandleChangeDayState(object sender, DayStateChangeEventArgs e)
+    void HandleSlotsInteract(object sender, EventArgs e)
     {
-        switch (e.myDayState)
+        if (HasStartedWork)
         {
-            case DayStateChangeEventArgs.DayState.StartWork:
-
-            break;
-
-            case DayStateChangeEventArgs.DayState.EndWork:
-
-            break;
+            Debug.Log("Day has already started!");
+            return;
         }
+        PerformGameAction(GameAction.StartWork);
     }
 
     /// <summary> Performs a game action given from a UI button. </summary>
@@ -112,6 +112,10 @@ public class GameManager : Singleton<GameManager>
             Debug.Log("Did nothing to level data");
     }
 
+    /// <summary> Informs listerners of a game action and updates the game state accordingly. </summary>
+    /// <param name="action"> The game action to perform. </param>
+    /// <param name="levelToLoad"> If we should load a level, otherwise leave at -1. </param>
+    // Update game state in response to menu changes
     void PerformGameAction(GameAction action, int levelToLoad = -1)
     {
         if (action == GameAction.None)
@@ -121,35 +125,61 @@ public class GameManager : Singleton<GameManager>
         }
 
         Debug.Log($"Performed game action: {action}");
-        LastGameAction = action;
-        OnGameAction(action, levelToLoad);
+        MyLastGameAction = action;
+        OnPerformGameAction(action, levelToLoad);
 
-        Debug.LogWarning("Start level is only performed on game start.");
+        // Start day is only performed on game start
+        
+        switch (action)
+        {
+            case GameAction.PlayGame:
+                PerformGameAction(GameAction.StartDay);
+                AmbianceSound.start();
+            break;
 
-        // Updates the game state to fit the action
+            case GameAction.StartDay:
+            case GameAction.RestartDay:
+            case GameAction.LoadNextDay:
+                HasFinishedDay = false;
+            break;
+
+            case GameAction.StartWork:
+                HasStartedWork = true;
+            break;
+
+            case GameAction.FinishDay:
+                HasFinishedDay = true;
+                HasStartedWork = false;
+            break;
+        }
+
+        // Updates game state to fit the action
         switch (action)
         {
             case GameAction.EnterMainMenu:
+            case GameAction.FinishDay:
             case GameAction.LoseGame:
                 OnGameStateChange(GameState.InMenu);
-                break;
+            break;
 
-            case GameAction.PlayGame:
+            case GameAction.StartDay:
             case GameAction.ResumeGame:
+            case GameAction.RestartDay:
+            case GameAction.LoadNextDay:
+            case GameAction.StartWork:
+                AmbianceSound.start();
                 OnGameStateChange(GameState.Running);
-                break;
+            break;
 
             case GameAction.PauseGame:
+                AmbianceSound.stop(STOP_MODE.ALLOWFADEOUT);
                 OnGameStateChange(GameState.Paused);
-                break;
-
-            case GameAction.None:
-                break;
+            break;
         }
     }
 
-    void OnGameAction(GameAction action, int levelToLoad)
-        => GameActionEventHandler?.Invoke(this, new(this, action, levelToLoad));
+    void OnPerformGameAction(GameAction action, int levelToLoad)
+        => PerformActionEventHandler?.Invoke(this, new(this, action, levelToLoad));
 
     /// <summary> Informs listeners on how to align with the current state of the game. </summary>
     /// <param name="newState"> The state of the game to update to. </param>
@@ -160,26 +190,26 @@ public class GameManager : Singleton<GameManager>
             Debug.LogWarning("Cannont update game state to 'none'.");
             return;
         }
-        else if (newState == CurrentState)
+        else if (newState == MyCurrentState)
         {
             Debug.LogWarning($"Cannont update game state to its own state ({newState}).");
             return;
         }
 
-        var previousState = CurrentState;
-        CurrentState = newState;
+        var previousState = MyCurrentState;
+        MyCurrentState = newState;
 
-        GameStateChangeEventHandler?.Invoke(this, new(this, newState, previousState, levelToLoad));
+        ChangeGameStateEventHandler?.Invoke(this, new(this, newState, previousState, levelToLoad));
     }
 }
 
 public class GameActionEventArgs : EventArgs
 {
-    public readonly GameManager gameManager;
+    public readonly GameFlowManager gameManager;
     public readonly GameAction gameAction;
     public readonly int levelToLoad;
 
-    public GameActionEventArgs(GameManager gameManager, GameAction gameAction, int levelToLoad)
+    public GameActionEventArgs(GameFlowManager gameManager, GameAction gameAction, int levelToLoad)
     {
         this.gameManager = gameManager;
         this.gameAction = gameAction;
@@ -189,12 +219,12 @@ public class GameActionEventArgs : EventArgs
 
 public class GameStateChangeEventArgs : EventArgs
 {
-    public readonly GameManager gameManager;
+    public readonly GameFlowManager gameManager;
     public readonly GameState newState;
     public readonly GameState previousState;
     public readonly int levelToLoad;
 
-    public GameStateChangeEventArgs(GameManager gameManager, GameState newState, GameState previousState, int levelToLoad)
+    public GameStateChangeEventArgs(GameFlowManager gameManager, GameState newState, GameState previousState, int levelToLoad)
     {
         this.gameManager = gameManager;
         this.newState = newState;

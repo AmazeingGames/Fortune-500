@@ -10,7 +10,11 @@ public class VirtualScreen : GraphicRaycaster
     [SerializeField] PlayerFocus.Station stationType;
     [SerializeField] LayerMask hitLayerMasks;
 
-    public static event Action<VirtualScreen, PlayerFocus.Station> FindStation;
+    [field: SerializeField] public PlayerFocus.Station StationType { get; private set; }
+    [field: SerializeField] public LayerMask HitLayerMasks { get; private set; }
+
+    //StationData stationData;
+    public static EventHandler<FindStationDataEventArgs> FindStationDataEventHandler;
 
     // Camera responsible for rendering the virtual screen's rendertexture
     public Camera screenCamera;
@@ -24,7 +28,7 @@ public class VirtualScreen : GraphicRaycaster
     {
         base.Start();
 
-        FindStation?.Invoke(this, stationType);
+        FindStationDataEventHandler?.Invoke(this, new(stationType, this));
     }
 
     // Called by Unity when a Raycaster should raycast because it extends BaseRaycaster.
@@ -49,3 +53,20 @@ public class VirtualScreen : GraphicRaycaster
     }
 
 }
+
+public class FindStationDataEventArgs : EventArgs
+{
+    public readonly VirtualScreen virtualScreen;
+    public readonly PlayerFocus.Station myStation;
+    // public readonly StationData stationData;
+    public FindStationDataEventArgs(PlayerFocus.Station myStation, VirtualScreen virtualScreen)
+    {
+        // this.stationData = stationData;
+        this.virtualScreen = virtualScreen; 
+        this.myStation = myStation;
+    }
+}
+
+
+
+

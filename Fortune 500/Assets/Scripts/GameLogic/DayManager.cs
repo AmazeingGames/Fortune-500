@@ -15,13 +15,13 @@ public class DayManager : MonoBehaviour
 
     private void OnEnable()
     {
-        CandidateHandler.CandidateActionEventHandler += HandleCandidateAction;
+        CandidateHandler.HireCandidateEventHandler += HandleHiredCandidate;
         SlotMachineButton.SlotsInteractEventHandler += HandlePullLever;
     }
 
     private void OnDisable()
     {
-        CandidateHandler.CandidateActionEventHandler -= HandleCandidateAction;
+        CandidateHandler.HireCandidateEventHandler -= HandleHiredCandidate;
         SlotMachineButton.SlotsInteractEventHandler -= HandlePullLever;
     }
 
@@ -35,30 +35,21 @@ public class DayManager : MonoBehaviour
         }
     }
 
-    void HandleCandidateAction(object sender, CandidateActionEventArgs e)
+    void HandleHiredCandidate(object sender, HiredCandidateEventArgs e)
     {
-        switch (e.myCandidateAction)
-        {
-            case CandidateActionEventArgs.CandidateAction.Review:
-                RemainingEmployees--;
+        RemainingEmployees--;
 
-                Assert.IsFalse(RemainingEmployees < 0);
+        Assert.IsFalse(RemainingEmployees < 0);
 
-                if (RemainingEmployees == 0)
-                    OnDayStateChange(DayState.EndWork);
-            break;
-            
-            case CandidateActionEventArgs.CandidateAction.Enter:
-            
-            break;
-        }
+        if (RemainingEmployees == 0)
+            OnDayStateChange(DayState.EndWork);
     }
 
     void HandleGameAction(object sender, GameActionEventArgs e)
     {
         switch (e.gameAction)
         {
-            case GameManager.GameAction.PlayGame:
+            case GameFlowManager.GameAction.PlayGame:
                 OnDayStateChange(DayState.StartDay);
             break;
         }

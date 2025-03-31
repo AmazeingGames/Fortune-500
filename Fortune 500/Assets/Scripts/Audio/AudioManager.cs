@@ -29,16 +29,16 @@ public class AudioManager : MonoBehaviour
     {
         FPSInput.TakeActionEventHandler += HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnect;
-        GameManager.GameActionEventHandler += HandleGameAction;
         DayManager.DayStateChangeEventHandler += HandleDayStateChange;
+        GameFlowManager.PerformActionEventHandler += HandleGameAction;
     }
 
     private void OnDisable()
     {
         FPSInput.TakeActionEventHandler -= HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnect;
-        GameManager.GameActionEventHandler -= HandleGameAction;
         DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
+        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
     }
 
     void HandleInterfaceConnect(object sender, InterfaceConnectedEventArgs e)
@@ -65,7 +65,7 @@ public class AudioManager : MonoBehaviour
             break;
 
             case DayStateChangeEventArgs.DayState.EndWork:
-                PlayOneShot(Events.EndDayCallEvent, transform.position);
+                PlayOneShot(Events.EndDayCall, transform.position);
             break;
         }
     }
@@ -98,15 +98,15 @@ public class AudioManager : MonoBehaviour
     {
         switch (e.gameAction)
         {
-            case GameManager.GameAction.PlayGame:
-                PlayOneShot(Events.IntroCallEvent, transform.position);
+            case GameFlowManager.GameAction.PlayGame:
+                PlayOneShot(Events.IntroCall, transform.position);
             break;
 
-            case GameManager.GameAction.LoseGame:
-                PlayOneShot(Events.LoseGameEvent, transform.position);
+            case GameFlowManager.GameAction.LoseGame:
+                PlayOneShot(Events.LoseGame, transform.position);
             break;
 
-            case GameManager.GameAction.PauseGame:
+            case GameFlowManager.GameAction.PauseGame:
                 AmbienceSound.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             break;
         }
@@ -115,7 +115,6 @@ public class AudioManager : MonoBehaviour
     void PlayOneShot(EventReference sound, Vector3 origin)
     {
         Debug.Log($"Triggered Audio Clip: {sound}");
-
         RuntimeManager.PlayOneShot(sound, origin);
     }
 }

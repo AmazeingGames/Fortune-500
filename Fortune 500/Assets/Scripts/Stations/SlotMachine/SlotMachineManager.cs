@@ -22,7 +22,7 @@ public class SlotMachineManager : MonoBehaviour
         {
             case DayStateChangeEventArgs.DayState.StartWork:
                 StartCoroutine(CO_StartSlots());
-            break;
+            break; 
         }
     }
 

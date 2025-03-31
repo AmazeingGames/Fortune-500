@@ -15,10 +15,10 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     // Change the class based on the button type, and then serialize the class values
     // The script would have to run in the editor for this to work properly
     [Header("UI Button Type")]
-    [SerializeField] UIManager.MenuTypes menuToOpen;
+    [SerializeField] UIManager.MenuType menuToOpen;
 
     [Header("Game State Button Type")]
-    [SerializeField] GameManager.GameAction newGameAction;
+    [SerializeField] GameFlowManager.GameAction newGameAction;
     [SerializeField] int levelToLoad = -1;
 
     [Header("Components")]
@@ -39,8 +39,8 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         public readonly UIInteractionTypes buttonInteraction;
         public readonly PointerEventData pointerEventData;
 
-        public readonly UIManager.MenuTypes menuToOpen = UIManager.MenuTypes.None;
-        public readonly GameManager.GameAction actionToPerform = GameManager.GameAction.None;
+        public readonly UIManager.MenuType menuToOpen = UIManager.MenuType.None;
+        public readonly GameFlowManager.GameAction actionToPerform = GameFlowManager.GameAction.None;
         public readonly int levelToLoad = -1;
 
         public UIInteractEventArgs(UIButton button, UIEventTypes uiEventType, PointerEventData pointerEventData, UIInteractionTypes uiInteractionType)
@@ -57,11 +57,11 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
                 case UIEventTypes.UI:
                     menuToOpen = button.menuToOpen;
 
-                    if (menuToOpen == UIManager.MenuTypes.Pause)
+                    if (menuToOpen == UIManager.MenuType.Pause)
                         throw new InvalidOperationException("Puasing the game should be done by updating the game state, not through changing UI menus.");
-                    else if (menuToOpen == UIManager.MenuTypes.Empty)
+                    else if (menuToOpen == UIManager.MenuType.Empty)
                         throw new InvalidOperationException("Closing all menus should be done by updating the game to the proper game state, not through changing UI menus.");
-                    else if (menuToOpen == UIManager.MenuTypes.None)
+                    else if (menuToOpen == UIManager.MenuType.None)
                         throw new InvalidOperationException("A menu type of none will cause nothing to happen.");
                 break;
                 
@@ -69,7 +69,7 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
                     actionToPerform = button.newGameAction;
                     levelToLoad = button.levelToLoad;
 
-                    if (actionToPerform == GameManager.GameAction.None)
+                    if (actionToPerform == GameFlowManager.GameAction.None)
                         throw new InvalidOperationException("A game state of none will cause nothing to happen.");
                 break;
             }

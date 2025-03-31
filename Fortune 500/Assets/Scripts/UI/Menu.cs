@@ -12,7 +12,7 @@ class Menu
     [field: SerializeField] public ScreenTransitions.OthogonalDirection SlideDirection { get; private set; }
     [field: SerializeField] public bool CanSeePaper { get; private set; }
     public Transform CanvasElements { get; private set; }
-    public MenuTypes MenuType { get; private set; }
+    public MenuType MenuType { get; private set; }
 
     bool isReady = false;
 
@@ -89,7 +89,7 @@ class Menu
 
     }
 
-    public void Init(MenuTypes menuType)
+    public void Init(MenuType menuType)
     {
         if (Canvas == null)
         {
@@ -134,10 +134,10 @@ class Menu
 
 public class MenuChangeEventArgs
 {
-    public readonly MenuTypes newMenuType;
-    public readonly MenuTypes previousMenuType;
+    public readonly MenuType newMenuType;
+    public readonly MenuType previousMenuType;
     public readonly bool isAMenuEnabled;
-    public MenuChangeEventArgs(MenuTypes newMenuType, MenuTypes previousMenuType, bool isAMenuEnabled)
+    public MenuChangeEventArgs(MenuType newMenuType, MenuType previousMenuType, bool isAMenuEnabled)
     {
         this.newMenuType = newMenuType;
         this.previousMenuType = previousMenuType;
