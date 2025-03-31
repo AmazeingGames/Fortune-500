@@ -5,22 +5,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static FocusStation;
-public class AudioManager : Singleton<AudioManager>
+public class AudioManager : MonoBehaviour
 {
     Bus masterBus;
     
     readonly List<StudioEventEmitter> EventEmitters = new();
-    [SerializeField] private EventReference IntroCallEvent;
-    [SerializeField] private EventReference EndDayCallEvent;
-    [SerializeField] private EventReference LoseGameEvent;
 
     EventInstance AmbienceSound;
+    EventInstance playerFootsteps;
+
+    FMODEvents Events => FMODEvents.Instance;
 
     void Start()
-    {        
+    {
+        Debug.LogWarning("Audio Manager should be a single instance");
         masterBus = RuntimeManager.GetBus("bus:/");
 
-        AmbienceSound = CreateInstance(FMODEvents.Instance.GameAmbience);
+        AmbienceSound = CreateInstance(Events.GameAmbience);
+        playerFootsteps = CreateInstance(Events.Player3DFootsteps);
     }
 
     private void OnEnable()
@@ -63,7 +65,7 @@ public class AudioManager : Singleton<AudioManager>
             break;
 
             case DayStateChangeEventArgs.DayState.EndWork:
-                PlayOneShot(EndDayCallEvent, transform.position);
+                PlayOneShot(Events.EndDayCallEvent, transform.position);
             break;
         }
     }
@@ -74,7 +76,14 @@ public class AudioManager : Singleton<AudioManager>
         switch (e.myPlayerAction)
         {
             case PlayerActionEventArgs.PlayerActions.Step:
-                PlayOneShot(FMODEvents.Instance.Player3DFootsteps, e.origin);
+                playerFootsteps.getPlaybackState(out PLAYBACK_STATE playbackState);
+
+                if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
+                    playerFootsteps.start();
+            break;
+
+            case PlayerActionEventArgs.PlayerActions.Stop:
+                playerFootsteps.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             break;
         }
     }
@@ -90,11 +99,11 @@ public class AudioManager : Singleton<AudioManager>
         switch (e.gameAction)
         {
             case GameManager.GameAction.PlayGame:
-                PlayOneShot(IntroCallEvent, transform.position);
+                PlayOneShot(Events.IntroCallEvent, transform.position);
             break;
 
             case GameManager.GameAction.LoseGame:
-                PlayOneShot(LoseGameEvent, transform.position);
+                PlayOneShot(Events.LoseGameEvent, transform.position);
             break;
 
             case GameManager.GameAction.PauseGame:
@@ -103,12 +112,9 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
-    public void PlayOneShot(EventReference sound, Vector3 origin)
+    void PlayOneShot(EventReference sound, Vector3 origin)
     {
         Debug.Log($"Triggered Audio Clip: {sound}");
-
-        if (Instance == null)
-            return;
 
         RuntimeManager.PlayOneShot(sound, origin);
     }

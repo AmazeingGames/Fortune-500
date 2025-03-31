@@ -17,5 +17,7 @@ public class FMODEvents : Singleton<FMODEvents>
     [field: SerializeField] public EventReference Player3DFootsteps { get; private set; }
 
     [field: Header("Custscenes")]
-    [field: SerializeField] public EventReference Intro { get; private set; }
+    [field: SerializeField] public EventReference IntroCallEvent { get; private set; }
+    [field: SerializeField] public EventReference EndDayCallEvent { get; private set ;}
+    [field: SerializeField] public EventReference LoseGameEvent { get; private set ;}
 }

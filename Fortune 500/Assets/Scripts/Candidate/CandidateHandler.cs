@@ -99,7 +99,8 @@ public class CandidateHandler : MonoBehaviour
         if (!wasDesicionCorrect) { GeneratePinkSlip(CurrentCandidate, wasHired, RestrictionHandler.Instance.Restrictions);
             AudioManager.Instance.PlayOneShot(BadHireEvent, transform.position);
         }
-        else AudioManager.Instance.PlayOneShot(GoodHireEvent, transform.position);
+        else 
+            AudioManager.Instance.PlayOneShot(GoodHireEvent, transform.position);
         if (_scoreKeeper.StrikesLeft == 1 && !wasDesicionCorrect)
         {
             _scoreKeeper.UpdateForCandidate(CurrentCandidate, wasDesicionCorrect);

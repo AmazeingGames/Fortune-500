@@ -13732,7 +13732,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2325791886570024094, guid: fe3f6876999d98841b189a25f42bca61, type: 3}
       propertyPath: newGameAction
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: fe3f6876999d98841b189a25f42bca61, type: 3}
       propertyPath: m_Pivot.x
@@ -30851,8 +30851,8 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     <Speed>k__BackingField: 1
-  distance: 485
   transitionType: 0
+  distance: 485
 --- !u!1001 &2119595552
 PrefabInstance:
   m_ObjectHideFlags: 0

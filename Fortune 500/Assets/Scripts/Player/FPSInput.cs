@@ -25,7 +25,6 @@ public class FPSInput : MonoBehaviour
     float walkSoundTimer;
     float horizontalInput;
     float verticalInput;
-    private EventInstance playerFootsteps;
 
     Vector3 movement;
 
@@ -48,7 +47,6 @@ public class FPSInput : MonoBehaviour
 
     private void Awake()
     {
-        playerFootsteps = AudioManager.Instance.CreateInstance(FMODEvents.Instance.Player3DFootsteps);
     }
 
     void HandleInterfaceConnection(object sender, InterfaceConnectedEventArgs e)
@@ -67,13 +65,9 @@ public class FPSInput : MonoBehaviour
         UpdateTimers();
         
         if (!lockMovement)
-        {
             MovePlayer();
-        }
         GetInput();
-        UpdateSound();
-
-
+        UpdateWalk();
     }
 
     void GetInput()
@@ -102,29 +96,27 @@ public class FPSInput : MonoBehaviour
         characterController.Move(movement);
     }
 
-    private void UpdateSound()
+    void OnTakeAction(PlayerActions myPlayerAction)
     {
-        PLAYBACK_STATE playbackState;
-        playerFootsteps.getPlaybackState(out playbackState);
+        TakeActionEventHandler?.Invoke(this, new(myPlayerAction, transform.position));
+    }
+
+    private void UpdateWalk()
+    {
         if (Mathf.Abs(horizontalInput) < .1f && Mathf.Abs(verticalInput) < .1f)
-            playerFootsteps.stop(STOP_MODE.ALLOWFADEOUT);
-
+            OnTakeAction(PlayerActions.Stop);
         else if (Mathf.Abs(deltaX) < .1f && Mathf.Abs(deltaZ) < .1f)
-            playerFootsteps.stop(STOP_MODE.ALLOWFADEOUT);
-
+            OnTakeAction(PlayerActions.Stop);
         else if (lockMovement)
-            playerFootsteps.stop(STOP_MODE.ALLOWFADEOUT);
+            OnTakeAction(PlayerActions.Stop);
 
-        else if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
-        {
-            playerFootsteps.start();
-        }
+        OnTakeAction(PlayerActions.Step);
     }
 }
 
 public class PlayerActionEventArgs : EventArgs
 {
-    public enum PlayerActions { Step }
+    public enum PlayerActions { Step, Stop }
     public PlayerActions myPlayerAction;
     public Vector3 origin;
 
