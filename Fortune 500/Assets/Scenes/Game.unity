@@ -20419,6 +20419,10 @@ PrefabInstance:
       propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2494858305535934599, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2845453809314678962, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -20435,6 +20439,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Resume
       objectReference: {fileID: 0}
+    - target: {fileID: 3274537187005273654, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3918178845313698532, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4125071367423559864, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4620264474469468820, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -20446,6 +20462,14 @@ PrefabInstance:
     - target: {fileID: 4620264474469468820, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5652523175338862869, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6888655875826554249, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7127966797685491029, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
       propertyPath: m_text
@@ -20490,6 +20514,10 @@ PrefabInstance:
     - target: {fileID: 8968769622079327525, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
       propertyPath: m_Name
       value: PIN
+      objectReference: {fileID: 0}
+    - target: {fileID: 8968769622079327525, guid: 31ea46e94b235c149b09e40526c530ab, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
