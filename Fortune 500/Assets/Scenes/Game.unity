@@ -3911,7 +3911,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   randomUpdateRange: 0
   randomUpdatePeriod: 0
-  environmentData: {fileID: 0}
 --- !u!1 &322630898
 GameObject:
   m_ObjectHideFlags: 0
@@ -4040,7 +4039,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &333053145
 Transform:
   m_ObjectHideFlags: 0
@@ -4097,34 +4096,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenu:
     <Canvas>k__BackingField: {fileID: 1754250758}
+    <EnableOnReady>k__BackingField: []
+    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   pauseMenu:
     <Canvas>k__BackingField: {fileID: 678260638}
+    <EnableOnReady>k__BackingField: []
+    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 1
   settingsMenu:
     <Canvas>k__BackingField: {fileID: 1924475848}
+    <EnableOnReady>k__BackingField: []
+    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   levelSelectMenu:
     <Canvas>k__BackingField: {fileID: 630493659}
+    <EnableOnReady>k__BackingField: []
+    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   beatLevelScreen:
     <Canvas>k__BackingField: {fileID: 691191342}
+    <EnableOnReady>k__BackingField: []
+    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   diaryScreen:
     <Canvas>k__BackingField: {fileID: 1151363727}
+    <EnableOnReady>k__BackingField: []
+    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   creditsScreen:
     <Canvas>k__BackingField: {fileID: 1696302526}
+    <EnableOnReady>k__BackingField: []
+    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   gameEndScreen:
     <Canvas>k__BackingField: {fileID: 2069062322}
+    <EnableOnReady>k__BackingField: []
+    <DisableOnReady>k__BackingField: []
     <SlideDirection>k__BackingField: 0
     <CanSeePaper>k__BackingField: 0
   userInterfaceCamera: {fileID: 1990151686}
@@ -5889,9 +5904,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 282381126}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 322.071, y: 30.517998}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 644.142, y: 161.036}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &450916277
@@ -9402,15 +9417,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35335f0c2d27f204da4cbd8d38f8b9ca, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.11400023
+      value: -0.213
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35335f0c2d27f204da4cbd8d38f8b9ca, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.731
+      value: 1.446
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35335f0c2d27f204da4cbd8d38f8b9ca, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.8060007
+      value: -5.058
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35335f0c2d27f204da4cbd8d38f8b9ca, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10591,7 +10606,7 @@ GameObject:
   - component: {fileID: 756761355}
   - component: {fileID: 756761354}
   m_Layer: 0
-  m_Name: DaysWorked
+  m_Name: DaysTitle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11243,6 +11258,10 @@ MonoBehaviour:
     m_Bits: 4294967295
   stationType: 2
   hitLayerMasks:
+    serializedVersion: 2
+    m_Bits: 0
+  <StationType>k__BackingField: 0
+  <HitLayerMasks>k__BackingField:
     serializedVersion: 2
     m_Bits: 0
   screenCamera: {fileID: 703058622}
@@ -13410,39 +13429,39 @@ MonoBehaviour:
     Path: event:/PlayerFootsteps
   <LoseGame>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 596348952
+      Data2: 1163530547
+      Data3: -431415374
+      Data4: -1057775277
+    Path: event:/Calls/PhoneYoureFired
   <IntroCall>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 465901236
+      Data2: 1195278288
+      Data3: 1762894233
+      Data4: -295297707
+    Path: event:/Calls/PhoneIntro
   <EndDayCall>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -168452441
+      Data2: 1341431516
+      Data3: 185138598
+      Data4: -489109749
+    Path: event:/Calls/EndOfDayCalls
   <GoodHire>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 1576096117
+      Data2: 1256098194
+      Data3: 1961624724
+      Data4: -321974411
+    Path: event:/Calls/Affirmative
   <BadHire>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -506711853
+      Data2: 1156738043
+      Data3: -199348291
+      Data4: -287445707
+    Path: event:/CaChing
 --- !u!1 &878469878
 GameObject:
   m_ObjectHideFlags: 0
@@ -13745,7 +13764,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2325791886570024094, guid: fe3f6876999d98841b189a25f42bca61, type: 3}
       propertyPath: newGameAction
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2819612214920752329, guid: fe3f6876999d98841b189a25f42bca61, type: 3}
       propertyPath: m_Pivot.x
@@ -18049,7 +18068,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1176113184
 Transform:
   m_ObjectHideFlags: 0
@@ -20780,6 +20799,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1359431793}
   m_CullTransparentMesh: 1
+--- !u!1 &1361101394
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1361101396}
+  - component: {fileID: 1361101395}
+  m_Layer: 0
+  m_Name: SceneData
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1361101395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361101394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d12be4e1611a50458626136b06afbe7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <RevenueText>k__BackingField: {fileID: 1038359913}
+  <StrikesLeftText>k__BackingField: {fileID: 2055282365}
+  <DayText>k__BackingField: {fileID: 1338947444}
+--- !u!4 &1361101396
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361101394}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10.541953, y: 2.8197317, z: 3.6846828}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1369675355
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23761,9 +23827,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 282381126}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 680.81305, y: 30.517998}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 644.142, y: 161.036}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1665676810
@@ -25381,6 +25447,51 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6fa5dec341daa2d408be96993797f462, type: 3}
+--- !u!1 &1772922553
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1772922554}
+  - component: {fileID: 1772922555}
+  m_Layer: 0
+  m_Name: DayFlowManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1772922554
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772922553}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2003917613}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1772922555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772922553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46e3ee3ff6374d046b48f1a8aed812c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  employeesPerDay: 0300000005000000080000000a0000000c0000000f00000014000000100000000a0000000f0000000e0000001000000012000000
 --- !u!1 &1778496891
 GameObject:
   m_ObjectHideFlags: 0
@@ -29344,6 +29455,7 @@ Transform:
   - {fileID: 121830788}
   - {fileID: 1345660223}
   - {fileID: 1901616549}
+  - {fileID: 1772922554}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2006207228
@@ -30456,9 +30568,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 282381126}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1039.555, y: 30.517998}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 644.142, y: 161.036}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &2094395871
@@ -31337,6 +31449,7 @@ SceneRoots:
   - {fileID: 2003917613}
   - {fileID: 120312424}
   - {fileID: 1583429897}
+  - {fileID: 1361101396}
   - {fileID: 1205598736}
   - {fileID: 1176113184}
   - {fileID: 1436950323}

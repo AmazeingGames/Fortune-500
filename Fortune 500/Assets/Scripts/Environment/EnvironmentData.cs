@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class EnvironmentData : MonoBehaviour
+public class EnvironmentData : Singleton<EnvironmentData>
 {
     [field: SerializeField] public TextMeshPro RevenueText { get; private set; }
     [field: SerializeField] public TextMeshPro StrikesLeftText { get; private set; }

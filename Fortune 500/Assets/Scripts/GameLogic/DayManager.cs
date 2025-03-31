@@ -10,6 +10,7 @@ public class DayManager : MonoBehaviour
 
     public static EventHandler<DayStateChangeEventArgs> DayStateChangeEventHandler;
 
+    public DayState MyDayState { get; private set; }
     public int CurrentDay { get; private set; }
     public int RemainingEmployees { get; private set; }
 
@@ -17,12 +18,14 @@ public class DayManager : MonoBehaviour
     {
         CandidateHandler.HireCandidateEventHandler += HandleHiredCandidate;
         SlotMachineButton.SlotsInteractEventHandler += HandlePullLever;
+        GameFlowManager.PerformActionEventHandler += HandleGameAction;
     }
 
     private void OnDisable()
     {
         CandidateHandler.HireCandidateEventHandler -= HandleHiredCandidate;
         SlotMachineButton.SlotsInteractEventHandler -= HandlePullLever;
+        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
     }
 
     void HandlePullLever(object sender, SlotsInteractEventArgs e)
@@ -63,15 +66,6 @@ public class DayManager : MonoBehaviour
                 RemainingEmployees = CurrentDay < employeesPerDay.Count ? employeesPerDay[CurrentDay] : employeesPerDay[CurrentDay - 1];
                 CurrentDay++;
             break;
-
-            case DayState.StartWork:
-                    
-            break;
-
-            case DayState.EndWork:
-                    
-            break;
-
         }
 
         DayStateChangeEventHandler?.Invoke(this, new(myDayState));
@@ -100,15 +94,5 @@ public class DayStateChangeEventArgs : EventArgs
     {
         this.myDayState = myDayState;
     }
-}
-
-public class DataService
-{
-    private IWorkerQueue workerQueue;
-}
-
-public interface IWorkerQueue
-{
-
 }
 

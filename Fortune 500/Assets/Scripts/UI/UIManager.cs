@@ -229,18 +229,21 @@ public class UIManager : Singleton<UIManager>
         {
             case MenuType.Previous:
                 LoadPreviousMenu();
-                break;
+            break;
 
             case MenuType.Empty:
                 foreach (Menu menuToUnload in menus)
                     menuToUnload.SetCanvas(false, needsToMoveOutOfFrame: true);
                 nestedMenuHistory.Clear();
+            break;
+
+            case MenuType.None:
                 break;
 
             default:
                 if (menuToLoad == null)
-                    throw new Exception("Menu type not contained in MenuTypeToMenu dictionary or by switch expression");
-                break;
+                    throw new Exception($"Menu type of {myMenuType} not contained in MenuTypeToMenu dictionary or by switch expression");
+            break;
         }
 
 

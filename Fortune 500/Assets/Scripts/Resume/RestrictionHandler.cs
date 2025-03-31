@@ -23,7 +23,7 @@ public class RestrictionHandler : Singleton<RestrictionHandler>
     {
         switch (e.myDayState)
         {
-            case DayState.StartWork:
+            case DayState.StartDay:
                 GenerateRestrictions();
             break;
         }

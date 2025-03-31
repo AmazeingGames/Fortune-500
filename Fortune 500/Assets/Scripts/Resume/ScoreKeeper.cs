@@ -9,8 +9,6 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
     [SerializeField] int randomUpdateRange;
     [SerializeField] float randomUpdatePeriod;
 
-    [SerializeField] EnvironmentData environmentData;
-
     public int Revenue { get; private set; }
     public int StrikesLeft { get; private set; } = 3;
     public int DayCount { get; private set; } = 0;
@@ -30,12 +28,12 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
     void Start()
     {
         Revenue = 100;
-        environmentData.StrikesLeftText.text = "III";
+        EnvironmentData.Instance.StrikesLeftText.text = "III";
         StartCoroutine(FluctuateRevenue());
     }
 
     private void Update()
-        => environmentData.RevenueText.text = "Revenue:" + Revenue + " bn";
+        => EnvironmentData.Instance.RevenueText.text = "Revenue:" + Revenue + " bn";
 
 
     void HandleGameAction(object sender, GameActionEventArgs e)
@@ -44,7 +42,7 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
         {
             case GameFlowManager.GameAction.StartWork:
                 DayCount++;
-                environmentData.DayText.text = $"{DayCount}";
+                EnvironmentData.Instance.DayText.text = $"{DayCount}";
             break;
         }
     }
@@ -53,22 +51,22 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
     {
         int hiredMultiplier = e.wasDecisionCorrect ? 1 : 0;
         Revenue += 10 * hiredMultiplier;
-        environmentData.RevenueText.text = "Revenue:" + Revenue + " bn";
+        EnvironmentData.Instance.RevenueText.text = "Revenue:" + Revenue + " bn";
 
         if (!e.wasDecisionCorrect)
         {
             StrikesLeft--;
-            environmentData.StrikesLeftText.text = "";
+            EnvironmentData.Instance.StrikesLeftText.text = "";
 
             for (int i = 0; i < StrikesLeft; i++)
-                environmentData.StrikesLeftText.text += "I";
+                EnvironmentData.Instance.StrikesLeftText.text += "I";
         }
     }
 
     IEnumerator FluctuateRevenue()
     {
         Revenue += Random.Range(-randomUpdateRange / 2, randomUpdateRange / 2);
-        environmentData.RevenueText.text = "Revenue:" + Revenue + " bn";
+        EnvironmentData.Instance.RevenueText.text = "Revenue:" + Revenue + " bn";
         yield return new WaitForSeconds(randomUpdatePeriod);
         StartCoroutine(FluctuateRevenue());
     }
