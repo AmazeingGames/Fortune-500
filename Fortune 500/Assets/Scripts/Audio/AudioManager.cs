@@ -3,27 +3,20 @@ using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static FocusStation;
-public class AudioManager : MonoBehaviour
+public class AudioManager : Singleton<AudioManager>
 {
-    Bus masterBus;
-    
-    readonly List<StudioEventEmitter> EventEmitters = new();
-
-    EventInstance AmbienceSound;
-    EventInstance playerFootsteps;
-
     FMODEvents Events => FMODEvents.Instance;
 
-    void Start()
-    {
-        Debug.LogWarning("Audio Manager should be a single instance");
-        masterBus = RuntimeManager.GetBus("bus:/");
+    readonly Dictionary<SoundData.ExclusiveType, List<SoundData>> ExclusiveTypeToSoundsData = new(); 
+    readonly Dictionary<SoundData, EventInstance> SoundDataToEventInstance = new();
+    readonly List<EventInstance> pausedEventInstances = new();
 
-        AmbienceSound = CreateInstance(Events.GameAmbience);
-        playerFootsteps = CreateInstance(Events.Player3DFootsteps);
-    }
+    
 
     private void OnEnable()
     {
@@ -61,7 +54,7 @@ public class AudioManager : MonoBehaviour
         switch (e.myDayState)
         {
             case DayStateChangeEventArgs.DayState.StartWork:
-                AmbienceSound.start();
+                Events.AmbienceSound.start();
             break;
 
             case DayStateChangeEventArgs.DayState.EndWork:
@@ -76,23 +69,19 @@ public class AudioManager : MonoBehaviour
         switch (e.myPlayerAction)
         {
             case PlayerActionEventArgs.PlayerActions.Step:
-                playerFootsteps.getPlaybackState(out PLAYBACK_STATE playbackState);
+                Events.PlayerFootsteps.getPlaybackState(out PLAYBACK_STATE playbackState);
 
                 if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
-                    playerFootsteps.start();
+                    Events.PlayerFootsteps.start();
             break;
 
             case PlayerActionEventArgs.PlayerActions.Stop:
-                playerFootsteps.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                Events.PlayerFootsteps.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             break;
         }
     }
 
-    public EventInstance CreateInstance(EventReference eventReference)
-    {
-        EventInstance eventInstance = RuntimeManager.CreateInstance(eventReference);
-        return eventInstance;
-    }
+    
 
     public void HandleGameAction(object sender, GameActionEventArgs e)
     {
@@ -107,14 +96,73 @@ public class AudioManager : MonoBehaviour
             break;
 
             case GameFlowManager.GameAction.PauseGame:
-                AmbienceSound.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                // Debug.Log("paused game");
+                Events.AmbienceSound.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                Events.PlayerFootsteps.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+
+                StopOneShot(Events.LoseGame,   playOnGameResume: true);
+                StopOneShot(Events.EndDayCall, playOnGameResume: true);
+                StopOneShot(Events.IntroCall,  playOnGameResume: true);
+            break;
+
+            case GameFlowManager.GameAction.ResumeGame:
+                Events.AmbienceSound.start();
+                foreach (var sound in pausedEventInstances)
+                    sound.setPaused(false);
+                pausedEventInstances.Clear();
             break;
         }
     }
 
-    void PlayOneShot(EventReference sound, Vector3 origin)
+    void StopOneShot(SoundData soundReference, FMOD.Studio.STOP_MODE stopMode = FMOD.Studio.STOP_MODE.ALLOWFADEOUT, bool playOnGameResume = false)
     {
-        Debug.Log($"Triggered Audio Clip: {sound}");
-        RuntimeManager.PlayOneShot(sound, origin);
+        if (!SoundDataToEventInstance.TryGetValue(soundReference, out var eventInstance))
+        {
+            Debug.Log($"Could not find sound {soundReference.MySoundType}");
+            return;
+        }
+
+        Debug.Log($"Stopped {soundReference.MySoundType}");
+
+        if (playOnGameResume)
+        {
+            pausedEventInstances.Add(eventInstance);
+            eventInstance.setPaused(true);
+        }
+        else
+            eventInstance.stop(stopMode);
+    }
+
+    void PlayOneShot(SoundData soundDataToPlay, Vector3 soundOrigin, FMOD.Studio.STOP_MODE stopMode = FMOD.Studio.STOP_MODE.ALLOWFADEOUT)
+    {
+        Debug.Log($"Triggered Audio Clip: {soundDataToPlay.MySoundType}");
+        EventInstance soundInstance = RuntimeManager.CreateInstance(soundDataToPlay.EventReference);
+        
+        if (SoundDataToEventInstance.TryGetValue(soundDataToPlay, out _))
+            SoundDataToEventInstance[soundDataToPlay] = soundInstance;
+        else
+            SoundDataToEventInstance.Add(soundDataToPlay, soundInstance);
+
+        bool isSoundExclusive = soundDataToPlay.MyExclusiveType != SoundData.ExclusiveType.None;
+
+        if (ExclusiveTypeToSoundsData.TryGetValue(soundDataToPlay.MyExclusiveType, out List<SoundData> exclusiveSoundsData) && isSoundExclusive)
+            exclusiveSoundsData.Add(soundDataToPlay);
+
+        if (exclusiveSoundsData != null)
+            foreach (SoundData soundData in exclusiveSoundsData)
+            {
+                SoundDataToEventInstance[soundData].stop(stopMode);
+                Debug.Log($"stopped {soundData.MySoundType}");
+            }
+
+        if (ExclusiveTypeToSoundsData.ContainsKey(soundDataToPlay.MyExclusiveType))
+            ExclusiveTypeToSoundsData[soundDataToPlay.MyExclusiveType].Add(soundDataToPlay);
+        else
+            ExclusiveTypeToSoundsData.Add(soundDataToPlay.MyExclusiveType, new List<SoundData>() { soundDataToPlay });
+
+        soundInstance.set3DAttributes(RuntimeUtils.To3DAttributes(soundOrigin));
+        soundInstance.start();
+        soundInstance.release();
+
     }
 }

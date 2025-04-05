@@ -13,17 +13,16 @@ public class StationCanvas : MonoBehaviour
 
     void HandleInterfaceConnect(object sender, InterfaceConnectedEventArgs e)
     {
-        Debug.Log("ran");
         switch (e.myInteractionType)
         {
             case FocusStation.InteractionType.Connect:
                 if (e.myStation != myStation)
                     canvas.enabled = false;
-                break;
+            break;
 
             case FocusStation.InteractionType.Disconnect:
                 canvas.enabled = true;
-                break;
+            break;
         }
     }
 }

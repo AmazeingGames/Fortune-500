@@ -103,7 +103,7 @@ public class UIManager : Singleton<UIManager>
         if (MenuTypeToMenu.Count < Enum.GetNames(typeof(MenuType)).Length - 3)
             throw new Exception("Not all enums are counted for in the MenuTypeToMenu dictionary");
 
-        Debug.Log($"Game Manager's Last Game Action: {GameFlowManager.Instance.MyLastGameAction}");
+        // Debug.Log($"Game Manager's Last Game Action: {GameFlowManager.Instance.MyLastGameAction}");
         UpdateMenusToGameAction(GameFlowManager.Instance.MyLastGameAction);
     }
 
@@ -118,7 +118,7 @@ public class UIManager : Singleton<UIManager>
 
     void OnEnable()
     {
-        ChangeGameStateEventHandler += HandleGameStateChange;
+        GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIButtonInteract;
         Menu.SetCanvasEventHandler += HandleSetCanvas;
         DayManager.DayStateChangeEventHandler += HandleDayStateChange;
@@ -127,7 +127,7 @@ public class UIManager : Singleton<UIManager>
 
     void OnDisable()
     {
-        ChangeGameStateEventHandler -= HandleGameStateChange;
+        GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIButtonInteract;
         GameFlowManager.PerformActionEventHandler -= HandleGameAction;
         Menu.SetCanvasEventHandler -= HandleSetCanvas;
@@ -166,7 +166,7 @@ public class UIManager : Singleton<UIManager>
                 isAMenuEnabled = true;
             }
         }
-        Debug.Log($"The following canvases are currently active: {(activeCanvases == string.Empty ? "no active canvases" : activeCanvases[..^2])}");
+        // Debug.Log($"The following canvases are currently active: {(activeCanvases == string.Empty ? "no active canvases" : activeCanvases[..^2])}");
         return isAMenuEnabled;
     }
 
@@ -195,7 +195,7 @@ public class UIManager : Singleton<UIManager>
             _ => MenuType.Empty,
         };
 
-        Debug.Log($"Menu Manager: Handled Game Action {action} and loaded menu of type: {menuToLoad}");
+        // Debug.Log($"Menu Manager: Handled Game Action {action} and loaded menu of type: {menuToLoad}");
 
         LoadMenu(menuToLoad);
     }
@@ -216,7 +216,7 @@ public class UIManager : Singleton<UIManager>
         // In the future I would like the game to smoothly switch between screen transitions
         if (ScreenTransitions.IsPlayingTransitionAnimation)
         {
-            Debug.LogWarning("Can not change menus during screen transition.");
+            // Debug.LogWarning("Can not change menus during screen transition.");
             if (addToQueue)
                 nextInQueue = myMenuType;
             return;

@@ -71,11 +71,11 @@ public class FocusStation : MonoBehaviour
         }
 
         virtualDisplay.enabled = true;
-        OnInterfaceConnect(e.myInteractionType);
+        OnInterfaceConnected(e.myInteractionType);
     }
 
 
-    void OnInterfaceConnect(InteractionType myInteractionType)
+    void OnInterfaceConnected(InteractionType myInteractionType)
     {
         switch (myInteractionType)
         {
@@ -98,7 +98,7 @@ public class FocusStation : MonoBehaviour
             virtualDisplay = e.virtualScreen;
             virtualDisplay.enabled = false;
 
-            Debug.Log($"Found screen! Linked Screen null : {virtualDisplay == null}");
+            // Debug.Log($"Found screen! Linked Screen null : {virtualDisplay == null}");
         }
     }
 

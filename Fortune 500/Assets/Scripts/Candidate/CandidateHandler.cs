@@ -28,7 +28,6 @@ public class CandidateHandler : MonoBehaviour
     float _currentCandidatePatience;
     int _candidatesInTheDay;
     bool canMakeDecisions = true;
-    [SerializeField] GameObject candidateToDisable;
 
     public static EventHandler<HiredCandidateEventArgs> HireCandidateEventHandler;
 
@@ -39,14 +38,12 @@ public class CandidateHandler : MonoBehaviour
     }
 
     private void OnEnable()
-    {
-        GameFlowManager.PerformActionEventHandler += HandleGameAction;
-    }
+        => GameFlowManager.PerformActionEventHandler += HandleGameAction;
+   
 
     private void OnDisable()
-    {
-        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
-    }
+        => GameFlowManager.PerformActionEventHandler -= HandleGameAction;
+   
 
 
     private void Update()
@@ -56,11 +53,10 @@ public class CandidateHandler : MonoBehaviour
     {
         switch (e.gameAction)
         {
+            case GameFlowManager.GameAction.FinishDay:
             case GameFlowManager.GameAction.StartDay:
-                if (candidate != null)
-                    candidate.gameObject.SetActive(false);
-                if (resume != null)
-                    resume.gameObject.SetActive(false);
+                candidate.gameObject.SetActive(false);
+                resume.gameObject.SetActive(false);
             break;
 
             case GameFlowManager.GameAction.StartWork:
@@ -72,6 +68,10 @@ public class CandidateHandler : MonoBehaviour
                 _candidatesInTheDay = 5;
                 _restrictionText.text = RestrictionHandler.Instance.Restrictions[0].description + Environment.NewLine + RestrictionHandler.Instance.Restrictions[1].description + Environment.NewLine + RestrictionHandler.Instance.Restrictions[2].description;
                 GetNewCandidate();
+            break;
+
+            case GameFlowManager.GameAction.LoseGame:
+
             break;
         }
     }
@@ -85,9 +85,8 @@ public class CandidateHandler : MonoBehaviour
     }
 
     public void OnHireCandidate(bool wasDecisionCorrect, int strikesLeft)
-    {
-        HireCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, strikesLeft));
-    }
+        => HireCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, strikesLeft));
+
 
     void MakeDecision(bool wasHired)
     {

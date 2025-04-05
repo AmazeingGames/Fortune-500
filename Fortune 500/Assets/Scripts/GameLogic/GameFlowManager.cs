@@ -23,7 +23,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
     public bool HasStartedWork { get; private set; }
     public LevelData LevelData { get; private set; }
 
-    public static EventHandler<GameStateChangeEventArgs> ChangeGameStateEventHandler;
+    public static EventHandler<GameStateChangeEventArgs> GameStateChangeEventHandler;
     public static EventHandler<GameActionEventArgs> PerformActionEventHandler;
 
     private EventInstance AmbianceSound;
@@ -46,9 +46,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
     // Start is called before the first frame update
     void Start()
-    {
-        PerformGameAction(GameAction.EnterMainMenu);
-    }
+        => PerformGameAction(GameAction.EnterMainMenu);
 
     private void Update()
     {
@@ -124,7 +122,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
             return;
         }
 
-        Debug.Log($"Performed game action: {action}");
+        // Debug.Log($"Performed game action: {action}");
         MyLastGameAction = action;
         OnPerformGameAction(action, levelToLoad);
 
@@ -199,7 +197,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
         var previousState = MyCurrentState;
         MyCurrentState = newState;
 
-        ChangeGameStateEventHandler?.Invoke(this, new(this, newState, previousState, levelToLoad));
+        GameStateChangeEventHandler?.Invoke(this, new(this, newState, previousState, levelToLoad));
     }
 }
 

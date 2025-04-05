@@ -24,13 +24,13 @@ class Menu
     {
         if (setActive == isReady)
         {
-            Debug.Log($"Trying to {(setActive ? "enable" : "disable")} {MenuType} screen, when canvas is already {(isReady ? "enabled" : "disabled")}");
+            // Debug.Log($"Trying to {(setActive ? "enable" : "disable")} {MenuType} screen, when canvas is already {(isReady ? "enabled" : "disabled")}");
             return;
         }
 
         isReady = setActive;
 
-        Debug.Log($"Starting transition to {(setActive ? "enable" : "disable")} {MenuType} canvas. | Slide direction : {SlideDirection} | needsToMoveOutOfFrame : {needsToMoveOutOfFrame} | wasNested : {wasNested}");
+        // Debug.Log($"Starting transition to {(setActive ? "enable" : "disable")} {MenuType} canvas. | Slide direction : {SlideDirection} | needsToMoveOutOfFrame : {needsToMoveOutOfFrame} | wasNested : {wasNested}");
 
         UIManager.Instance.StartCoroutine(SetObjectsAndCanvas(setActive, needsToMoveOutOfFrame, wasNested));
 
@@ -48,7 +48,7 @@ class Menu
                     obj.SetActive(false);
 
             }
-            Debug.Log($"Disabled the following menus on ready: {(disabledMenus == string.Empty ? "none" : disabledMenus[..^2])}");
+            // Debug.Log($"Disabled the following menus on ready: {(disabledMenus == string.Empty ? "none" : disabledMenus[..^2])}");
         }
     }
 
@@ -84,7 +84,7 @@ class Menu
         if (mySetCanvasAction == CanvasAction.FinishSet)
             Canvas.gameObject.SetActive(setActive);
 
-        Debug.Log($"Setting {Canvas.name} canvas {(setActive ? "active" : "disabled")}");
+        // Debug.Log($"Setting {Canvas.name} canvas {(setActive ? "active" : "disabled")}");
         SetCanvasEventHandler?.Invoke(this, new(this, setActive, CanvasElements, SlideDirection, moveOutOfFrame, wasNested, mySetCanvasAction));
 
     }
