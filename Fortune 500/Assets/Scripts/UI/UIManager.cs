@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
 using static GameFlowManager;
 using static UIManager;
 using static Menu;
+using UnityEngine.Assertions;
 
 /// <summary>
 /// 
@@ -21,8 +22,7 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] Menu pauseMenu;
     [SerializeField] Menu settingsMenu;
     [SerializeField] Menu levelSelectMenu;
-    [SerializeField] Menu beatLevelScreen;
-    [SerializeField] Menu diaryScreen;
+    [SerializeField] Menu dailyReportMenu;
     [SerializeField] Menu creditsScreen;
     [SerializeField] Menu gameEndScreen;
 
@@ -44,7 +44,7 @@ public class UIManager : Singleton<UIManager>
     [field: SerializeField] public AnimationCurve ButtonLerpCurve { get; private set; }
     [field: SerializeField] public AnimationCurve UnderlineLerpCurve { get; private set; }
 
-    public enum MenuType { None, Previous, MainMenu, Credits, Pause, Settings, LevelSelect, BeatLevel, GameEndScreen, Empty, Diary }
+    public enum MenuType { None, Previous, MainMenu, Credits, Pause, Settings, LevelSelect, DailyReport, GameOverScreen, Empty }
 
     public static event EventHandler<MenuChangeEventArgs> MenuChangeEventHandler;
 
@@ -67,23 +67,27 @@ public class UIManager : Singleton<UIManager>
     Dictionary<Menu, MenuType> MenuToMenuType;
     readonly List<Menu> menus = new();
 
-    private void Start()
+    private void Awake()
     {
+        base.Awake();
+
         MenuTypeToMenu = new()
         {
-            { MenuType.MainMenu,       mainMenu },
-            { MenuType.Pause,          pauseMenu},
-            { MenuType.GameEndScreen,  gameEndScreen},
-            { MenuType.Settings,       settingsMenu},
-            { MenuType.BeatLevel,      beatLevelScreen},
-            { MenuType.LevelSelect,    levelSelectMenu},
-            { MenuType.Credits,        creditsScreen},
-            { MenuType.Diary,          diaryScreen},
+            { MenuType.MainMenu,        mainMenu },
+            { MenuType.Pause,           pauseMenu},
+            { MenuType.GameOverScreen,  gameEndScreen},
+            { MenuType.Settings,        settingsMenu},
+            { MenuType.DailyReport,     dailyReportMenu},
+            { MenuType.LevelSelect,     levelSelectMenu},
+            { MenuType.Credits,         creditsScreen},
         };
 
         MenuToMenuType = MenuTypeToMenu.ToDictionary(x => x.Value, x => x.Key);
         menus.AddRange(MenuTypeToMenu.Values);
+    }
 
+    private void Start()
+    {
         // Initializes each menu
         // Makes sure only the main menu is open on start
         foreach (Menu menu in menus)
@@ -104,7 +108,7 @@ public class UIManager : Singleton<UIManager>
             throw new Exception("Not all enums are counted for in the MenuTypeToMenu dictionary");
 
         // Debug.Log($"Game Manager's Last Game Action: {GameFlowManager.Instance.MyLastGameAction}");
-        UpdateMenusToGameAction(GameFlowManager.Instance.MyLastGameAction);
+        //UpdateMenusToGameAction(GameFlowManager.Instance.MyLastGameAction);
     }
 
     private void Update()
@@ -118,18 +122,16 @@ public class UIManager : Singleton<UIManager>
 
     void OnEnable()
     {
-        GameStateChangeEventHandler += HandleGameStateChange;
         UIButton.UIInteractEventHandler += HandleUIButtonInteract;
         Menu.SetCanvasEventHandler += HandleSetCanvas;
         DayManager.DayStateChangeEventHandler += HandleDayStateChange;
-        GameFlowManager.PerformActionEventHandler += HandleGameAction;
+        GameFlowManager.PerformGameActionEventHandler += HandleGameAction;
     }
 
     void OnDisable()
     {
-        GameStateChangeEventHandler -= HandleGameStateChange;
         UIButton.UIInteractEventHandler -= HandleUIButtonInteract;
-        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
+        GameFlowManager.PerformGameActionEventHandler -= HandleGameAction;
         Menu.SetCanvasEventHandler -= HandleSetCanvas;
         DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
     }
@@ -138,19 +140,15 @@ public class UIManager : Singleton<UIManager>
     {
         var menuToLoad = e.myDayState switch
         {
-            DayStateChangeEventArgs.DayState.EndDay => MenuType.BeatLevel,
+            DayManager.DayState.EndWork => MenuType.DailyReport,
+            DayManager.DayState.StartDay => MenuType.Empty,
             _ => MenuType.None,
         };
         LoadMenu(menuToLoad);
     }
 
-    void HandleGameAction(object sender, GameActionEventArgs e)
+    void HandleGameAction(object sender, PerformGameActionEventArgs e)
         => UpdateMenusToGameAction(e.gameAction);
-
-    /// <summary>
-    ///     Loads the menu appropriate to the current game state.
-    /// </summary>
-    void HandleGameStateChange(object sender, GameStateChangeEventArgs e) { }
 
     bool IsAMenuEnabled()
     {
@@ -189,9 +187,9 @@ public class UIManager : Singleton<UIManager>
     {
         MenuType menuToLoad = action switch
         {
-            GameFlowManager.GameAction.EnterMainMenu => MenuType.MainMenu,
-            GameFlowManager.GameAction.PauseGame => MenuType.Pause,
-            GameFlowManager.GameAction.LoseGame => MenuType.GameEndScreen,
+            GameAction.EnterMainMenu => MenuType.MainMenu,
+            GameAction.PauseGame => MenuType.Pause,
+            GameAction.LoseGame => MenuType.GameOverScreen,
             _ => MenuType.Empty,
         };
 
@@ -203,7 +201,7 @@ public class UIManager : Singleton<UIManager>
     /// <summary> Loads the appropraite menu when we click a ui button </summary>
     void HandleUIButtonInteract(object sender, UIButton.UIInteractEventArgs e)
     {
-        if (e.buttonEvent != UIButton.UIEventTypes.UI)
+        if (e.buttonEvent != UIButton.EventType.UI)
             return;
 
         if (e.buttonInteraction != UIButton.UIInteractionTypes.Click)
@@ -211,6 +209,7 @@ public class UIManager : Singleton<UIManager>
 
         LoadMenu(e.menuToOpen);
     }
+
     void LoadMenu(MenuType myMenuType, bool addToHistory = true, bool addToQueue = true)
     {
         // In the future I would like the game to smoothly switch between screen transitions
@@ -221,6 +220,8 @@ public class UIManager : Singleton<UIManager>
                 nextInQueue = myMenuType;
             return;
         }
+
+        Assert.IsNotNull(MenuTypeToMenu, "MenuTypeToMenu should not be null. Initialize on Awake.");
 
         if (MenuTypeToMenu.TryGetValue(myMenuType, out Menu menuToLoad))
             LoadMenu(menuToLoad, addToHistory);
@@ -241,67 +242,64 @@ public class UIManager : Singleton<UIManager>
                 break;
 
             default:
-                if (menuToLoad == null)
-                    throw new Exception($"Menu type of {myMenuType} not contained in MenuTypeToMenu dictionary or by switch expression");
+                Assert.IsNotNull(menuToLoad, $"Add {myMenuType} to MenuTypeToMenu dictionary or above switch expression. ");
             break;
         }
+    }
 
-
-
-        /// <summary> Loads a menu while unloading the previous menu </summary>
-        /// <param name="menu"> Menu to load. </param>
-        /// <param name="addToHistory"> If we are entering a nested menu.  </param>
-        void LoadMenu(Menu menu, bool addToHistory = true)
+    /// <summary> Loads a menu while unloading the previous menu </summary>
+    /// <param name="menu"> Menu to load. </param>
+    /// <param name="addToHistory"> If we are entering a nested menu.  </param>
+    void LoadMenu(Menu menu, bool addToHistory = true)
+    {
+        // We also need to ensure that the menu we just loaded is at the end of the list
+        bool transitioningToMenuUnderStack = false;
+        if (nestedMenuHistory.Contains(menu))
         {
-            // We also need to ensure that the menu we just loaded is at the end of the list
-            bool transitioningToMenuUnderStack = false;
-            if (nestedMenuHistory.Contains(menu))
-            {
-                transitioningToMenuUnderStack = true;
-                nestedMenuHistory.RemoveAt(nestedMenuHistory.Count() - 1);
-            }
-            else
-                nestedMenuHistory.Add(menu);
+            transitioningToMenuUnderStack = true;
+            nestedMenuHistory.RemoveAt(nestedMenuHistory.Count() - 1);
+        }
+        else
+            nestedMenuHistory.Add(menu);
 
-            if (addToHistory)
-            {
-                menuHistory.Add(menu);
-                currentHistoryIndex++;
-            }
-
-            if (menu == currentMenu)
-                Debug.LogWarning("Menu Manager: Should not be trying to load an already loaded menu");
-
-            previousMenu = currentMenu;
-            currentMenu = menu;
-
-            if (currentMenu != null && MenuToMenuType.TryGetValue(currentMenu, out MenuType currentType))
-                currentMenuType = currentType;
-            if (previousMenu != null && MenuToMenuType.TryGetValue(previousMenu, out MenuType previousType))
-                previousMenuType = previousType;
-
-            previousMenu?.SetCanvas(false, false, !transitioningToMenuUnderStack);
-            menu.SetCanvas(true, false, transitioningToMenuUnderStack);
-
-
-            if (menu.CanSeePaper)
-                userInterfaceCamera.cullingMask = allSeeingCullingMask;
-            else
-                userInterfaceCamera.cullingMask = uiOnlyCullingMask;
+        if (addToHistory)
+        {
+            menuHistory.Add(menu);
+            currentHistoryIndex++;
         }
 
-        /// <summary> Loads the last loaded menu. </summary>
-        void LoadPreviousMenu()
-        {
-            if (currentHistoryIndex == 0)
-                return;
+        if (menu == currentMenu)
+            Debug.LogWarning("Menu Manager: Should not be trying to load an already loaded menu");
 
-            if (currentHistoryIndex >= menuHistory.Count)
-                throw new Exception("Menu history index exceeds the menu history list");
+        previousMenu = currentMenu;
+        currentMenu = menu;
 
-            LoadMenu(menuHistory[--currentHistoryIndex], false);
-            menuHistory.RemoveAt(currentHistoryIndex + 1);
-        }
+        if (currentMenu != null && MenuToMenuType.TryGetValue(currentMenu, out MenuType currentType))
+            currentMenuType = currentType;
+        if (previousMenu != null && MenuToMenuType.TryGetValue(previousMenu, out MenuType previousType))
+            previousMenuType = previousType;
+
+        previousMenu?.SetCanvas(false, false, !transitioningToMenuUnderStack);
+        menu.SetCanvas(true, false, transitioningToMenuUnderStack);
+
+
+        if (menu.CanSeePaper)
+            userInterfaceCamera.cullingMask = allSeeingCullingMask;
+        else
+            userInterfaceCamera.cullingMask = uiOnlyCullingMask;
+    }
+
+    /// <summary> Loads the last loaded menu. </summary>
+    void LoadPreviousMenu()
+    {
+        if (currentHistoryIndex == 0)
+            return;
+
+        if (currentHistoryIndex >= menuHistory.Count)
+            throw new Exception("Menu history index exceeds the menu history list");
+
+        LoadMenu(menuHistory[--currentHistoryIndex], false);
+        menuHistory.RemoveAt(currentHistoryIndex + 1);
     }
 }
 

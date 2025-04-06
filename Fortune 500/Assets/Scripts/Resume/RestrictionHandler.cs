@@ -5,7 +5,7 @@ using System.Linq;
 using Random = UnityEngine.Random;
 using Unity.Mathematics;
 using Unity.VisualScripting;
-using static DayStateChangeEventArgs;
+using static DayManager;
 
 public class RestrictionHandler : Singleton<RestrictionHandler>
 {

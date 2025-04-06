@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System;
 using static DayStateChangeEventArgs;
 using UnityEngine.Assertions;
+using static UIButton;
 
-public class DayManager : MonoBehaviour
+public class DayManager : Singleton<DayManager> 
 {
     [field: SerializeField] List<int> employeesPerDay = new();
 
@@ -14,18 +15,36 @@ public class DayManager : MonoBehaviour
     public int CurrentDay { get; private set; }
     public int RemainingEmployees { get; private set; }
 
+    public enum DayState { None, StartDay, StartWork, EndWork, EndDay }
+
+    public int EmployeesHiredToday { get; private set; } = 0;
+    public int EmployeesRejectedToday { get; private set; } = 0;
+    public int MistakesMadeToday { get; private set; } = 0;
+
+
     private void OnEnable()
     {
-        CandidateHandler.HireCandidateEventHandler += HandleHiredCandidate;
+        CandidateHandler.ReviewedCandidateEventHandler += HandleHiredCandidate;
         SlotMachineButton.SlotsInteractEventHandler += HandlePullLever;
-        GameFlowManager.PerformActionEventHandler += HandleGameAction;
+        GameFlowManager.PerformGameActionEventHandler += HandleGameAction;
+
+        UIButton.UIInteractEventHandler += HandleUIInteract;
     }
 
     private void OnDisable()
     {
-        CandidateHandler.HireCandidateEventHandler -= HandleHiredCandidate;
+        CandidateHandler.ReviewedCandidateEventHandler -= HandleHiredCandidate;
         SlotMachineButton.SlotsInteractEventHandler -= HandlePullLever;
-        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
+        GameFlowManager.PerformGameActionEventHandler -= HandleGameAction;
+        UIButton.UIInteractEventHandler -= HandleUIInteract;
+    }
+
+    void HandleUIInteract(object sender, UIInteractEventArgs e)
+    {
+        if (e.buttonEvent != UIButton.EventType.DayAction)
+            return;
+
+        OnDayStateChange(e.myNewDayState);
     }
 
     void HandlePullLever(object sender, SlotsInteractEventArgs e)
@@ -37,18 +56,26 @@ public class DayManager : MonoBehaviour
             break;
         }
     }
-
-    void HandleHiredCandidate(object sender, HiredCandidateEventArgs e)
+    
+    void HandleHiredCandidate(object sender, ReviewedCandidateEventArgs e)
     {
         RemainingEmployees--;
 
         Assert.IsFalse(RemainingEmployees < 0);
 
-        if (RemainingEmployees == 0)
+        if (!e.wasDecisionCorrect)
+            MistakesMadeToday++;
+
+        if (e.didHireCandidate)
+            EmployeesHiredToday++;
+        else
+            EmployeesRejectedToday++;
+
+        if (!e.DidLose && RemainingEmployees == 0)
             OnDayStateChange(DayState.EndWork);
     }
 
-    void HandleGameAction(object sender, GameActionEventArgs e)
+    void HandleGameAction(object sender, PerformGameActionEventArgs e)
     {
         switch (e.gameAction)
         {
@@ -65,6 +92,10 @@ public class DayManager : MonoBehaviour
             case DayState.StartDay:
                 RemainingEmployees = CurrentDay < employeesPerDay.Count ? employeesPerDay[CurrentDay] : employeesPerDay[CurrentDay - 1];
                 CurrentDay++;
+
+                EmployeesHiredToday = 0;
+                EmployeesRejectedToday = 0;
+                MistakesMadeToday = 0;
             break;
         }
 
@@ -72,25 +103,11 @@ public class DayManager : MonoBehaviour
     }
 }
 
-
-public class GunDataEventArgs : ScriptableObject
-{
-    public readonly int bullets;
-    public readonly string name;
-
-    public GunDataEventArgs(int bullets, string name)
-    {
-        this.bullets = bullets;
-        this.name = name;
-    }
-}
-
 public class DayStateChangeEventArgs : EventArgs
 {
-    public enum DayState { StartDay, StartWork, EndWork, EndDay }
-    public readonly DayState myDayState;
+    public readonly DayManager.DayState myDayState;
 
-    public DayStateChangeEventArgs(DayState myDayState)
+    public DayStateChangeEventArgs(DayManager.DayState myDayState)
     {
         this.myDayState = myDayState;
     }

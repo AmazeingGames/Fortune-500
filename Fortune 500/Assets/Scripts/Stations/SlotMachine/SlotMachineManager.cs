@@ -20,7 +20,7 @@ public class SlotMachineManager : MonoBehaviour
     {
         switch (e.myDayState)
         {
-            case DayStateChangeEventArgs.DayState.StartWork:
+            case DayManager.DayState.StartWork:
                 StartCoroutine(CO_StartSlots());
             break; 
         }
@@ -29,7 +29,7 @@ public class SlotMachineManager : MonoBehaviour
 
     IEnumerator CO_StartSlots()
     {
-        Debug.Log("Randomize Slots");
+        // Debug.Log("Randomize Slots");
         yield return null;
 
         float randomTimeFloor = timeFloor;

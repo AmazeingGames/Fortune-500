@@ -5,11 +5,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UIButton;
 
 public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, IPointerUpHandler
 {
     [Header("Button Type")]
-    [SerializeField] UIEventTypes buttonEvent;
+    [SerializeField] EventType myEventType;
 
     // Turn this into a class value, which inherits from the same type
     // Change the class based on the button type, and then serialize the class values
@@ -19,62 +20,21 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
 
     [Header("Game State Button Type")]
     [SerializeField] GameFlowManager.GameAction newGameAction;
-    [SerializeField] int levelToLoad = -1;
+
+    [Header("Day State Button Type")]
+    [SerializeField] DayManager.DayState newDayState;
 
     [Header("Components")]
     [SerializeField] TextMeshProUGUI text;
     [SerializeField] Image underline;
 
-    public enum UIEventTypes { None, UI, GameAction }
+    public enum EventType { None, UI, GameAction, DayAction }
     public enum UIInteractionTypes { Enter, Click, Up, Exit }
 
     public static EventHandler<UIInteractEventArgs> UIInteractEventHandler;
 
     Coroutine lerpButtonCoroutine = null;
     Coroutine lerpUnderlineCoroutine = null;
-
-    public class UIInteractEventArgs : EventArgs
-    {
-        public readonly UIEventTypes buttonEvent;
-        public readonly UIInteractionTypes buttonInteraction;
-        public readonly PointerEventData pointerEventData;
-
-        public readonly UIManager.MenuType menuToOpen = UIManager.MenuType.None;
-        public readonly GameFlowManager.GameAction actionToPerform = GameFlowManager.GameAction.None;
-        public readonly int levelToLoad = -1;
-
-        public UIInteractEventArgs(UIButton button, UIEventTypes uiEventType, PointerEventData pointerEventData, UIInteractionTypes uiInteractionType)
-        {
-            this.buttonEvent = uiEventType;
-            this.pointerEventData = pointerEventData;
-            this.buttonInteraction = uiInteractionType;
-
-            if (uiInteractionType == UIInteractionTypes.Enter || uiInteractionType == UIInteractionTypes.Exit)
-                return;
-
-            switch (uiEventType)
-            {
-                case UIEventTypes.UI:
-                    menuToOpen = button.menuToOpen;
-
-                    if (menuToOpen == UIManager.MenuType.Pause)
-                        throw new InvalidOperationException("Puasing the game should be done by updating the game state, not through changing UI menus.");
-                    else if (menuToOpen == UIManager.MenuType.Empty)
-                        throw new InvalidOperationException("Closing all menus should be done by updating the game to the proper game state, not through changing UI menus.");
-                    else if (menuToOpen == UIManager.MenuType.None)
-                        throw new InvalidOperationException("A menu type of none will cause nothing to happen.");
-                break;
-                
-                case UIEventTypes.GameAction:
-                    actionToPerform = button.newGameAction;
-                    levelToLoad = button.levelToLoad;
-
-                    if (actionToPerform == GameFlowManager.GameAction.None)
-                        throw new InvalidOperationException("A game state of none will cause nothing to happen.");
-                break;
-            }
-        }
-    }
 
     void OnEnable()
     {
@@ -211,5 +171,60 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         => OnUIInteract(pointerEventData, UIInteractionTypes.Up);
 
     public virtual void OnUIInteract(PointerEventData pointerEventData, UIInteractionTypes buttonInteract)
-        => UIInteractEventHandler?.Invoke(this, new(this, buttonEvent, pointerEventData, buttonInteract));
+        => UIInteractEventHandler?.Invoke(this, new(this, myEventType, pointerEventData, buttonInteract));
+
+
+    public class UIInteractEventArgs : EventArgs
+    {
+        public readonly EventType buttonEvent;
+        public readonly UIInteractionTypes buttonInteraction;
+        public readonly PointerEventData pointerEventData;
+
+        public readonly UIManager.MenuType menuToOpen = UIManager.MenuType.None;
+        public readonly GameFlowManager.GameAction actionToPerform = GameFlowManager.GameAction.None;
+
+        public readonly DayManager.DayState myNewDayState;
+
+        public UIInteractEventArgs(UIButton button, EventType uiEventType, PointerEventData pointerEventData, UIInteractionTypes uiInteractionType)
+        {
+            this.buttonEvent = uiEventType;
+            this.pointerEventData = pointerEventData;
+            this.buttonInteraction = uiInteractionType;
+
+            if (uiInteractionType == UIInteractionTypes.Enter || uiInteractionType == UIInteractionTypes.Exit)
+                return;
+
+            switch (uiEventType)
+            {
+                case EventType.UI:
+                    menuToOpen = button.menuToOpen;
+
+                    switch (menuToOpen)
+                    {
+                        case UIManager.MenuType.None:
+                            throw new InvalidOperationException("A menu type of none will cause nothing to happen.");
+                        case UIManager.MenuType.Pause:
+                            throw new InvalidOperationException("Pausing the game should be done by updating the game state, not through changing UI menus.");
+                        case UIManager.MenuType.Empty:
+                            throw new InvalidOperationException("Closing all menus should be done by updating the game to the proper game state, not through changing UI menus.");
+                    }
+                break;
+
+                case EventType.GameAction:
+                    actionToPerform = button.newGameAction;
+
+                    if (actionToPerform == GameFlowManager.GameAction.None)
+                        throw new InvalidOperationException("A game state of none will cause nothing to happen.");
+                break;
+
+                case EventType.DayAction:
+                    myNewDayState = button.newDayState;
+
+                    if (myNewDayState != DayManager.DayState.StartDay)
+                        throw new InvalidOperationException("A UI button should only change the day state to StartDay");
+                break;
+            }
+        }
+    }
 }
+

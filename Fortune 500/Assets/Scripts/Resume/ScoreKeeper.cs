@@ -15,14 +15,14 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
 
     private void OnEnable()
     {
-        GameFlowManager.PerformActionEventHandler += HandleGameAction;
-        CandidateHandler.HireCandidateEventHandler += HandleHiredCandidate;
+        DayManager.DayStateChangeEventHandler += HandleDayStateChange;
+        CandidateHandler.ReviewedCandidateEventHandler += HandleHiredCandidate;
     }
 
     private void OnDisable()
     {
-        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
-        CandidateHandler.HireCandidateEventHandler -= HandleHiredCandidate;
+        DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
+        CandidateHandler.ReviewedCandidateEventHandler -= HandleHiredCandidate;
     }
 
     void Start()
@@ -36,18 +36,18 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
         => EnvironmentData.Instance.RevenueText.text = "Revenue:" + Revenue + " bn";
 
 
-    void HandleGameAction(object sender, GameActionEventArgs e)
+    void HandleDayStateChange(object sender, DayStateChangeEventArgs e)
     {
-        switch (e.gameAction)
+        switch (e.myDayState)
         {
-            case GameFlowManager.GameAction.StartWork:
+            case DayManager.DayState.StartWork:
                 DayCount++;
                 EnvironmentData.Instance.DayText.text = $"{DayCount}";
             break;
         }
     }
 
-    void HandleHiredCandidate(object sender, HiredCandidateEventArgs e)
+    void HandleHiredCandidate(object sender, ReviewedCandidateEventArgs e)
     {
         int hiredMultiplier = e.wasDecisionCorrect ? 1 : 0;
         Revenue += 10 * hiredMultiplier;

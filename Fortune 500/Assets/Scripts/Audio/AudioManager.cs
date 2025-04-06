@@ -23,7 +23,7 @@ public class AudioManager : Singleton<AudioManager>
         FPSInput.TakeActionEventHandler += HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnect;
         DayManager.DayStateChangeEventHandler += HandleDayStateChange;
-        GameFlowManager.PerformActionEventHandler += HandleGameAction;
+        GameFlowManager.PerformGameActionEventHandler += HandleGameAction;
     }
 
     private void OnDisable()
@@ -31,7 +31,7 @@ public class AudioManager : Singleton<AudioManager>
         FPSInput.TakeActionEventHandler -= HandlePlayerAction;
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnect;
         DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
-        GameFlowManager.PerformActionEventHandler -= HandleGameAction;
+        GameFlowManager.PerformGameActionEventHandler -= HandleGameAction;
     }
 
     void HandleInterfaceConnect(object sender, InterfaceConnectedEventArgs e)
@@ -53,11 +53,11 @@ public class AudioManager : Singleton<AudioManager>
     {
         switch (e.myDayState)
         {
-            case DayStateChangeEventArgs.DayState.StartWork:
+            case DayManager.DayState.StartDay:
                 Events.AmbienceSound.start();
             break;
 
-            case DayStateChangeEventArgs.DayState.EndWork:
+            case DayManager.DayState.EndWork:
                 PlayOneShot(Events.EndDayCall, transform.position);
             break;
         }
@@ -83,7 +83,7 @@ public class AudioManager : Singleton<AudioManager>
 
     
 
-    public void HandleGameAction(object sender, GameActionEventArgs e)
+    public void HandleGameAction(object sender, PerformGameActionEventArgs e)
     {
         switch (e.gameAction)
         {
@@ -111,6 +111,10 @@ public class AudioManager : Singleton<AudioManager>
                     sound.setPaused(false);
                 pausedEventInstances.Clear();
             break;
+
+            case GameFlowManager.GameAction.EnterMainMenu:
+                pausedEventInstances.Clear();
+            break;
         }
     }
 
@@ -122,7 +126,7 @@ public class AudioManager : Singleton<AudioManager>
             return;
         }
 
-        Debug.Log($"Stopped {soundReference.MySoundType}");
+        // Debug.Log($"Stopped {soundReference.MySoundType}");
 
         if (playOnGameResume)
         {
@@ -135,7 +139,7 @@ public class AudioManager : Singleton<AudioManager>
 
     void PlayOneShot(SoundData soundDataToPlay, Vector3 soundOrigin, FMOD.Studio.STOP_MODE stopMode = FMOD.Studio.STOP_MODE.ALLOWFADEOUT)
     {
-        Debug.Log($"Triggered Audio Clip: {soundDataToPlay.MySoundType}");
+        // Debug.Log($"Triggered Audio Clip: {soundDataToPlay.MySoundType}");
         EventInstance soundInstance = RuntimeManager.CreateInstance(soundDataToPlay.EventReference);
         
         if (SoundDataToEventInstance.TryGetValue(soundDataToPlay, out _))
