@@ -6,6 +6,7 @@ using static PlayerFocus;
 using static AudioManager;
 using static InterfaceConnectedEventArgs;
 using UnityEngine.EventSystems;
+using UnityEngine.Assertions;
 
 public class FocusStation : MonoBehaviour
 {
@@ -13,12 +14,11 @@ public class FocusStation : MonoBehaviour
 
     [SerializeField] Station myStation;
     [SerializeField] Transform cameraPosition;
-
+    [SerializeField] ViewCheck viewCheck;
     [SerializeField] VirtualScreen virtualDisplay;
 
     public static EventHandler<ProximityEnteredEventArgs> ProximityEnteredEventHandler;
     public static EventHandler<InterfaceConnectedEventArgs> InterfaceConnectedEventHandler;
-
 
     private void OnEnable()
     {
@@ -64,19 +64,25 @@ public class FocusStation : MonoBehaviour
         if (virtualDisplay == null)
             return;
 
-        if (PlayerFocus.Instance.ClosestStation != this && PlayerFocus.Instance.MyStation != myStation)
-        {
-            virtualDisplay.enabled = false;
-            return;
-        }
+        bool isClosestStation = PlayerFocus.Instance.ClosestStation == this;
+        bool isPlayerConnected = PlayerFocus.Instance.MyConnectedStation == myStation;
+        bool isBeingLookedAt = viewCheck.IsPlayerFacing && viewCheck.IsCameraFacing;
 
-        virtualDisplay.enabled = true;
-        OnInterfaceConnected(e.myInteractionType);
+        if (e.myInteractionType == InteractionType.Disconnect && isPlayerConnected)
+            OnInterfaceConnected(e.myInteractionType);
+        else if (e.myInteractionType == InteractionType.Connect && isClosestStation && isBeingLookedAt)
+            OnInterfaceConnected(e.myInteractionType);
+        else
+            virtualDisplay.enabled = false;
     }
 
-
     void OnInterfaceConnected(InteractionType myInteractionType)
-        => InterfaceConnectedEventHandler?.Invoke(this, new InterfaceConnectedEventArgs(myStation, myInteractionType, cameraPosition.transform));
+    {
+        Assert.IsTrue(myInteractionType != InteractionType.DoNothing);
+
+        virtualDisplay.enabled = myInteractionType == InteractionType.Connect;
+        InterfaceConnectedEventHandler?.Invoke(this, new InterfaceConnectedEventArgs(myStation, myInteractionType, cameraPosition.transform));
+    }
 
     void HandleFindStation(object sender, FindStationDataEventArgs e)
     {

@@ -50,12 +50,10 @@ public class UIManager : Singleton<UIManager>
 
     MenuType nextInQueue;
 
-    public bool IsGamePaused { get; private set; }
-
     Menu currentMenu;
     Menu previousMenu;
 
-    MenuType currentMenuType;
+    public static MenuType CurrentMenuType { get; private set; }
     MenuType previousMenuType;
 
     readonly Menu emptyMenu = new();
@@ -168,16 +166,13 @@ public class UIManager : Singleton<UIManager>
         return isAMenuEnabled;
     }
 
-    /// <summary>
-    ///     Checks if there's currently an active canvas in the scene.
-    ///     Sets the UI camera and level camera active based on that.
-    /// </summary>
+    /// <summary> Sets UI and level camera active based on if there's currently an active canvas in the scene. </summary>
     /// <param name="setActive"> The SetActive() property the canvas was set to. </param>
     void HandleSetCanvas(object sender, Menu.SetCanvasEventArgs e)
     {
         bool isAMenuEnabled = IsAMenuEnabled();
         userInterfaceCamera.gameObject.SetActive(isAMenuEnabled);
-        OnMenuChange(currentMenuType, previousMenuType, isAMenuEnabled: isAMenuEnabled);
+        OnMenuChange(CurrentMenuType, previousMenuType, isAMenuEnabled: isAMenuEnabled);
     }
     void OnMenuChange(MenuType newMenuType, MenuType previousMenuType, bool isAMenuEnabled)
         => MenuChangeEventHandler?.Invoke(this, new(newMenuType, previousMenuType, isAMenuEnabled));
@@ -236,7 +231,9 @@ public class UIManager : Singleton<UIManager>
                 foreach (Menu menuToUnload in menus)
                     menuToUnload.SetCanvas(false, needsToMoveOutOfFrame: true);
                 nestedMenuHistory.Clear();
-            break;
+
+                CurrentMenuType = MenuType.None;
+                break;
 
             case MenuType.None:
                 break;
@@ -275,7 +272,7 @@ public class UIManager : Singleton<UIManager>
         currentMenu = menu;
 
         if (currentMenu != null && MenuToMenuType.TryGetValue(currentMenu, out MenuType currentType))
-            currentMenuType = currentType;
+            CurrentMenuType = currentType;
         if (previousMenu != null && MenuToMenuType.TryGetValue(previousMenu, out MenuType previousType))
             previousMenuType = previousType;
 

@@ -4,14 +4,15 @@ using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class ScoreKeeper: Singleton<ScoreKeeper>
+public class ScoreKeeper: MonoBehaviour
 {
     [SerializeField] int randomUpdateRange;
     [SerializeField] float randomUpdatePeriod;
 
-    public int Revenue { get; private set; }
-    public int StrikesLeft { get; private set; } = 3;
-    public int DayCount { get; private set; } = 0;
+    public static int Revenue { get; private set; }
+    public static int StrikesLeft { get; private set; } = 3;
+
+    public static EventHandler FluctuateIncomeEventHandler;
 
     private void OnEnable()
     {
@@ -27,9 +28,6 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
         GameFlowManager.PerformGameActionEventHandler -= HandlePerformGameAction;
     }
 
-    private void Update()
-        => EnvironmentData.Instance.RevenueText.text = "Revenue:" + Revenue + " bn";
-
 
     void HandlePerformGameAction(object sender, PerformGameActionEventArgs e)
     {
@@ -37,7 +35,6 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
         {
             case GameFlowManager.GameAction.PlayGame:
                 Revenue = 100;
-                EnvironmentData.Instance.StrikesLeftText.text = "III";
                 StartCoroutine(FluctuateRevenue());
             break;
 
@@ -52,11 +49,6 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
     {
         switch (e.myDayState)
         {
-            case DayManager.DayState.StartWork:
-                DayCount++;
-                EnvironmentData.Instance.DayText.text = $"{DayCount}";
-            break;
-
             case DayManager.DayState.StartDay:
                 StrikesLeft = 3;
             break;
@@ -67,22 +59,14 @@ public class ScoreKeeper: Singleton<ScoreKeeper>
     {
         int hiredMultiplier = e.wasDecisionCorrect ? 1 : 0;
         Revenue += 10 * hiredMultiplier;
-        EnvironmentData.Instance.RevenueText.text = "Revenue:" + Revenue + " bn";
-
-        if (!e.wasDecisionCorrect)
-        {
-            StrikesLeft--;
-            EnvironmentData.Instance.StrikesLeftText.text = "";
-
-            for (int i = 0; i < StrikesLeft; i++)
-                EnvironmentData.Instance.StrikesLeftText.text += "I";
-        }
+        
     }
 
     IEnumerator FluctuateRevenue()
     {
+        FluctuateIncomeEventHandler?.Invoke(this, new());
+
         Revenue += Random.Range(-randomUpdateRange / 2, randomUpdateRange / 2);
-        EnvironmentData.Instance.RevenueText.text = "Revenue:" + Revenue + " bn";
         yield return new WaitForSeconds(randomUpdatePeriod);
         StartCoroutine(FluctuateRevenue());
     }

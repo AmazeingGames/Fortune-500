@@ -12,8 +12,8 @@ public class DayManager : MonoBehaviour
     public static EventHandler<DayStateChangeEventArgs> DayStateChangeEventHandler;
 
     public DayState MyDayState { get; private set; }
-    public int CurrentDay { get; private set; }
-    public int RemainingEmployees { get; private set; }
+    public static int CurrentDay { get; private set; }
+    public static int RemainingEmployees { get; private set; }
 
     public enum DayState { None, StartDay, StartWork, EndWork, EndDay }
 

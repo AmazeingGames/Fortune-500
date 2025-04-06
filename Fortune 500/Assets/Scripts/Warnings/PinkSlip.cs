@@ -42,17 +42,15 @@ public class PinkSlip : MonoBehaviour
     {
         switch (e.myDayState)
         {
-            case DayManager.DayState.None:
-                break;
             case DayManager.DayState.StartDay:
                 slipVisuals.SetActive(false);
-                break;
+            break;
+
             case DayManager.DayState.StartWork:
-                break;
             case DayManager.DayState.EndWork:
-                break;
             case DayManager.DayState.EndDay:
-                break;
+            case DayManager.DayState.None:
+            break;
         }
     }
 
@@ -77,6 +75,7 @@ public class PinkSlip : MonoBehaviour
         string title = "WARNING";
         string mainText = "";
         string conclusion = "";
+
         if (e.didHireCandidate)
         {
             mainText += $"You hired {candidateData.FirstName} {candidateData.LastName} , but he didn't comply with the following restriction: {Environment.NewLine}" +
@@ -89,11 +88,11 @@ public class PinkSlip : MonoBehaviour
                 $"Who's gonna do all the important work we have around here? You?";
         }
 
-        if (ScoreKeeper.Instance.StrikesLeft == 2)
+        if (ScoreKeeper.StrikesLeft == 2)
             conclusion = "Strike 1!";
-        else if (ScoreKeeper.Instance.StrikesLeft == 1)
+        else if (ScoreKeeper.StrikesLeft == 1)
             conclusion = "Final warning!";
-        else if (ScoreKeeper.Instance.StrikesLeft == 0)
+        else if (ScoreKeeper.StrikesLeft == 0)
         {
             title = "TERMINATION NOTICE";
             conclusion = "GET OUT!";

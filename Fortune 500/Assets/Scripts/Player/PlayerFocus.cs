@@ -7,7 +7,7 @@ using static FocusStation;
 
 public class PlayerFocus : Singleton<PlayerFocus>
 {
-    public Station MyStation { get; private set; } = Station.Nothing;
+    public Station MyConnectedStation { get; private set; } = Station.Nothing;
     public Station MyPreviousStation { get; private set; } = Station.Nothing;
 
     public enum Station { Nothing, Computer, Desk, Slots }
@@ -37,7 +37,7 @@ public class PlayerFocus : Singleton<PlayerFocus>
 
     void OnFocusAttempt()
     {
-        InteractionType myInteractionType = MyStation == Station.Nothing ? InteractionType.Connect : InteractionType.Disconnect;
+        InteractionType myInteractionType = MyConnectedStation == Station.Nothing ? InteractionType.Connect : InteractionType.Disconnect;
         FocusAttemptedEventHandler?.Invoke(this, new(myInteractionType));
 
         // Debug.Log($"Focus attempted: {myInteractionType} to {ClosestStation}");
@@ -45,8 +45,8 @@ public class PlayerFocus : Singleton<PlayerFocus>
 
     public void HandleInterfaceConnection(object sender, InterfaceConnectedEventArgs e)
     {
-        MyPreviousStation = MyStation;
-        MyStation = e.myInteractionType == InteractionType.Connect ? e.myStation : Station.Nothing;
+        MyPreviousStation = MyConnectedStation;
+        MyConnectedStation = e.myInteractionType == InteractionType.Connect ? e.myStation : Station.Nothing;
     }
 
     public void HandleProximityEnter(object sender, ProximityEnteredEventArgs e)
@@ -55,7 +55,7 @@ public class PlayerFocus : Singleton<PlayerFocus>
         // Debug.Log($"Player | HandledFocusStationProximityEnter: {(e.didEnter ? "Entered" : "Exit")} {e.focusStation} proximity.");
     }
 
-    public static bool IsFocusedOn(Station focusedOn) => (Instance == null || focusedOn == Instance.MyStation);
+    public static bool IsFocusedOn(Station focusedOn) => (Instance == null || focusedOn == Instance.MyConnectedStation);
 }
 
 public class FocusAttemptedEventArgs : EventArgs

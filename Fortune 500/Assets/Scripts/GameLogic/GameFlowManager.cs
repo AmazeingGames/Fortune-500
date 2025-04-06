@@ -43,8 +43,9 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
     private void Update()
     {
-        // In the future, I would like the game to acknowledge this, and be able to smoothly transition between the 2 quickly
-        if (Input.GetKeyDown(pauseKey) && !ScreenTransitions.IsPlayingTransitionAnimation)
+        // In the future, I would like the game to better acknowledge this, without having to manually check for them during a pause.
+        // Having a smooth, instantaneous transitions between attempted menu opens would be nice
+        if (Input.GetKeyDown(pauseKey) && !ScreenTransitions.IsPlayingTransitionAnimation && UIManager.CurrentMenuType != UIManager.MenuType.DailyReport)
         {
             switch (MyCurrentState)
             {

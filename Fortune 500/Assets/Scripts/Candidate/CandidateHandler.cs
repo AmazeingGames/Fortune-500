@@ -98,7 +98,7 @@ public class CandidateHandler : MonoBehaviour
         
         bool wasDecisionCorrect = didHireCandidate == (RestrictionHandler.Restrictions[0].restriction(CurrentCandidateData) && RestrictionHandler.Restrictions[1].restriction(CurrentCandidateData) && RestrictionHandler.Restrictions[2].restriction(CurrentCandidateData));
         
-        ReviewedCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, ScoreKeeper.Instance.StrikesLeft, didHireCandidate));
+        ReviewedCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, ScoreKeeper.StrikesLeft, didHireCandidate));
         GetNewCandidate();
     }
     void GetNewCandidate()
