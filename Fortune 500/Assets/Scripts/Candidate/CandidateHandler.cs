@@ -24,7 +24,7 @@ public class CandidateHandler : MonoBehaviour
 
     [Header("Prefabs")]
     [SerializeField] PinkSlip pinkSlip;
-    public CandidateData CurrentCandidateData { get; private set; }
+    public static CandidateData CurrentCandidateData { get; private set; }
     float _currentCandidatePatience;
     int _candidatesInTheDay;
     bool canMakeDecisions = true;
@@ -62,7 +62,7 @@ public class CandidateHandler : MonoBehaviour
                 CurrentCandidateData = null;
                 candidate.gameObject.SetActive(false);
                 resume.gameObject.SetActive(false);
-                break;
+            break;
         }
     }
 
@@ -85,7 +85,7 @@ public class CandidateHandler : MonoBehaviour
                 resume.gameObject.SetActive(true);
 
                 _candidatesInTheDay = 5;
-                _restrictionText.text = RestrictionHandler.Instance.Restrictions[0].description + Environment.NewLine + RestrictionHandler.Instance.Restrictions[1].description + Environment.NewLine + RestrictionHandler.Instance.Restrictions[2].description;
+                _restrictionText.text = RestrictionHandler.Restrictions[0].description + Environment.NewLine + RestrictionHandler.Restrictions[1].description + Environment.NewLine + RestrictionHandler.Restrictions[2].description;
                 GetNewCandidate();
             break;
         }
@@ -96,60 +96,11 @@ public class CandidateHandler : MonoBehaviour
         if (!canMakeDecisions) 
             return;
         
-        bool wasDecisionCorrect = didHireCandidate == (RestrictionHandler.Instance.Restrictions[0].restriction(CurrentCandidateData) && RestrictionHandler.Instance.Restrictions[1].restriction(CurrentCandidateData) && RestrictionHandler.Instance.Restrictions[2].restriction(CurrentCandidateData));
+        bool wasDecisionCorrect = didHireCandidate == (RestrictionHandler.Restrictions[0].restriction(CurrentCandidateData) && RestrictionHandler.Restrictions[1].restriction(CurrentCandidateData) && RestrictionHandler.Restrictions[2].restriction(CurrentCandidateData));
         
         ReviewedCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, ScoreKeeper.Instance.StrikesLeft, didHireCandidate));
-
-        if (!wasDecisionCorrect)
-            GeneratePinkSlip(CurrentCandidateData, didHireCandidate, RestrictionHandler.Instance.Restrictions);
-
         GetNewCandidate();
     }
-
-    PinkSlip slip = null;
-    void GeneratePinkSlip(CandidateData candidate, bool wasHired, List<Restriction> restrictions)
-    {
-        string restrictionToDisplay;
-        if (!restrictions[0].restriction(candidate))
-            restrictionToDisplay = restrictions[0].description;
-        else if (!restrictions[1].restriction(candidate))
-            restrictionToDisplay = restrictions[1].description;
-        else
-            restrictionToDisplay = restrictions[2].description;
-
-        string title = "WARNING";
-        string mainText = "";
-        string conclusion = "";
-        if (wasHired)
-        {
-            mainText += $"You hired {candidate.FirstName} {candidate.LastName} , but he didn't comply with the following restriction: {Environment.NewLine}" +
-                $"{restrictionToDisplay} {Environment.NewLine}. Are you questioning the Slot Machine's authority?";
-        }
-
-        else
-        {
-            mainText += $"You rejected a perfectly good employee, {candidate.FirstName} {candidate.LastName}. {Environment.NewLine}" +
-                $"Who's gonna do all the important work we have around here? You?";
-        }
-
-        var localPosition = new Vector3(-358.809998f, -202.466995f, 7.09000015f);
-        if (ScoreKeeper.Instance.StrikesLeft == 2)
-            conclusion = "Strike 1!";
-        else if (ScoreKeeper.Instance.StrikesLeft == 1)
-            conclusion = "Final warning!";
-        else if (ScoreKeeper.Instance.StrikesLeft == 0)
-        {
-            title = "TERMINATION NOTICE";
-            conclusion = "GET OUT!";
-        }
-
-        
-        if (slip == null)
-            slip = Instantiate(pinkSlip, slipParent.transform);
-        slip.transform.localPosition = localPosition;
-        slip.Initialize(title, mainText, conclusion);
-    }
-
     void GetNewCandidate()
     {
         _candidatesInTheDay--;

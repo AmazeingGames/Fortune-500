@@ -5,7 +5,7 @@ using static DayStateChangeEventArgs;
 using UnityEngine.Assertions;
 using static UIButton;
 
-public class DayManager : Singleton<DayManager> 
+public class DayManager : MonoBehaviour
 {
     [field: SerializeField] List<int> employeesPerDay = new();
 
@@ -17,9 +17,9 @@ public class DayManager : Singleton<DayManager>
 
     public enum DayState { None, StartDay, StartWork, EndWork, EndDay }
 
-    public int EmployeesHiredToday { get; private set; } = 0;
-    public int EmployeesRejectedToday { get; private set; } = 0;
-    public int MistakesMadeToday { get; private set; } = 0;
+    public static int EmployeesHiredToday { get; private set; } = 0;
+    public static int EmployeesRejectedToday { get; private set; } = 0;
+    public static int MistakesMadeToday { get; private set; } = 0;
 
 
     private void OnEnable()
@@ -80,6 +80,10 @@ public class DayManager : Singleton<DayManager>
         switch (e.gameAction)
         {
             case GameFlowManager.GameAction.PlayGame:
+                CurrentDay = 0;
+                EmployeesHiredToday = 0;
+                EmployeesRejectedToday = 0;
+                MistakesMadeToday = 0;
                 OnDayStateChange(DayState.StartDay);
             break;
         }

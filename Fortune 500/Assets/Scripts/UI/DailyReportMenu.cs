@@ -8,19 +8,24 @@ public class DailyReportMenu : MonoBehaviour
 
     private void OnEnable()
     {
-        CandidateHandler.ReviewedCandidateEventHandler += HandleReviewedCandidate;
+        UIManager.MenuChangeEventHandler += HandleMenuChange;
     }
 
     private void OnDisable()
     {
-        CandidateHandler.ReviewedCandidateEventHandler -= HandleReviewedCandidate;
+        UIManager.MenuChangeEventHandler -= HandleMenuChange;
     }
 
-    void HandleReviewedCandidate(object sender, ReviewedCandidateEventArgs e)
+    void HandleMenuChange(object sender, MenuChangeEventArgs e)
     {
-        employeesHiredCount.text = DayManager.Instance.EmployeesHiredToday.ToString();
-        employeesRejectedCount.text = DayManager.Instance.EmployeesRejectedToday.ToString();
-        mistakesMadeCount.text = DayManager.Instance.MistakesMadeToday.ToString();
+        switch (e.newMenuType)
+        {
+            case UIManager.MenuType.DailyReport:
+                employeesHiredCount.text = DayManager.EmployeesHiredToday.ToString();
+                employeesRejectedCount.text = DayManager.EmployeesRejectedToday.ToString();
+                mistakesMadeCount.text = DayManager.MistakesMadeToday.ToString();
+            break;
+        }
     }
 
 }

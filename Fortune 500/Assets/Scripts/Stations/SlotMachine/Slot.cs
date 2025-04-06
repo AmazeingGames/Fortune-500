@@ -9,7 +9,7 @@ public class Slot : MonoBehaviour
     [SerializeField] int timeForEachFrame = 10;
     [SerializeField] TextMeshProUGUI restrictionResult;
     
-    public IEnumerator CORandomize(float timeToSpinInSeconds, Restriction result)
+    public IEnumerator CORandomize(float timeToSpinInSeconds, RestrictionData result)
     {
         Debug.Log("Randomize!");
         /*

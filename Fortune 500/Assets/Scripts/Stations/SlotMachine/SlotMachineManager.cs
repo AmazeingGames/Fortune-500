@@ -37,7 +37,7 @@ public class SlotMachineManager : MonoBehaviour
         List<int> previousResults = new List<int>();
         for (int i = 0; i < slots.Count; i++)
         {
-            if (slots.Count >= RestrictionHandler.Instance.Restrictions.Count)
+            if (slots.Count >= RestrictionHandler.Restrictions.Count)
                 throw new Exception("Not enough restrictions");
 
             int random;
@@ -46,7 +46,7 @@ public class SlotMachineManager : MonoBehaviour
             while (previousResults.Contains(random));
             previousResults.Add(random);
 
-            var result = RestrictionHandler.Instance.Restrictions[random];
+            var result = RestrictionHandler.Restrictions[random];
             float randomTime = UnityEngine.Random.Range(randomTimeFloor, randomTimeCeiling);
             StartCoroutine(slots[i].CORandomize(randomTime, result));
             randomTimeFloor += randomTime;

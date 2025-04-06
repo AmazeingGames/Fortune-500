@@ -76,20 +76,7 @@ public class FocusStation : MonoBehaviour
 
 
     void OnInterfaceConnected(InteractionType myInteractionType)
-    {
-        switch (myInteractionType)
-        {
-            case InteractionType.Connect:
-                cameraPosition.gameObject.SetActive(true);
-            break;
-            
-            case InteractionType.Disconnect:
-                cameraPosition.gameObject.SetActive(false);
-            break;
-        }
-
-        InterfaceConnectedEventHandler?.Invoke(this, new InterfaceConnectedEventArgs(myStation, myInteractionType, cameraPosition.transform));
-    }
+        => InterfaceConnectedEventHandler?.Invoke(this, new InterfaceConnectedEventArgs(myStation, myInteractionType, cameraPosition.transform));
 
     void HandleFindStation(object sender, FindStationDataEventArgs e)
     {

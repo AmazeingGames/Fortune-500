@@ -8,7 +8,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static FocusStation;
-public class AudioManager : Singleton<AudioManager>
+public class AudioManager : MonoBehaviour
 {
     FMODEvents Events => FMODEvents.Instance;
 
