@@ -22,6 +22,7 @@ public class MouseLook : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.LogWarning("Camera settings MUST MATCH player camera settings");
         if (TryGetComponent<Rigidbody>(out var body))
             body.freezeRotation = true;
     }
@@ -29,11 +30,13 @@ public class MouseLook : MonoBehaviour
     private void OnEnable()
     {
         FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnection;
+        PlayerCamera.FinishedTweenEventHandler += HandleFinishedTween;
     }
 
     private void OnDisable()
     {
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnection;
+        PlayerCamera.FinishedTweenEventHandler -= HandleFinishedTween;
     }
 
     void HandleInterfaceConnection(object sender, InterfaceConnectedEventArgs e)
@@ -41,6 +44,14 @@ public class MouseLook : MonoBehaviour
         lockMovement = e.myInteractionType switch
         {
             FocusStation.InteractionType.Connect => true,
+            _ => lockMovement,
+        };
+    }
+
+    void HandleFinishedTween(object sender, FinishedTweenEventArgs e)
+    {
+        lockMovement = e.myInteractionType switch
+        {
             FocusStation.InteractionType.Disconnect => false,
             _ => lockMovement,
         };

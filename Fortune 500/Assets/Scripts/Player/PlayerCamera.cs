@@ -9,24 +9,17 @@ using static FocusStation;
 public class PlayerCamera : MonoBehaviour
 {
     [SerializeField] Transform cameraProxy;
-    [SerializeField] MMTween tween;
-
-    Quaternion cameraStartingRotation;
+    [SerializeField] float connectDuration;
+    [SerializeField] float disconnectDuration;
 
     Camera playerCamera;
     //float constantYPosition;
 
-    public static EventHandler<SetCameraPositionEventArgs> SetCameraPositionEventHandler;
+    public static EventHandler<FinishedTweenEventArgs> FinishedTweenEventHandler;
 
     void Start()
     {
         playerCamera = GetComponent<Camera>();
-
-        //Note we actually don't need or care about these values on start; their only purpose on start is for debugging reasons
-        cameraStartingRotation = playerCamera.transform.rotation;
-
-        cameraProxy.position = playerCamera.transform.position;
-
     }
 
     private void OnEnable()
@@ -42,53 +35,57 @@ public class PlayerCamera : MonoBehaviour
     //Moves the camera when focusing/unfocusing
     void HandleConnectToStation(object sender, InterfaceConnectedEventArgs e)
     {
-        Vector3 positionToSet;
-        Quaternion rotationToSet;
-
         switch (e.myInteractionType)
         {
             case FocusStation.InteractionType.Connect:
-                cameraStartingRotation = playerCamera.transform.rotation;
+                cameraProxy.gameObject.SetActive(false);
 
-                positionToSet = e.cameraPosition.position;
-                rotationToSet = e.cameraPosition.rotation;
+                OnSetCameraPosition(e.cameraPosition.position, e.cameraPosition.rotation, e.myInteractionType);
                 break;
             case FocusStation.InteractionType.Disconnect:
-                positionToSet = cameraProxy.position;
-                rotationToSet = cameraStartingRotation;
+                cameraProxy.gameObject.SetActive(true);
+                OnSetCameraPosition(cameraProxy.position, cameraProxy.rotation, e.myInteractionType);
                 break;
-            default:
-                return;
         }
-
-        OnSetCameraPosition(positionToSet, rotationToSet, e.myInteractionType);
     }
 
+    public bool setRotation;
+    public bool setRotationDisconnect;
+
+    Tween setRotationTween;
+    Sequence sequence;
     void OnSetCameraPosition(Vector3 positionToSet, Quaternion rotationToSet, FocusStation.InteractionType myInteractionType)
     {
-        if (myInteractionType == FocusStation.InteractionType.Connect)
-        {
-            playerCamera.transform.SetPositionAndRotation(positionToSet, rotationToSet);
-            SetCameraPositionEventHandler?.Invoke(this, new(positionToSet, rotationToSet, myInteractionType));
-        }
-        else if (myInteractionType == InteractionType.Disconnect)
-        {
-            playerCamera.transform.SetPositionAndRotation(cameraProxy.position, rotationToSet);
-            SetCameraPositionEventHandler?.Invoke(this, new(cameraProxy.position, rotationToSet, myInteractionType));
-        }
+        if (myInteractionType == InteractionType.DoNothing)
+            return;
+        
+        float duration = myInteractionType == InteractionType.Connect ? connectDuration : disconnectDuration;
+        bool setRotation = myInteractionType == InteractionType.Connect ? this.setRotation : setRotationDisconnect;
+
+        sequence?.Kill();
+        setRotationTween?.Kill();
+        
+        sequence = DOTween.Sequence();
+        sequence.Append(playerCamera.transform.DOMove(positionToSet, duration));
+
+        if (setRotation)
+            setRotationTween = playerCamera.transform.DORotateQuaternion(rotationToSet, duration);
+
+        sequence.OnComplete(() => 
+        { 
+            sequence = null; 
+            setRotationTween = null;
+
+            FinishedTweenEventHandler?.Invoke(this, new(myInteractionType));
+        });
     }
 }
 
-public class SetCameraPositionEventArgs : EventArgs
+public class FinishedTweenEventArgs : EventArgs
 {
-    public readonly Vector3 positionToSet;
-    public readonly Quaternion rotationToSet;
-    public readonly FocusStation.InteractionType myInteractionType;
-
-    public SetCameraPositionEventArgs(Vector3 positionToSet, Quaternion rotationToSet, FocusStation.InteractionType myInteractionType)
+    public readonly InteractionType myInteractionType;
+    public FinishedTweenEventArgs(FocusStation.InteractionType myInteractionType)
     {
-        this.positionToSet = positionToSet;
-        this.rotationToSet = rotationToSet;
         this.myInteractionType = myInteractionType;
     }
 }

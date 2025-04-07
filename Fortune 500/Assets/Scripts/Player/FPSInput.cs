@@ -38,11 +38,13 @@ public class FPSInput : MonoBehaviour
     private void OnEnable()
     {
         FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnection;
+        PlayerCamera.FinishedTweenEventHandler += HandleFinishedTween;
     }
 
     private void OnDisable()
     {
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnection;
+        PlayerCamera.FinishedTweenEventHandler -= HandleFinishedTween;
     }
 
     private void Awake()
@@ -54,8 +56,16 @@ public class FPSInput : MonoBehaviour
         lockMovement = e.myInteractionType switch
         {
             FocusStation.InteractionType.Connect => true,
-            FocusStation.InteractionType.Disconnect => false,
             _ => lockMovement,
+        };
+    }
+
+    void HandleFinishedTween(object sender, FinishedTweenEventArgs e)
+    {
+        lockMovement = e.myInteractionType switch
+        {
+            FocusStation.InteractionType.Disconnect => false,
+            _ => lockMovement
         };
     }
 
