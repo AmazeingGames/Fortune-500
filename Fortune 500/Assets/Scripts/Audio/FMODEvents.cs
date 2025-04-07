@@ -51,8 +51,17 @@ public class SoundData
     public enum ExclusiveType { None, PhoneCall }
     public enum SoundType { None, GameAmbience, UIHover, UISelect, Player3DFootsteps, LoseGame, IntroCall, EndDayCall, GoodHire, BadHire }
 
+    public bool IsMuted { get; private set; }
+    public float RememberedVolume { get; private set; }
+
     [field: SerializeField] public EventReference EventReference { get; private set; }
     [field: SerializeField] public ExclusiveType MyExclusiveType { get; private set; }
     [field: SerializeField] public SoundType MySoundType { get; private set; }
+
+    public void SetMute(bool shouldMute)
+        => IsMuted = shouldMute;
+
+    public void RememberVolume(float volumeToRemember)
+        => RememberedVolume = volumeToRemember;
 }
 

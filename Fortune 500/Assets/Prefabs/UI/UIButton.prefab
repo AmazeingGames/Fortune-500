@@ -287,11 +287,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3c9a93bdb5b4444cbea89ff22bf4c0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonEvent: 0
-  menuToOpen: 0
-  newGameAction: 0
-  levelToLoad: -1
-  text: {fileID: 6969286388897757719}
+  myButtonType: 0
+  myMenuToOpen: 0
+  myGameActionToPerform: 0
+  myNewDayState: 0
+  myLinkedSetting: 0
+  text_TMP: {fileID: 6969286388897757719}
   underline: {fileID: 5912333771726647462}
 --- !u!114 &4163457676991148839
 MonoBehaviour:

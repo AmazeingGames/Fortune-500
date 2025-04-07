@@ -196,13 +196,13 @@ public class UIManager : Singleton<UIManager>
     /// <summary> Loads the appropraite menu when we click a ui button </summary>
     void HandleUIButtonInteract(object sender, UIButton.UIInteractEventArgs e)
     {
-        if (e.buttonEvent != UIButton.EventType.UI)
+        if (e.myButtonType != UIButton.ButtonType.UI)
             return;
 
-        if (e.buttonInteraction != UIButton.UIInteractionTypes.Click)
+        if (e.myInteractionType != UIButton.UIInteractionTypes.Click)
             return;
 
-        LoadMenu(e.menuToOpen);
+        LoadMenu(e.myMenuToOpen);
     }
 
     void LoadMenu(MenuType myMenuType, bool addToHistory = true, bool addToQueue = true)

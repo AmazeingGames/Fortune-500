@@ -47,9 +47,9 @@ public class DayManager : MonoBehaviour
 
     void HandleUIInteract(object sender, UIInteractEventArgs e)
     {
-        bool isDayAction = e.buttonEvent == UIButton.EventType.DayAction;
+        bool isDayAction = e.myButtonType == UIButton.ButtonType.DayAction;
         bool isValidDayState = e.myNewDayState != DayState.None;
-        bool didClickButton = e.buttonInteraction == UIInteractionTypes.Click;
+        bool didClickButton = e.myInteractionType == UIInteractionTypes.Click;
 
         if (!isDayAction || !isValidDayState || !didClickButton)
             return;

@@ -6,17 +6,19 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 using static FocusStation;
+using static Settings;
 public class AudioManager : MonoBehaviour
 {
     FMODEvents Events => FMODEvents.Instance;
 
-    readonly Dictionary<SoundData.ExclusiveType, List<SoundData>> ExclusiveTypeToSoundsData = new(); 
+    Dictionary<SoundData.ExclusiveType, List<SoundData>> ExclusiveTypeToSoundsData = new(); 
+
+    // Instead of having a dictionary, we could just store the event instance directly inside of SoundData
     readonly Dictionary<SoundData, EventInstance> SoundDataToEventInstance = new();
     readonly List<EventInstance> pausedEventInstances = new();
-
-    
 
     private void OnEnable()
     {
@@ -24,6 +26,7 @@ public class AudioManager : MonoBehaviour
         FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnect;
         DayManager.DayStateChangeEventHandler += HandleDayStateChange;
         GameFlowManager.PerformGameActionEventHandler += HandleGameAction;
+        Settings.UpdateSettingsEventHandler += HandleUpdateSettings;
     }
 
     private void OnDisable()
@@ -32,6 +35,39 @@ public class AudioManager : MonoBehaviour
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnect;
         DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
         GameFlowManager.PerformGameActionEventHandler -= HandleGameAction;
+        Settings.UpdateSettingsEventHandler -= HandleUpdateSettings;
+    }
+
+    private void Start()
+    {
+        ExclusiveTypeToSoundsData = new()
+        {
+            { SoundData.ExclusiveType.None, null },
+            { SoundData.ExclusiveType.PhoneCall, new List<SoundData>(){ Events.LoseGame, Events.EndDayCall, Events.IntroCall } }
+        };
+
+        Assert.AreEqual(ExclusiveTypeToSoundsData.Count, Enum.GetNames(typeof(SoundData.ExclusiveType)).Length, "Not all exclusive types are covered within dictionary.");
+    }
+
+    void HandleUpdateSettings(object sender, UpdateSettingsEventArgs e)
+    {
+        foreach (SoundData soundData in ExclusiveTypeToSoundsData[SoundData.ExclusiveType.PhoneCall])
+        {
+            bool shouldMute = Settings.LinkedSettingToSetting[Settings.LinkedSetting.ShouldMuteCalls];
+            soundData.SetMute(shouldMute);
+
+            if (!SoundDataToEventInstance.TryGetValue(soundData, out EventInstance soundInstance))
+                continue;
+
+            if (shouldMute)
+            {
+                soundInstance.getVolume(out float volume);
+                soundData.RememberVolume(volume);
+                soundInstance.setVolume(0);
+            }
+            else
+                soundInstance.setVolume(soundData.RememberedVolume);
+        }
     }
 
     void HandleInterfaceConnect(object sender, InterfaceConnectedEventArgs e)
@@ -63,7 +99,6 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-
     void HandlePlayerAction(object sender, PlayerActionEventArgs e)
     {
         switch (e.myPlayerAction)
@@ -80,8 +115,6 @@ public class AudioManager : MonoBehaviour
             break;
         }
     }
-
-    
 
     public void HandleGameAction(object sender, PerformGameActionEventArgs e)
     {
@@ -147,22 +180,24 @@ public class AudioManager : MonoBehaviour
         else
             SoundDataToEventInstance.Add(soundDataToPlay, soundInstance);
 
-        bool isSoundExclusive = soundDataToPlay.MyExclusiveType != SoundData.ExclusiveType.None;
-
-        if (ExclusiveTypeToSoundsData.TryGetValue(soundDataToPlay.MyExclusiveType, out List<SoundData> exclusiveSoundsData) && isSoundExclusive)
-            exclusiveSoundsData.Add(soundDataToPlay);
-
-        if (exclusiveSoundsData != null)
+        if (ExclusiveTypeToSoundsData.TryGetValue(soundDataToPlay.MyExclusiveType, out List<SoundData> exclusiveSoundsData))
+        {
             foreach (SoundData soundData in exclusiveSoundsData)
             {
-                SoundDataToEventInstance[soundData].stop(stopMode);
-                Debug.Log($"stopped {soundData.MySoundType}");
+                if (SoundDataToEventInstance.TryGetValue(soundData, out EventInstance overlappingSound))
+                {
+                    overlappingSound.stop(stopMode);
+                    Debug.Log($"stopped {soundData.MySoundType}");
+                }
             }
+        }
 
-        if (ExclusiveTypeToSoundsData.ContainsKey(soundDataToPlay.MyExclusiveType))
-            ExclusiveTypeToSoundsData[soundDataToPlay.MyExclusiveType].Add(soundDataToPlay);
-        else
-            ExclusiveTypeToSoundsData.Add(soundDataToPlay.MyExclusiveType, new List<SoundData>() { soundDataToPlay });
+        if (soundDataToPlay.IsMuted)
+        {
+            soundInstance.getVolume(out float volume);
+            soundDataToPlay.RememberVolume(volume);
+            soundInstance.setVolume(0);
+        }
 
         soundInstance.set3DAttributes(RuntimeUtils.To3DAttributes(soundOrigin));
         soundInstance.start();

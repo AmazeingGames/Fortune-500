@@ -69,10 +69,10 @@ public class GameFlowManager : Singleton<GameFlowManager>
     /// <summary> Performs a game action given from a UI button. </summary>
     void HandleUIInteract(object sender, UIButton.UIInteractEventArgs e)
     {
-        if (e.buttonEvent != UIButton.EventType.GameAction || e.buttonInteraction != UIButton.UIInteractionTypes.Click)
+        if (e.myButtonType != UIButton.ButtonType.GameAction || e.myInteractionType != UIButton.UIInteractionTypes.Click)
             return;
 
-        PerformGameAction(e.actionToPerform);
+        PerformGameAction(e.myActionToPerform);
     }
 
     /// <summary> Informs listerners of a game action and updates the game state accordingly. </summary>
