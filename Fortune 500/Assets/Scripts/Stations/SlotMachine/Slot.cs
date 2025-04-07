@@ -11,7 +11,7 @@ public class Slot : MonoBehaviour
     
     public IEnumerator CORandomize(float timeToSpinInSeconds, RestrictionData result)
     {
-        Debug.Log("Randomize!");
+        // Debug.Log("Randomize!");
         /*
         float timerInSeconds = 0;
         float frames = 0;

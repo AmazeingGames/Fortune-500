@@ -21,9 +21,14 @@ public class DailyReportMenu : MonoBehaviour
         switch (e.newMenuType)
         {
             case UIManager.MenuType.DailyReport:
-                employeesHiredCount.text = DayManager.EmployeesHiredToday.ToString();
-                employeesRejectedCount.text = DayManager.EmployeesRejectedToday.ToString();
-                mistakesMadeCount.text = DayManager.MistakesMadeToday.ToString();
+                if (e.isEnablingMenu)
+                {
+                    employeesRejectedCount.text = DayManager.EmployeesRejectedToday.ToString();
+                    mistakesMadeCount.text = DayManager.MistakesMadeToday.ToString();
+                    employeesHiredCount.text = DayManager.EmployeesHiredToday.ToString();
+
+                    Debug.Log("Updated daily report text");
+                }
             break;
         }
     }

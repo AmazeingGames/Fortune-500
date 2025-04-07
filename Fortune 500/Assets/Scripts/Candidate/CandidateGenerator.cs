@@ -41,10 +41,20 @@ public class CandidateGenerator : Singleton<CandidateGenerator>
 
     private void OnValidate()
     {
+        PreviousEmployerList = FillList(previousEmployerFile);
         FirstNamesList = FillList(firstNamesFile);
         LastNamesList = FillList(lastNamesFile);
         JobTitleList = FillList(jobTitleFile);
+        CollegeList = FillList(collegeFile);
+        SkillsList = FillList(skillsFile);
+    }
+
+    private void Start()
+    {
         PreviousEmployerList = FillList(previousEmployerFile);
+        FirstNamesList = FillList(firstNamesFile);
+        LastNamesList = FillList(lastNamesFile);
+        JobTitleList = FillList(jobTitleFile);
         CollegeList = FillList(collegeFile);
         SkillsList = FillList(skillsFile);
     }

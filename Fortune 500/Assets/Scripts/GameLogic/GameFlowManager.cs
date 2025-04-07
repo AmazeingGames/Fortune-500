@@ -62,7 +62,7 @@ public class GameFlowManager : Singleton<GameFlowManager>
 
     void HandleReviewCandidate(object sender, ReviewedCandidateEventArgs e)
     {
-        if (e.DidLose)
+        if (ScoreKeeper.StrikesLeft == 0)
             PerformGameAction(GameAction.LoseGame);
     }
 

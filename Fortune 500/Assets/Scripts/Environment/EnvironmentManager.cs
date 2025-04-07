@@ -8,6 +8,7 @@ public class EnvironmentManager : MonoBehaviour
     [SerializeField] TextMeshPro revenue_TMP;
     [SerializeField] TextMeshPro strikesLeft_TMP;
     [SerializeField] TextMeshPro day_TMP;
+    [SerializeField] TextMeshPro restrictions_TMP;
     void OnEnable()
     {
         DayManager.DayStateChangeEventHandler += HandleDayStateChange;
@@ -48,10 +49,14 @@ public class EnvironmentManager : MonoBehaviour
         {
             case DayManager.DayState.StartWork:
                 UpdateText();
+                restrictions_TMP.text = RestrictionHandler.Restrictions[0].description + Environment.NewLine + RestrictionHandler.Restrictions[1].description + Environment.NewLine + RestrictionHandler.Restrictions[2].description;
+            break;
+            
+            case DayManager.DayState.StartDay:
+                restrictions_TMP.text = "";
             break;
 
             case DayManager.DayState.None:
-            case DayManager.DayState.StartDay:
             case DayManager.DayState.EndWork:
             case DayManager.DayState.EndDay:
             break;

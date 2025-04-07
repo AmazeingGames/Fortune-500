@@ -12,23 +12,21 @@ public class Candidate : MonoBehaviour
     [SerializeField] SpriteRenderer skin;
     [SerializeField] SpriteRenderer torso;
 
-    public CandidateData CandidateData { get; private set; }
+    public CandidateData? CandidateData { get; private set; }
 
-    public void Init(CandidateData candidateData)
+    public void Init(CandidateData? candidateData)
     {
-        
-
         CandidateData = candidateData;
 
-        eyes.sprite = candidateData.Eyes;
-        nose.sprite = candidateData.Nose;
-        mouth.sprite = candidateData.Mouth;
-        hairFront.sprite = candidateData.HairFront;
+        eyes.sprite = candidateData.Value.Eyes;
+        nose.sprite = candidateData.Value.Nose;
+        mouth.sprite = candidateData.Value.Mouth;
+        hairFront.sprite = candidateData.Value.HairFront;
         float hairFrontZ = hairFront.transform.localPosition.z;
-        hairFront.transform.localPosition = (Vector2.zero + candidateData.HairFrontOffset);
+        hairFront.transform.localPosition = (Vector2.zero + candidateData.Value.HairFrontOffset);
         hairFront.transform.localPosition = new Vector3(hairFront.transform.localPosition.x, hairFront.transform.localPosition.y, hairFrontZ);
-        hairBack.sprite = candidateData.HairBack;
-        skin.sprite = candidateData.Skin;
-        torso.sprite = candidateData.Torso;
+        hairBack.sprite = candidateData.Value.HairBack;
+        skin.sprite = candidateData.Value.Skin;
+        torso.sprite = candidateData.Value.Torso;
     }
 }

@@ -172,10 +172,10 @@ public class UIManager : Singleton<UIManager>
     {
         bool isAMenuEnabled = IsAMenuEnabled();
         userInterfaceCamera.gameObject.SetActive(isAMenuEnabled);
-        OnMenuChange(CurrentMenuType, previousMenuType, isAMenuEnabled: isAMenuEnabled);
+        OnMenuChange(CurrentMenuType, previousMenuType, isEnablingMenu: e.setActive);
     }
-    void OnMenuChange(MenuType newMenuType, MenuType previousMenuType, bool isAMenuEnabled)
-        => MenuChangeEventHandler?.Invoke(this, new(newMenuType, previousMenuType, isAMenuEnabled));
+    void OnMenuChange(MenuType newMenuType, MenuType previousMenuType, bool isEnablingMenu)
+        => MenuChangeEventHandler?.Invoke(this, new(newMenuType, previousMenuType, isEnablingMenu));
 
     /// <summary> Loads a menu appropraite to the current game action. </summary>
     void UpdateMenusToGameAction(GameFlowManager.GameAction action)

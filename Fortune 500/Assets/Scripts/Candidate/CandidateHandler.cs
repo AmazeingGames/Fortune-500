@@ -13,7 +13,6 @@ public class CandidateHandler : MonoBehaviour
     [Header("Resume")]
     [SerializeField] Candidate candidate;
     [SerializeField] VirtualScreen resume;
-    [SerializeField] TextMeshPro _restrictionText;
     [SerializeField] Button _hireButton;
     [SerializeField] Button _rejectButton;
     [SerializeField] Slider _patienceSlider;
@@ -24,9 +23,9 @@ public class CandidateHandler : MonoBehaviour
 
     [Header("Prefabs")]
     [SerializeField] PinkSlip pinkSlip;
-    public static CandidateData CurrentCandidateData { get; private set; }
+
+    CandidateData? currentCandidateData;
     float _currentCandidatePatience;
-    int _candidatesInTheDay;
     bool canMakeDecisions = true;
 
     public static EventHandler<ReviewedCandidateEventArgs> ReviewedCandidateEventHandler;
@@ -59,13 +58,12 @@ public class CandidateHandler : MonoBehaviour
         switch (e.gameAction)
         {
             case GameFlowManager.GameAction.LoseGame:
-                CurrentCandidateData = null;
+                currentCandidateData = null;
                 candidate.gameObject.SetActive(false);
                 resume.gameObject.SetActive(false);
             break;
         }
     }
-
 
     void HandleDayStateChange(object sender, DayStateChangeEventArgs e)
     {
@@ -73,7 +71,8 @@ public class CandidateHandler : MonoBehaviour
         {
             case DayManager.DayState.EndWork:
             case DayManager.DayState.StartDay:
-                CurrentCandidateData = null;
+                Debug.Log("set candidate data to null");
+                currentCandidateData = null;
                 candidate.gameObject.SetActive(false);
                 resume.gameObject.SetActive(false);
             break;
@@ -83,9 +82,6 @@ public class CandidateHandler : MonoBehaviour
 
                 candidate.gameObject.SetActive(true);
                 resume.gameObject.SetActive(true);
-
-                _candidatesInTheDay = 5;
-                _restrictionText.text = RestrictionHandler.Restrictions[0].description + Environment.NewLine + RestrictionHandler.Restrictions[1].description + Environment.NewLine + RestrictionHandler.Restrictions[2].description;
                 GetNewCandidate();
             break;
         }
@@ -96,25 +92,28 @@ public class CandidateHandler : MonoBehaviour
         if (!canMakeDecisions) 
             return;
         
-        bool wasDecisionCorrect = didHireCandidate == (RestrictionHandler.Restrictions[0].restriction(CurrentCandidateData) && RestrictionHandler.Restrictions[1].restriction(CurrentCandidateData) && RestrictionHandler.Restrictions[2].restriction(CurrentCandidateData));
+        bool wasDecisionCorrect = didHireCandidate == (RestrictionHandler.Restrictions[0].restriction(currentCandidateData) && RestrictionHandler.Restrictions[1].restriction(currentCandidateData) && RestrictionHandler.Restrictions[2].restriction(currentCandidateData));
         
-        ReviewedCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, ScoreKeeper.StrikesLeft, didHireCandidate));
-        GetNewCandidate();
+        if (DayManager.RemainingEmployees != 1 && ScoreKeeper.StrikesLeft != 1)
+            GetNewCandidate();
+
+        ReviewedCandidateEventHandler?.Invoke(this, new(wasDecisionCorrect, didHireCandidate, currentCandidateData));
     }
+
     void GetNewCandidate()
     {
-        _candidatesInTheDay--;
-        CurrentCandidateData = CandidateGenerator.Instance.GenerateRandomCandidate();
-        candidate.Init(CurrentCandidateData);
+        Debug.Log($"Generated new candidate: {DayManager.RemainingEmployees} employees remaining");
+        currentCandidateData = CandidateGenerator.Instance.GenerateRandomCandidate();
+        candidate.Init(currentCandidateData);
 
-        _currentCandidatePatience = CurrentCandidateData.Patience;
+        _currentCandidatePatience = currentCandidateData.Value.Patience;
         _patienceSlider.maxValue = _currentCandidatePatience;
-        _resumeDisplay.DisplayCandidate(CurrentCandidateData);
+        _resumeDisplay.DisplayCandidate(currentCandidateData.Value);
     }   
 
     void UpdatePatience()
     {
-        if (CurrentCandidateData == null)
+        if (currentCandidateData == null)
             return;
 
         _currentCandidatePatience -= Time.deltaTime;
@@ -128,14 +127,12 @@ public class CandidateHandler : MonoBehaviour
 public class ReviewedCandidateEventArgs : EventArgs 
 {
     public readonly bool wasDecisionCorrect;
-    public readonly int strikesRemaining;
     public readonly bool didHireCandidate;
-    public bool DidLose => strikesRemaining == 0;
-
-    public ReviewedCandidateEventArgs(bool wasDecisionCorrect, int strikesRemaining, bool didHireCandidate) 
+    public readonly CandidateData? candidateData;
+    public ReviewedCandidateEventArgs(bool wasDecisionCorrect, bool didHireCandidate, CandidateData? candidateData) 
     { 
         this.wasDecisionCorrect = wasDecisionCorrect;
-        this.strikesRemaining = strikesRemaining;
         this.didHireCandidate = didHireCandidate;
+        this.candidateData = candidateData;
     }
 }

@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
+using UnityEngine.Assertions;
 
 public class PinkSlip : MonoBehaviour
 {
@@ -61,7 +62,10 @@ public class PinkSlip : MonoBehaviour
 
         slipVisuals.SetActive(true);
 
-        CandidateData candidateData = CandidateHandler.CurrentCandidateData;
+        Assert.IsNotNull(RestrictionHandler.Restrictions, "Restrictions list should not be null");
+        Assert.IsFalse(e.candidateData == null, "Candidate data should not be null");
+
+        CandidateData? candidateData = e.candidateData;
         List<RestrictionData> restrictionsData = RestrictionHandler.Restrictions;
 
         string restrictionToDisplay;
@@ -78,13 +82,13 @@ public class PinkSlip : MonoBehaviour
 
         if (e.didHireCandidate)
         {
-            mainText += $"You hired {candidateData.FirstName} {candidateData.LastName} , but he didn't comply with the following restriction: {Environment.NewLine}" +
+            mainText += $"You hired {candidateData.Value.FirstName} {candidateData.Value.LastName} , but he didn't comply with the following restriction: {Environment.NewLine}" +
                 $"{restrictionToDisplay} {Environment.NewLine}. Are you questioning the Slot Machine's authority?";
         }
 
         else
         {
-            mainText += $"You rejected a perfectly good employee, {candidateData.FirstName} {candidateData.LastName}. {Environment.NewLine}" +
+            mainText += $"You rejected a perfectly good employee, {candidateData.Value.FirstName} {candidateData.Value.LastName}. {Environment.NewLine}" +
                 $"Who's gonna do all the important work we have around here? You?";
         }
 

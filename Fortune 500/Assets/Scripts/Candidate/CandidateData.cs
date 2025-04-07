@@ -2,7 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 
-public class CandidateData
+public struct CandidateData
 {
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
@@ -24,11 +24,7 @@ public class CandidateData
 
     public Vector2 HairFrontOffset { get; private set; }
 
-    public Dictionary<string, Sprite> Properties { get; private set; }
-
-
-    public CandidateData(string firstName, string lastName, string college, string previousJobTitle, string previousEmployer, List<string> skills,
-        int age, int patience, Sprite skin, Sprite eyes, Sprite mouth, Sprite hairFront, Sprite hairBack, Sprite nose, Sprite torso, Vector2 hairFrontOffset)
+    public CandidateData(string firstName, string lastName, string college, string previousJobTitle, string previousEmployer, List<string> skills, int age, int patience, Sprite skin, Sprite eyes, Sprite mouth, Sprite hairFront, Sprite hairBack, Sprite nose, Sprite torso, Vector2 hairFrontOffset)
     {
         FirstName = firstName;
         LastName = lastName;

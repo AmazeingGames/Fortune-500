@@ -9881,7 +9881,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -67, y: -6}
+  m_AnchoredPosition: {x: -67, y: -5.9999847}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &754747450
@@ -21176,7 +21176,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   candidate: {fileID: 871228342}
   resume: {fileID: 776337351}
-  _restrictionText: {fileID: 1868484351}
   _hireButton: {fileID: 632513821}
   _rejectButton: {fileID: 813548288}
   _patienceSlider: {fileID: 159452755}
@@ -22955,6 +22954,7 @@ MonoBehaviour:
   revenue_TMP: {fileID: 1038359913}
   strikesLeft_TMP: {fileID: 2055282365}
   day_TMP: {fileID: 1338947444}
+  restrictions_TMP: {fileID: 1868484351}
 --- !u!1001 &1591909569
 PrefabInstance:
   m_ObjectHideFlags: 0

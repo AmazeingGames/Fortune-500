@@ -136,11 +136,11 @@ public class MenuChangeEventArgs
 {
     public readonly MenuType newMenuType;
     public readonly MenuType previousMenuType;
-    public readonly bool isAMenuEnabled;
-    public MenuChangeEventArgs(MenuType newMenuType, MenuType previousMenuType, bool isAMenuEnabled)
+    public readonly bool isEnablingMenu;
+    public MenuChangeEventArgs(MenuType newMenuType, MenuType previousMenuType, bool isEnablingMenu)
     {
         this.newMenuType = newMenuType;
         this.previousMenuType = previousMenuType;
-        this.isAMenuEnabled = isAMenuEnabled;
+        this.isEnablingMenu = isEnablingMenu;
     }
 }

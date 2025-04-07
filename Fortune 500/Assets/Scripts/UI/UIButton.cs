@@ -63,8 +63,8 @@ public class UIButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         text.gameObject.SetActive(true);
 
         var regularScale = UIManager.Instance.RegularScale;
-
         var rect = transform as RectTransform;
+
         text.transform.localScale = new Vector3(regularScale, regularScale, text.transform.localScale.z);
         underline.rectTransform.sizeDelta = new Vector2(rect.sizeDelta.x, underline.rectTransform.sizeDelta.y);
         underline.fillAmount = 0;

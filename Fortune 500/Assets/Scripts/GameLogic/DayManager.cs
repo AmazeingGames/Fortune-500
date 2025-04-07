@@ -12,6 +12,7 @@ public class DayManager : MonoBehaviour
     public static EventHandler<DayStateChangeEventArgs> DayStateChangeEventHandler;
 
     public DayState MyDayState { get; private set; }
+    public DayState MyPreviousDayState { get; private set; }
     public static int CurrentDay { get; private set; }
     public static int RemainingEmployees { get; private set; }
 
@@ -24,24 +25,33 @@ public class DayManager : MonoBehaviour
 
     private void OnEnable()
     {
-        CandidateHandler.ReviewedCandidateEventHandler += HandleHiredCandidate;
+        CandidateHandler.ReviewedCandidateEventHandler += HandleReviewedCandidate;
         SlotMachineButton.SlotsInteractEventHandler += HandlePullLever;
         GameFlowManager.PerformGameActionEventHandler += HandleGameAction;
-
         UIButton.UIInteractEventHandler += HandleUIInteract;
     }
 
     private void OnDisable()
     {
-        CandidateHandler.ReviewedCandidateEventHandler -= HandleHiredCandidate;
+        CandidateHandler.ReviewedCandidateEventHandler -= HandleReviewedCandidate;
         SlotMachineButton.SlotsInteractEventHandler -= HandlePullLever;
         GameFlowManager.PerformGameActionEventHandler -= HandleGameAction;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
     }
 
+    private void Update()
+    {
+        currentDay = CurrentDay;
+
+    }
+
     void HandleUIInteract(object sender, UIInteractEventArgs e)
     {
-        if (e.buttonEvent != UIButton.EventType.DayAction)
+        bool isDayAction = e.buttonEvent == UIButton.EventType.DayAction;
+        bool isValidDayState = e.myNewDayState != DayState.None;
+        bool didClickButton = e.buttonInteraction == UIInteractionTypes.Click;
+
+        if (!isDayAction || !isValidDayState || !didClickButton)
             return;
 
         OnDayStateChange(e.myNewDayState);
@@ -57,7 +67,7 @@ public class DayManager : MonoBehaviour
         }
     }
     
-    void HandleHiredCandidate(object sender, ReviewedCandidateEventArgs e)
+    void HandleReviewedCandidate(object sender, ReviewedCandidateEventArgs e)
     {
         RemainingEmployees--;
 
@@ -71,7 +81,11 @@ public class DayManager : MonoBehaviour
         else
             EmployeesRejectedToday++;
 
-        if (!e.DidLose && RemainingEmployees == 0)
+
+        bool didLose = ScoreKeeper.StrikesLeft == 0;
+        bool reviewedAllCandidates = RemainingEmployees == 0;
+
+        if (!didLose && reviewedAllCandidates)
             OnDayStateChange(DayState.EndWork);
     }
 
@@ -89,11 +103,16 @@ public class DayManager : MonoBehaviour
         }
     }
 
-    void OnDayStateChange(DayState myDayState)
+    int currentDay;
+    void OnDayStateChange(DayState myNewDayState)
     {
-        switch (myDayState)
+        MyPreviousDayState = MyDayState;
+        MyDayState = myNewDayState; 
+
+        switch (myNewDayState)
         {
             case DayState.StartDay:
+
                 RemainingEmployees = CurrentDay < employeesPerDay.Count ? employeesPerDay[CurrentDay] : employeesPerDay[CurrentDay - 1];
                 CurrentDay++;
 
@@ -103,7 +122,9 @@ public class DayManager : MonoBehaviour
             break;
         }
 
-        DayStateChangeEventHandler?.Invoke(this, new(myDayState));
+        DayStateChangeEventHandler?.Invoke(this, new(myNewDayState));
+
+        Debug.Log($"Changed day state to {myNewDayState}, from {MyPreviousDayState}");
     }
 }
 

@@ -28,7 +28,6 @@ public class ScoreKeeper: MonoBehaviour
         GameFlowManager.PerformGameActionEventHandler -= HandlePerformGameAction;
     }
 
-
     void HandlePerformGameAction(object sender, PerformGameActionEventArgs e)
     {
         switch (e.gameAction)
@@ -57,9 +56,11 @@ public class ScoreKeeper: MonoBehaviour
 
     void HandleHiredCandidate(object sender, ReviewedCandidateEventArgs e)
     {
-        int hiredMultiplier = e.wasDecisionCorrect ? 1 : 0;
+        int hiredMultiplier = e.wasDecisionCorrect ? 1 : -1;
         Revenue += 10 * hiredMultiplier;
-        
+
+        if (!e.wasDecisionCorrect)
+            StrikesLeft--;
     }
 
     IEnumerator FluctuateRevenue()

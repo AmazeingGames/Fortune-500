@@ -43,9 +43,9 @@ public class RestrictionHandler : MonoBehaviour
 
         RestrictionData ageRestrictionData = myAgeRestriction switch
         {
-            NumericalRestriction.Above => new RestrictionData($"Age must be above {randomAge}", candidate => candidate.Age > randomAge - 7),
-            NumericalRestriction.Below => new RestrictionData($"Age must be below {randomAge}", candidate => candidate.Age < randomAge + 7 ),
-            NumericalRestriction.Not   => new RestrictionData($"Age can't be {randomAge}",      candidate => candidate.Age != randomAge),
+            NumericalRestriction.Above => new RestrictionData($"Age must be above {randomAge}", candidate => candidate.Value.Age > randomAge - 7),
+            NumericalRestriction.Below => new RestrictionData($"Age must be below {randomAge}", candidate => candidate.Value.Age < randomAge + 7 ),
+            NumericalRestriction.Not   => new RestrictionData($"Age can't be {randomAge}",      candidate => candidate.Value.Age != randomAge),
             _ => throw new ArgumentException("Age restriction not handled by switch expression."),
         };
 
@@ -62,17 +62,17 @@ public class RestrictionHandler : MonoBehaviour
         switch (myNameRestriction)
         {
             case NameRestriction.StartWithLetter:
-                nameRestrictionData = new RestrictionData("First name must not start with letter " + Char.ToUpper(randomLetter), candidate => candidate.FirstName.ToLower()[0] != randomLetter);
+                nameRestrictionData = new RestrictionData("First name must not start with letter " + Char.ToUpper(randomLetter), candidate => candidate.Value.FirstName.ToLower()[0] != randomLetter);
             break;
 
             case NameRestriction.ContainLetter:
-                nameRestrictionData = new RestrictionData("Last name can't contain letter " + Char.ToUpper(randomLetter), candidate => !candidate.LastName.ToLower().Contains(randomLetter));
+                nameRestrictionData = new RestrictionData("Last name can't contain letter " + Char.ToUpper(randomLetter), candidate => !candidate.Value.LastName.ToLower().Contains(randomLetter));
             break;
 
             case NameRestriction.BeName:
                 string firstName = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.FirstNamesList);
                 string lastName = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.LastNamesList);
-                nameRestrictionData = new RestrictionData($"Must not be {firstName} {lastName}. Fuck them", candidate => candidate.FirstName != firstName || candidate.LastName != lastName);
+                nameRestrictionData = new RestrictionData($"Must not be {firstName} {lastName}. Fuck them", candidate => candidate.Value.FirstName != firstName || candidate.Value.LastName != lastName);
             break;
 
             default:
@@ -86,27 +86,27 @@ public class RestrictionHandler : MonoBehaviour
         string skill = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.SkillsList);
 
         RestrictionData skillRestriction = mustHaveSkill
-            ? new RestrictionData("Must have this skill: " + skill, candidate => candidate.Skills.Contains(skill))
-            : new RestrictionData("Must not have this skill: " + skill, candidate => !candidate.Skills.Contains(skill));
+            ? new RestrictionData("Must have this skill: " + skill, candidate => candidate.Value.Skills.Contains(skill))
+            : new RestrictionData("Must not have this skill: " + skill, candidate => !candidate.Value.Skills.Contains(skill));
 
         skillRestriction.Initialize(RestrictionType.Skills);
         Restrictions.Add(skillRestriction);
 
         // College Restriction
         string college = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.CollegeList);
-        RestrictionData collegeRestriction = new RestrictionData("Must not be a graduate from " + college, candidate => candidate.College != college);
+        RestrictionData collegeRestriction = new RestrictionData("Must not be a graduate from " + college, candidate => candidate.Value.College != college);
         collegeRestriction.Initialize(RestrictionType.College);
         Restrictions.Add(collegeRestriction);
 
         // Job Restriction
         string jobTitle = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.JobTitleList);
-        RestrictionData jobTitleRestriction = new RestrictionData("Must not have previous experience as " + jobTitle, candidate => candidate.PreviousJobTitle != jobTitle);
+        RestrictionData jobTitleRestriction = new RestrictionData("Must not have previous experience as " + jobTitle, candidate => candidate.Value.PreviousJobTitle != jobTitle);
         jobTitleRestriction.Initialize(RestrictionType.JobTitle);
         Restrictions.Add(jobTitleRestriction);
 
         // Previous Employee Restriction
         string previousEmployer = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.PreviousEmployerList);
-        RestrictionData previousEmployerRestriction = new RestrictionData("Must not have worked for " + previousEmployer, candidate => candidate.PreviousEmployer != previousEmployer);
+        RestrictionData previousEmployerRestriction = new RestrictionData("Must not have worked for " + previousEmployer, candidate => candidate.Value.PreviousEmployer != previousEmployer);
         previousEmployerRestriction.Initialize(RestrictionType.PreviousEmployer);
         Restrictions.Add(previousEmployerRestriction);
     }
@@ -116,12 +116,12 @@ public class RestrictionHandler : MonoBehaviour
 [Serializable]
 public class RestrictionData
 {
-    public readonly Predicate<CandidateData> restriction;
+    public readonly Predicate<CandidateData?> restriction;
     public readonly string description;
     public RestrictionHandler.RestrictionType myRestrictionType;
     bool hasInitialized = false;
 
-    public RestrictionData(string description, Predicate<CandidateData> restriction)
+    public RestrictionData(string description, Predicate<CandidateData?> restriction)
     {
         this.description = description;
         this.restriction = restriction;
