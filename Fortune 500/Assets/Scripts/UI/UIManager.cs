@@ -146,7 +146,7 @@ public class UIManager : Singleton<UIManager>
     }
 
     void HandleGameAction(object sender, PerformGameActionEventArgs e)
-        => UpdateMenusToGameAction(e.gameAction);
+        => UpdateMenusToGameAction(e.myGameAction);
 
     bool IsAMenuEnabled()
     {

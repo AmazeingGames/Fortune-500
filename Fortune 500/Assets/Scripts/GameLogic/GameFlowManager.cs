@@ -137,12 +137,12 @@ public class GameFlowManager : Singleton<GameFlowManager>
 public class PerformGameActionEventArgs : EventArgs
 {
     public readonly GameFlowManager gameManager;
-    public readonly GameAction gameAction;
+    public readonly GameAction myGameAction;
 
     public PerformGameActionEventArgs(GameFlowManager gameManager, GameAction gameAction)
     {
         this.gameManager = gameManager;
-        this.gameAction = gameAction;
+        this.myGameAction = gameAction;
     }
 }
 

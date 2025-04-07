@@ -28,7 +28,7 @@ public class EnvironmentManager : MonoBehaviour
 
     void HandlePerformGameAction(object sender, PerformGameActionEventArgs e)
     {
-        switch (e.gameAction)
+        switch (e.myGameAction)
         {
             case GameFlowManager.GameAction.PlayGame:
                 UpdateText();

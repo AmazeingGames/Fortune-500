@@ -30,7 +30,7 @@ public class ScoreKeeper: MonoBehaviour
 
     void HandlePerformGameAction(object sender, PerformGameActionEventArgs e)
     {
-        switch (e.gameAction)
+        switch (e.myGameAction)
         {
             case GameFlowManager.GameAction.PlayGame:
                 Revenue = 100;

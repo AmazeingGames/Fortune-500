@@ -55,7 +55,7 @@ public class CandidateHandler : MonoBehaviour
 
     void HandlePerformGameAction(object sender, PerformGameActionEventArgs e)
     {
-        switch (e.gameAction)
+        switch (e.myGameAction)
         {
             case GameFlowManager.GameAction.LoseGame:
                 currentCandidateData = null;

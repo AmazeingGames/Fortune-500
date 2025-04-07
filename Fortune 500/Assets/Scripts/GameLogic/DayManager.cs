@@ -91,7 +91,7 @@ public class DayManager : MonoBehaviour
 
     void HandleGameAction(object sender, PerformGameActionEventArgs e)
     {
-        switch (e.gameAction)
+        switch (e.myGameAction)
         {
             case GameFlowManager.GameAction.PlayGame:
                 CurrentDay = 0;

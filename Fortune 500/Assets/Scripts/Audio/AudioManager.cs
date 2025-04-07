@@ -118,7 +118,7 @@ public class AudioManager : MonoBehaviour
 
     public void HandleGameAction(object sender, PerformGameActionEventArgs e)
     {
-        switch (e.gameAction)
+        switch (e.myGameAction)
         {
             case GameFlowManager.GameAction.PlayGame:
                 PlayOneShot(Events.IntroCall, transform.position);
