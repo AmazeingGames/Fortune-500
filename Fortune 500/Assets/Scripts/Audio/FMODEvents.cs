@@ -8,6 +8,10 @@ public class FMODEvents : Singleton<FMODEvents>
     [field: Header("Ambience")]
     [field: SerializeField] public SoundData GameAmbience { get; private set; }
 
+    [field: Header("Music")]
+    [field: SerializeField] public SoundData LobbyMusic { get; private set; }
+    [field: SerializeField] public SoundData OfficeMusic { get; private set; }
+
     [field: Header("UI Actions")]
     [field: SerializeField] public SoundData UIHover { get; private set; }
     [field: SerializeField] public SoundData UISelect { get; private set; }
@@ -26,16 +30,20 @@ public class FMODEvents : Singleton<FMODEvents>
 
     public Bus MasterBus {  get; private set; }
 
-    public EventInstance AmbienceSound { get; private set; }
-    public EventInstance PlayerFootsteps { get; private set; }
+    public EventInstance AmbienceInstance { get; private set; }
+    public EventInstance PlayerFootstepsInstance { get; private set; }
+    public EventInstance OfficeMusicInstance { get; private set; }
+    public EventInstance LobbyMusicInstance { get; private set; }
 
     void Start()
     {
         
         MasterBus = RuntimeManager.GetBus("bus:/");
 
-        AmbienceSound = CreateInstance(GameAmbience.EventReference);
-        PlayerFootsteps = CreateInstance(Player3DFootsteps.EventReference);
+        AmbienceInstance = CreateInstance(GameAmbience.EventReference);
+        PlayerFootstepsInstance = CreateInstance(Player3DFootsteps.EventReference);
+        LobbyMusicInstance = CreateInstance(LobbyMusic.EventReference);
+        OfficeMusicInstance = CreateInstance(OfficeMusic.EventReference);
     }
 
     EventInstance CreateInstance(EventReference eventReference)
@@ -49,7 +57,7 @@ public class FMODEvents : Singleton<FMODEvents>
 public class SoundData
 {
     public enum ExclusiveType { None, PhoneCall }
-    public enum SoundType { None, GameAmbience, UIHover, UISelect, Player3DFootsteps, LoseGame, IntroCall, EndDayCall, GoodHire, BadHire }
+    public enum SoundType { None, GameAmbience, UIHover, UISelect, Player3DFootsteps, LoseGame, IntroCall, EndDayCall, GoodHire, BadHire, LobbyMusic, OfficeMusic }
 
     public bool IsMuted { get; private set; }
     public float RememberedVolume { get; private set; }

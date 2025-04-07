@@ -51,22 +51,47 @@ public class AudioManager : MonoBehaviour
 
     void HandleUpdateSettings(object sender, UpdateSettingsEventArgs e)
     {
-        foreach (SoundData soundData in ExclusiveTypeToSoundsData[SoundData.ExclusiveType.PhoneCall])
+        switch (e.myLinkedSetting)
         {
-            bool shouldMute = Settings.LinkedSettingToSetting[Settings.LinkedSetting.ShouldMuteCalls];
-            soundData.SetMute(shouldMute);
+            case LinkedSetting.None:
+                break;
+            case LinkedSetting.ToggleCalls:
+                foreach (SoundData soundData in ExclusiveTypeToSoundsData[SoundData.ExclusiveType.PhoneCall])
+                {
+                    bool shouldMute = Settings.LinkedSettingToSetting[e.myLinkedSetting];
+                    soundData.SetMute(shouldMute);
 
-            if (!SoundDataToEventInstance.TryGetValue(soundData, out EventInstance soundInstance))
-                continue;
+                    if (!SoundDataToEventInstance.TryGetValue(soundData, out EventInstance soundInstance))
+                        continue;
 
-            if (shouldMute)
-            {
-                soundInstance.getVolume(out float volume);
-                soundData.RememberVolume(volume);
-                soundInstance.setVolume(0);
-            }
-            else
-                soundInstance.setVolume(soundData.RememberedVolume);
+                    if (shouldMute)
+                    {
+                        soundInstance.getVolume(out float volume);
+                        soundData.RememberVolume(volume);
+                        soundInstance.setVolume(0);
+                    }
+                    else
+                        soundInstance.setVolume(soundData.RememberedVolume);
+                }
+                break;
+            case LinkedSetting.ToggleMusic:
+                bool muteMusic = Settings.LinkedSettingToSetting[e.myLinkedSetting];
+                if (muteMusic)
+                { 
+                    Events.OfficeMusicInstance.getVolume(out float officeVolume);
+                    Events.OfficeMusic.RememberVolume(officeVolume);
+                    Events.OfficeMusicInstance.setVolume(0);
+
+                    Events.LobbyMusicInstance.getVolume(out float lobbyVolume);
+                    Events.LobbyMusic.RememberVolume(lobbyVolume);
+                    Events.LobbyMusicInstance.setVolume(0);
+                }
+                else
+                {
+                    Events.LobbyMusicInstance.setVolume(Events.LobbyMusic.RememberedVolume);
+                    Events.OfficeMusicInstance.setVolume(Events.OfficeMusic.RememberedVolume);
+                }
+                break;
         }
     }
 
@@ -90,7 +115,7 @@ public class AudioManager : MonoBehaviour
         switch (e.myDayState)
         {
             case DayManager.DayState.StartDay:
-                Events.AmbienceSound.start();
+                Events.AmbienceInstance.start();
             break;
 
             case DayManager.DayState.EndWork:
@@ -104,14 +129,14 @@ public class AudioManager : MonoBehaviour
         switch (e.myPlayerAction)
         {
             case PlayerActionEventArgs.PlayerActions.Step:
-                Events.PlayerFootsteps.getPlaybackState(out PLAYBACK_STATE playbackState);
+                Events.PlayerFootstepsInstance.getPlaybackState(out PLAYBACK_STATE playbackState);
 
                 if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
-                    Events.PlayerFootsteps.start();
+                    Events.PlayerFootstepsInstance.start();
             break;
 
             case PlayerActionEventArgs.PlayerActions.Stop:
-                Events.PlayerFootsteps.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                Events.PlayerFootstepsInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             break;
         }
     }
@@ -122,7 +147,10 @@ public class AudioManager : MonoBehaviour
         {
             case GameFlowManager.GameAction.PlayGame:
                 PlayOneShot(Events.IntroCall, transform.position);
-            break;
+                
+                Events.OfficeMusicInstance.start();
+                Events.LobbyMusicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                break;
 
             case GameFlowManager.GameAction.LoseGame:
                 PlayOneShot(Events.LoseGame, transform.position);
@@ -130,8 +158,11 @@ public class AudioManager : MonoBehaviour
 
             case GameFlowManager.GameAction.PauseGame:
                 // Debug.Log("paused game");
-                Events.AmbienceSound.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-                Events.PlayerFootsteps.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                Events.AmbienceInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                Events.PlayerFootstepsInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+
+                Events.OfficeMusicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                Events.LobbyMusicInstance.start();
 
                 StopOneShot(Events.LoseGame,   playOnGameResume: true);
                 StopOneShot(Events.EndDayCall, playOnGameResume: true);
@@ -139,7 +170,7 @@ public class AudioManager : MonoBehaviour
             break;
 
             case GameFlowManager.GameAction.ResumeGame:
-                Events.AmbienceSound.start();
+                Events.AmbienceInstance.start();
                 foreach (var sound in pausedEventInstances)
                     sound.setPaused(false);
                 pausedEventInstances.Clear();

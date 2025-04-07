@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,11 +10,21 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] float playDisappearDelay = 5;
     [SerializeField] float globalDisappearDelay = 3;
 
+    [Header("Tween")]
+    [SerializeField] float hiddenYPosition;
+    [SerializeField] float shownYPosition;
+    [SerializeField] float appearDuration;
+    [SerializeField] float hideDuration;
+    [SerializeField] float textDuration;
+    [SerializeField] bool writeText;
+
 
     [Header("Components")]
     [SerializeField] TMPro.TextMeshProUGUI tutorialText_TMP;
     [SerializeField] GameObject background;
     // [SerializeField] ViewCheck requirementsViewCheck;
+
+    Sequence hideSequence;
 
     enum TutorialTextType { None, PlaySlots, HireRequirements, ComputerEnter, ResumeEnter, SlotMachineEnter, PlayGame }
 
@@ -34,6 +45,10 @@ public class TutorialManager : MonoBehaviour
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnected;
     }
 
+    private void Start()
+    {
+        ClearText(myCurrentTutorialText, bypassCheck: true);
+    }
     void HandleInterfaceConnected(object sender, InterfaceConnectedEventArgs e)
     {
         switch (e.myStation)
@@ -52,7 +67,7 @@ public class TutorialManager : MonoBehaviour
 
             case PlayerFocus.Station.Slots:
                 if (e.myInteractionType == FocusStation.InteractionType.Connect)
-                UpdateTutorialText("Pull the lever to start your work day.", TutorialTextType.SlotMachineEnter, 0, globalDisappearDelay);
+                UpdateTutorialText("Pull the lever to start the work day.", TutorialTextType.SlotMachineEnter, 0, globalDisappearDelay);
                 break;
         }
     }
@@ -101,14 +116,12 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    
-
     void UpdateTutorialText(string text, TutorialTextType myTextType, float appearDelayInSeconds, float dissapearDelayInSeconds)
         => StartCoroutine(UpdateTutorialText_CO(text, myTextType, appearDelayInSeconds, dissapearDelayInSeconds));
 
     IEnumerator UpdateTutorialText_CO(string text, TutorialTextType myTextType, float appearDelayInSeconds, float disappearDelayInSeconds)
     {
-        if (displayedTips.Contains(myTextType))
+        if (displayedTips.Contains(myTextType) || Settings.LinkedSettingToSetting[Settings.LinkedSetting.ToggleTips])
             yield break;
 
         myCurrentTutorialText = myTextType;
@@ -119,21 +132,43 @@ public class TutorialManager : MonoBehaviour
         if (myCurrentTutorialText != myTextType && myCurrentTutorialText != TutorialTextType.ComputerEnter && myCurrentTutorialText != TutorialTextType.None)
             yield break;
 
+        hideSequence?.Kill();
+
+        if (myTextType == TutorialTextType.PlayGame && displayedTips.Contains(TutorialTextType.SlotMachineEnter))
+            yield break;
+
+        var sequence = DOTween.Sequence();
+        sequence.Append(background.transform.DOLocalMoveY(shownYPosition, appearDuration));
+
+        if (writeText)
+        {
+            sequence.Append(tutorialText_TMP.transform.DOLocalMoveY(shownYPosition, appearDuration));
+            sequence.Append(tutorialText_TMP.DOText(text, textDuration));
+        }
+        else
+            sequence.Append(tutorialText_TMP.transform.DOLocalMoveY(shownYPosition, appearDuration));
+
         background.SetActive(true);
-        tutorialText_TMP.text = text;
 
         yield return new WaitForSeconds(disappearDelayInSeconds);
 
         ClearText(myTextType);
     }
 
-    void ClearText(TutorialTextType myTextToclear)
+    void ClearText(TutorialTextType myTextToclear, bool bypassCheck = false)
     {
         if (myCurrentTutorialText == myTextToclear)
         {
-            background.SetActive(false);
-            tutorialText_TMP.text = "";
-            myCurrentTutorialText = TutorialTextType.None;
+            hideSequence = DOTween.Sequence();
+            hideSequence.Append(tutorialText_TMP.transform.DOLocalMoveY(hiddenYPosition, hideDuration));
+
+            hideSequence.Append(background.transform.DOLocalMoveY(hiddenYPosition, hideDuration));            
+
+            hideSequence.OnComplete(() =>
+            {
+                background.SetActive(false);
+                myCurrentTutorialText = TutorialTextType.None;
+            });
         }
     }
 }

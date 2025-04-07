@@ -1,4 +1,6 @@
+using DG.Tweening;
 using System;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,6 +8,12 @@ using UnityEngine.UI;
 
 public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
 {
+    [SerializeField] GameObject lever;
+    [SerializeField] Vector3 targetRotation;
+    [SerializeField] Vector3 startingRotation;
+    [SerializeField] float downDuration;
+    [SerializeField] float upDuration;
+
     public static EventHandler<SlotsInteractEventArgs> SlotsInteractEventHandler;
 
     Image image;
@@ -19,12 +27,20 @@ public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
     {
         image = GetComponent<Image>();
         button = GetComponent<Button>();
-        text = transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>(); 
+        text = transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>();
+
+        lever.transform.DOLocalRotate(startingRotation, 0);
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         // Debug.Log("Start gambling!");
+        if (!PlayerFocus.IsFocusedOn(PlayerFocus.Station.Slots))
+        {
+            image.enabled = false;
+            button.enabled = false;
+            return;
+        }
 
         bool isEditor;
 #if UNITY_EDITOR
@@ -41,7 +57,9 @@ public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
             }
             
             SlotsInteractEventHandler?.Invoke(this, new(SlotsInteractEventArgs.InteractionType.PullLever));
+            lever.transform.DOLocalRotate(targetRotation, downDuration);
         }
+
     }
 
     private void OnEnable()
@@ -65,8 +83,11 @@ public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
                 text.gameObject.SetActive(true);
             break;
 
-            case DayManager.DayState.None:
             case DayManager.DayState.StartWork:
+                lever.transform.DOLocalRotate(startingRotation, upDuration);
+                break;
+
+            case DayManager.DayState.None:
             case DayManager.DayState.EndWork:
             case DayManager.DayState.EndDay:
             break;

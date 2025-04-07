@@ -20,7 +20,8 @@ public class Slot : MonoBehaviour
     [SerializeField] float tweenDuration;
     private void Start()
     {
-        RandomizeSlot();
+        icon.rectTransform.localPosition = topPosition;
+        result_TMP.text = "";
     }
 
     public async void Spin(int numberOfSpins, RestrictionData results, SlotMachineManager slotMachineManager)

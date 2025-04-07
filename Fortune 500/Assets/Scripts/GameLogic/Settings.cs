@@ -7,9 +7,8 @@ using static UIButton;
 
 public class Settings : MonoBehaviour
 {
-    public enum LinkedSetting { None, ShouldMuteCalls }
+    public enum LinkedSetting { None, ToggleCalls, ToggleTips, ToggleMusic }
 
-    public static bool MuteCalls { get; private set; } = false;
 
     public static Dictionary<LinkedSetting, bool> LinkedSettingToSetting;
 
@@ -30,8 +29,10 @@ public class Settings : MonoBehaviour
     {
         LinkedSettingToSetting = new Dictionary<LinkedSetting, bool>()
         {
-            { LinkedSetting.None, false },
-            { LinkedSetting.ShouldMuteCalls, MuteCalls },
+            { LinkedSetting.None,       false },
+            { LinkedSetting.ToggleCalls,  false },
+            { LinkedSetting.ToggleTips,   false },
+            { LinkedSetting.ToggleMusic,  false},
         };
 
         Assert.AreEqual(LinkedSettingToSetting.Count, Enum.GetNames(typeof(LinkedSetting)).Length, "Not all LinkedSettings keys are covered within dictionary.");
