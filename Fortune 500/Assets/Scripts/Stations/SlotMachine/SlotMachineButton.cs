@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
     TMPro.TextMeshProUGUI text;
 
     bool hasRandomizedToday;
+    bool allowMultipleRandomizations;
 
     void Start()
     {
@@ -24,12 +26,20 @@ public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
     {
         // Debug.Log("Start gambling!");
 
-        if (!hasRandomizedToday)
+        bool isEditor;
+#if UNITY_EDITOR
+        isEditor = true;
+#endif
+        if (!hasRandomizedToday || (allowMultipleRandomizations && isEditor))
         {
-            hasRandomizedToday = true;
-            image.enabled = false;
-            button.enabled = false;
-            text.gameObject.SetActive(false);
+            if (allowMultipleRandomizations && isEditor)
+            {
+                hasRandomizedToday = true;
+                image.enabled = false;
+                button.enabled = false;
+                text.gameObject.SetActive(false);
+            }
+            
             SlotsInteractEventHandler?.Invoke(this, new(SlotsInteractEventArgs.InteractionType.PullLever));
         }
     }
@@ -63,14 +73,11 @@ public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
         }
 
     }
-
 }
-
-
 
 public class SlotsInteractEventArgs : EventArgs
 {
-    public enum InteractionType { PullLever }
+    public enum InteractionType { None, PullLever, GetResults }
     public readonly InteractionType myInteractionType;
 
     public SlotsInteractEventArgs(InteractionType myInteractionType)

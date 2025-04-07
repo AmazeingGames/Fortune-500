@@ -26,20 +26,12 @@ public class TutorialManager : MonoBehaviour
         GameFlowManager.PerformGameActionEventHandler += HandlePerformGameAction;
         DayManager.DayStateChangeEventHandler += HandleDayStateChange;
         FocusStation.InterfaceConnectedEventHandler += HandleInterfaceConnected;
-        SlotMachineButton.SlotsInteractEventHandler += HandleSlotsInteract;
     }
     private void OnDisable()
     {
         GameFlowManager.PerformGameActionEventHandler -= HandlePerformGameAction;
         DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
         FocusStation.InterfaceConnectedEventHandler -= HandleInterfaceConnected;
-        SlotMachineButton.SlotsInteractEventHandler -= HandleSlotsInteract;
-    }
-
-    void HandleSlotsInteract(object sender, SlotsInteractEventArgs e)
-    {
-        if (e.myInteractionType == SlotsInteractEventArgs.InteractionType.PullLever)
-            UpdateTutorialText("Walk over and press 'space' to review a candidate's resume. Be quick, as candidates quickly run out of patience.", TutorialTextType.PlaySlots, 0, globalDisappearDelay);
     }
 
     void HandleInterfaceConnected(object sender, InterfaceConnectedEventArgs e)
@@ -74,6 +66,10 @@ public class TutorialManager : MonoBehaviour
             case DayManager.DayState.None:
                 break;
             case DayManager.DayState.StartDay:
+                break;
+
+            case DayManager.DayState.StartWork:
+                UpdateTutorialText("Walk over and press 'space' to review a candidate's resume. Be quick, as candidates quickly run out of patience.", TutorialTextType.PlaySlots, 0, globalDisappearDelay);
                 break;
             case DayManager.DayState.EndWork:
                 break;

@@ -26,7 +26,7 @@ public class DayManager : MonoBehaviour
     private void OnEnable()
     {
         CandidateHandler.ReviewedCandidateEventHandler += HandleReviewedCandidate;
-        SlotMachineButton.SlotsInteractEventHandler += HandlePullLever;
+        SlotMachineManager.RandomizedSlotsEventHandler += HandleRandomizedSlots;
         GameFlowManager.PerformGameActionEventHandler += HandleGameAction;
         UIButton.UIInteractEventHandler += HandleUIInteract;
     }
@@ -34,7 +34,7 @@ public class DayManager : MonoBehaviour
     private void OnDisable()
     {
         CandidateHandler.ReviewedCandidateEventHandler -= HandleReviewedCandidate;
-        SlotMachineButton.SlotsInteractEventHandler -= HandlePullLever;
+        SlotMachineManager.RandomizedSlotsEventHandler -= HandleRandomizedSlots;
         GameFlowManager.PerformGameActionEventHandler -= HandleGameAction;
         UIButton.UIInteractEventHandler -= HandleUIInteract;
     }
@@ -42,7 +42,6 @@ public class DayManager : MonoBehaviour
     private void Update()
     {
         currentDay = CurrentDay;
-
     }
 
     void HandleUIInteract(object sender, UIInteractEventArgs e)
@@ -57,14 +56,9 @@ public class DayManager : MonoBehaviour
         OnDayStateChange(e.myNewDayState);
     }
 
-    void HandlePullLever(object sender, SlotsInteractEventArgs e)
+    void HandleRandomizedSlots(object sender, RandomizeSlotsEventArgs e)
     {
-        switch (e.myInteractionType)
-        {
-            case SlotsInteractEventArgs.InteractionType.PullLever:
-                OnDayStateChange(DayState.StartWork);
-            break;
-        }
+        OnDayStateChange(DayState.StartWork);
     }
     
     void HandleReviewedCandidate(object sender, ReviewedCandidateEventArgs e)

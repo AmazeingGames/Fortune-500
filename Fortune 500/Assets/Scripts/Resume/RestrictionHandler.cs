@@ -11,6 +11,15 @@ public class RestrictionHandler : MonoBehaviour
 {
     const string CommonLetters = "alsd";
 
+    [SerializeField] Sprite ageIcon;
+    [SerializeField] Sprite nameIcon;
+    [SerializeField] Sprite skillsIcon;
+    [SerializeField] Sprite collegeIcon;
+    [SerializeField] Sprite jobTitleIcon;
+    [SerializeField] Sprite previousEmployerIcon;
+
+    public static List<Sprite> icons;
+
     public enum RestrictionType { Age, Skills, Name, College, JobTitle, PreviousEmployer }
     public static List<RestrictionData> Restrictions = new();
     private void OnEnable()
@@ -18,6 +27,11 @@ public class RestrictionHandler : MonoBehaviour
 
     private void OnDisable()
         => DayManager.DayStateChangeEventHandler -= HandleChangeDayState;
+
+    private void Awake()
+    {
+        icons = new List<Sprite>() { ageIcon, nameIcon, skillsIcon, collegeIcon, jobTitleIcon, previousEmployerIcon };
+    }
 
     void HandleChangeDayState(object sender, DayStateChangeEventArgs e)
     {
@@ -49,7 +63,7 @@ public class RestrictionHandler : MonoBehaviour
             _ => throw new ArgumentException("Age restriction not handled by switch expression."),
         };
 
-        ageRestrictionData.Initialize(RestrictionType.Age);
+        ageRestrictionData.Initialize(RestrictionType.Age, ageIcon);
         Restrictions.Add(ageRestrictionData);
 
         // Name Restriciton
@@ -78,7 +92,7 @@ public class RestrictionHandler : MonoBehaviour
             default:
                 throw new ArgumentException("Name restriction not handled by switch statement.");
         }
-        nameRestrictionData.Initialize(RestrictionType.Name);
+        nameRestrictionData.Initialize(RestrictionType.Name, nameIcon);
         Restrictions.Add(nameRestrictionData);
 
         // Skill Restriction
@@ -89,25 +103,25 @@ public class RestrictionHandler : MonoBehaviour
             ? new RestrictionData("Must have this skill: " + skill, candidate => candidate.Value.Skills.Contains(skill))
             : new RestrictionData("Must not have this skill: " + skill, candidate => !candidate.Value.Skills.Contains(skill));
 
-        skillRestriction.Initialize(RestrictionType.Skills);
+        skillRestriction.Initialize(RestrictionType.Skills, skillsIcon);
         Restrictions.Add(skillRestriction);
 
         // College Restriction
         string college = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.CollegeList);
         RestrictionData collegeRestriction = new RestrictionData("Must not be a graduate from " + college, candidate => candidate.Value.College != college);
-        collegeRestriction.Initialize(RestrictionType.College);
+        collegeRestriction.Initialize(RestrictionType.College, collegeIcon);
         Restrictions.Add(collegeRestriction);
 
         // Job Restriction
         string jobTitle = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.JobTitleList);
         RestrictionData jobTitleRestriction = new RestrictionData("Must not have previous experience as " + jobTitle, candidate => candidate.Value.PreviousJobTitle != jobTitle);
-        jobTitleRestriction.Initialize(RestrictionType.JobTitle);
+        jobTitleRestriction.Initialize(RestrictionType.JobTitle, jobTitleIcon);
         Restrictions.Add(jobTitleRestriction);
 
         // Previous Employee Restriction
         string previousEmployer = CandidateGenerator.ChooseRandomElement(CandidateGenerator.Instance.PreviousEmployerList);
         RestrictionData previousEmployerRestriction = new RestrictionData("Must not have worked for " + previousEmployer, candidate => candidate.Value.PreviousEmployer != previousEmployer);
-        previousEmployerRestriction.Initialize(RestrictionType.PreviousEmployer);
+        previousEmployerRestriction.Initialize(RestrictionType.PreviousEmployer, previousEmployerIcon);
         Restrictions.Add(previousEmployerRestriction);
     }
 
@@ -119,6 +133,7 @@ public class RestrictionData
     public readonly Predicate<CandidateData?> restriction;
     public readonly string description;
     public RestrictionHandler.RestrictionType myRestrictionType;
+    public Sprite icon;
     bool hasInitialized = false;
 
     public RestrictionData(string description, Predicate<CandidateData?> restriction)
@@ -127,12 +142,13 @@ public class RestrictionData
         this.restriction = restriction;
     }
 
-    public void Initialize(RestrictionHandler.RestrictionType myRestrictionType)
+    public void Initialize(RestrictionHandler.RestrictionType myRestrictionType, Sprite icon)
     {
         if (hasInitialized)
             throw new Exception("We have already initialized class");
 
         hasInitialized = true;
         this.myRestrictionType = myRestrictionType;
+        this.icon = icon;
     }
 }

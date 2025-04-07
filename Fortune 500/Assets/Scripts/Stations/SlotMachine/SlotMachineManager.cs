@@ -2,39 +2,65 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 using System;
+using static DayManager;
 
 public class SlotMachineManager : MonoBehaviour
 {
-    [SerializeField] float timeFloor = .5f;
-    [SerializeField] float timeCeiling = 3f;
-    [SerializeField] float ceilingDivisor = 2;
+    [SerializeField] int randomSpinsFloor = 3;
+    [SerializeField] int randomSpinsCeiling = 5;
     [SerializeField] List<Slot> slots;
+    [SerializeField] float delayBetweenSlots = .5f;
+
+    int finishedSlots;
+
+    public static EventHandler<RandomizeSlotsEventArgs> RandomizedSlotsEventHandler;
 
     private void OnEnable()
-        => DayManager.DayStateChangeEventHandler += HandleDayStateChange;
+    {
+        SlotMachineButton.SlotsInteractEventHandler += HandlePullLever;
+        DayManager.DayStateChangeEventHandler += HandleDayStateChange;
+    }
+
 
     private void OnDisable()
-        => DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
+    {
+        SlotMachineButton.SlotsInteractEventHandler -= HandlePullLever;
+        DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
+    }
 
     void HandleDayStateChange(object sender, DayStateChangeEventArgs e)
     {
         switch (e.myDayState)
         {
-            case DayManager.DayState.StartWork:
-                StartCoroutine(CO_StartSlots());
-            break; 
+            case DayState.StartDay:
+                finishedSlots = 0;
+            break;
+            
+            case DayState.None:
+            case DayState.StartWork:
+            case DayState.EndWork:
+            case DayState.EndDay:
+            break;
         }
     }
 
 
+    void HandlePullLever(object sender, SlotsInteractEventArgs e)
+    {
+        switch (e.myInteractionType)
+        {
+            case SlotsInteractEventArgs.InteractionType.PullLever:
+                StartCoroutine(CO_StartSlots());
+            break;
+        }
+    }
+
     IEnumerator CO_StartSlots()
     {
-        // Debug.Log("Randomize Slots");
         yield return null;
 
-        float randomTimeFloor = timeFloor;
-        float randomTimeCeiling = timeCeiling;
         List<int> previousResults = new List<int>();
+        int timesToSpin = UnityEngine.Random.Range(randomSpinsFloor, randomSpinsCeiling);
         for (int i = 0; i < slots.Count; i++)
         {
             if (slots.Count >= RestrictionHandler.Restrictions.Count)
@@ -44,13 +70,27 @@ public class SlotMachineManager : MonoBehaviour
             do
                 random = UnityEngine.Random.Range(0, slots.Count);
             while (previousResults.Contains(random));
+            
             previousResults.Add(random);
 
             var result = RestrictionHandler.Restrictions[random];
-            float randomTime = UnityEngine.Random.Range(randomTimeFloor, randomTimeCeiling);
-            StartCoroutine(slots[i].CORandomize(randomTime, result));
-            randomTimeFloor += randomTime;
-            randomTimeCeiling += randomTimeCeiling / ceilingDivisor;
+            slots[i].Spin(timesToSpin, result, this);
+            timesToSpin++;
+
+            yield return new WaitForSeconds(delayBetweenSlots);
         }
     }
+
+    public void SlotFinished()
+    {
+        finishedSlots++;
+
+        if (finishedSlots == slots.Count)
+            RandomizedSlotsEventHandler?.Invoke(this, new());
+    }
+}
+
+public class RandomizeSlotsEventArgs : EventArgs
+{
+
 }
