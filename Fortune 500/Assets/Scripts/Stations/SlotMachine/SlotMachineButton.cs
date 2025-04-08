@@ -42,7 +42,7 @@ public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
             return;
         }
 
-        bool isEditor;
+        bool isEditor = false;
 #if UNITY_EDITOR
         isEditor = true;
 #endif
