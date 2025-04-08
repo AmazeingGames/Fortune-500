@@ -148,7 +148,7 @@ public class UIManager : Singleton<UIManager>
     void HandleGameAction(object sender, PerformGameActionEventArgs e)
         => UpdateMenusToGameAction(e.myGameAction);
 
-    bool IsAMenuEnabled()
+    public bool IsAMenuEnabled()
     {
         bool isAMenuEnabled = false;
         string activeCanvases = string.Empty;

@@ -21,7 +21,7 @@ public class CursorManager : MonoBehaviour
 
     void HandleGameStateChange(object sender, GameStateChangeEventArgs e)
     {
-        switch (e.newState)
+        switch (e.myNewState)
         {
             case GameState.Loading:
             case GameState.Paused:

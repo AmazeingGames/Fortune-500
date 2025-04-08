@@ -26,7 +26,7 @@ public class ObjectEnabler : MonoBehaviour
             Debug.LogWarning("Environment is null");
             return;
         }
-        switch (e.newState)
+        switch (e.myNewState)
         {
             case GameFlowManager.GameState.InMenu:
             case GameFlowManager.GameState.Paused:

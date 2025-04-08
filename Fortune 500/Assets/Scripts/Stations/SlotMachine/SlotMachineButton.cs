@@ -42,20 +42,13 @@ public class SlotMachineButton : MonoBehaviour, IPointerDownHandler
             return;
         }
 
-        bool isEditor = false;
-#if UNITY_EDITOR
-        isEditor = true;
-#endif
-        if (!hasRandomizedToday || (allowMultipleRandomizations && isEditor))
+        if (!hasRandomizedToday)
         {
-            if (allowMultipleRandomizations && isEditor)
-            {
-                hasRandomizedToday = true;
-                image.enabled = false;
-                button.enabled = false;
-                text.gameObject.SetActive(false);
-            }
-            
+            hasRandomizedToday = true;
+            image.enabled = false;
+            button.enabled = false;
+            text.gameObject.SetActive(false);
+
             SlotsInteractEventHandler?.Invoke(this, new(SlotsInteractEventArgs.InteractionType.PullLever));
             lever.transform.DOLocalRotate(targetRotation, downDuration);
         }

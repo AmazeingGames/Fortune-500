@@ -95,17 +95,21 @@ public class GameFlowManager : Singleton<GameFlowManager>
         switch (action)
         {
             case GameAction.EnterMainMenu:
+            case GameAction.LoseGame:
                 OnGameStateChange(GameState.InMenu);
-            break;
+                break;
 
             case GameAction.ResumeGame:
             case GameAction.PlayGame:
                 OnGameStateChange(GameState.Running);
-            break;
+                break;
 
             case GameAction.PauseGame:
                 OnGameStateChange(GameState.Paused);
-            break;
+                break;
+
+            case GameAction.None:
+                break;
         }
     }
 
@@ -149,13 +153,13 @@ public class PerformGameActionEventArgs : EventArgs
 public class GameStateChangeEventArgs : EventArgs
 {
     public readonly GameFlowManager gameManager;
-    public readonly GameState newState;
-    public readonly GameState previousState;
+    public readonly GameState myNewState;
+    public readonly GameState myPreviousState;
 
     public GameStateChangeEventArgs(GameFlowManager gameManager, GameState newState, GameState previousState)
     {
         this.gameManager = gameManager;
-        this.newState = newState;
-        this.previousState = previousState;
+        this.myNewState = newState;
+        this.myPreviousState = previousState;
     }
 }

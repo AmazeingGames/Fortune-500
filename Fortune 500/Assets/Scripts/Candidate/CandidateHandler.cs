@@ -8,7 +8,7 @@ using FMODUnity;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class CandidateHandler : MonoBehaviour
+public class CandidateHandler : Singleton<CandidateHandler>
 {
     [Header("Resume")]
     [SerializeField] Candidate candidate;
@@ -24,7 +24,7 @@ public class CandidateHandler : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] PinkSlip pinkSlip;
 
-    CandidateData? currentCandidateData;
+    public CandidateData? currentCandidateData;
     float _currentCandidatePatience;
     bool canMakeDecisions = true;
 
@@ -32,6 +32,7 @@ public class CandidateHandler : MonoBehaviour
 
     private void Awake()
     {
+        base.Awake();
         _hireButton.onClick.AddListener(() => MakeDecision(true));
         _rejectButton.onClick.AddListener(() => MakeDecision(false));
     }
@@ -113,7 +114,7 @@ public class CandidateHandler : MonoBehaviour
 
     void UpdatePatience()
     {
-        if (currentCandidateData == null)
+        if (currentCandidateData == null || GameFlowManager.Instance.MyCurrentState != GameFlowManager.GameState.Running)
             return;
 
         _currentCandidatePatience -= Time.deltaTime;

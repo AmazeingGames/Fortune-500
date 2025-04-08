@@ -27,6 +27,7 @@ public class AudioManager : MonoBehaviour
         DayManager.DayStateChangeEventHandler += HandleDayStateChange;
         GameFlowManager.PerformGameActionEventHandler += HandleGameAction;
         Settings.UpdateSettingsEventHandler += HandleUpdateSettings;
+        GameFlowManager.GameStateChangeEventHandler += HandleGameStateChange;
     }
 
     private void OnDisable()
@@ -36,6 +37,8 @@ public class AudioManager : MonoBehaviour
         DayManager.DayStateChangeEventHandler -= HandleDayStateChange;
         GameFlowManager.PerformGameActionEventHandler -= HandleGameAction;
         Settings.UpdateSettingsEventHandler -= HandleUpdateSettings;
+        GameFlowManager.GameStateChangeEventHandler -= HandleGameStateChange;
+
     }
 
     private void Start()
@@ -58,7 +61,7 @@ public class AudioManager : MonoBehaviour
             case LinkedSetting.ToggleCalls:
                 foreach (SoundData soundData in ExclusiveTypeToSoundsData[SoundData.ExclusiveType.PhoneCall])
                 {
-                    bool shouldMute = Settings.LinkedSettingToSetting[e.myLinkedSetting];
+                    bool shouldMute = Settings.LinkedSettingToSetting[Settings.LinkedSetting.ToggleCalls];
                     soundData.SetMute(shouldMute);
 
                     if (!SoundDataToEventInstance.TryGetValue(soundData, out EventInstance soundInstance))
@@ -75,7 +78,7 @@ public class AudioManager : MonoBehaviour
                 }
                 break;
             case LinkedSetting.ToggleMusic:
-                bool muteMusic = Settings.LinkedSettingToSetting[e.myLinkedSetting];
+                bool muteMusic = Settings.LinkedSettingToSetting[Settings.LinkedSetting.ToggleMusic];
                 if (muteMusic)
                 { 
                     Events.OfficeMusicInstance.getVolume(out float officeVolume);
@@ -141,29 +144,48 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void HandleGameStateChange(object sender, GameStateChangeEventArgs e)
+    {
+        switch (e.myNewState)
+        {
+            case GameFlowManager.GameState.None:
+                break;
+            
+            case GameFlowManager.GameState.Running:
+                Events.OfficeMusicInstance.start();
+                //Events.LobbyMusicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                break;
+
+            case GameFlowManager.GameState.InMenu:
+            case GameFlowManager.GameState.Paused:
+                Events.AmbienceInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                Events.PlayerFootstepsInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+
+                //Events.OfficeMusicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                Events.OfficeMusicInstance.start();
+                break;
+            case GameFlowManager.GameState.Loading:
+                break;
+        }
+    }
+
     public void HandleGameAction(object sender, PerformGameActionEventArgs e)
     {
         switch (e.myGameAction)
         {
+            
             case GameFlowManager.GameAction.PlayGame:
                 PlayOneShot(Events.IntroCall, transform.position);
-                
-                Events.OfficeMusicInstance.start();
-                Events.LobbyMusicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                pausedEventInstances.Clear();
                 break;
 
             case GameFlowManager.GameAction.LoseGame:
                 PlayOneShot(Events.LoseGame, transform.position);
-            break;
+                pausedEventInstances.Clear();
+                break;
 
             case GameFlowManager.GameAction.PauseGame:
                 // Debug.Log("paused game");
-                Events.AmbienceInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-                Events.PlayerFootstepsInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-
-                Events.OfficeMusicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-                Events.LobbyMusicInstance.start();
-
                 StopOneShot(Events.LoseGame,   playOnGameResume: true);
                 StopOneShot(Events.EndDayCall, playOnGameResume: true);
                 StopOneShot(Events.IntroCall,  playOnGameResume: true);
